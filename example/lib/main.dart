@@ -1,3 +1,4 @@
+import 'package:adyen_terminal_payment/data/AdyenTerminalConfig.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -17,6 +18,11 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
+  final _formKey = GlobalKey<FormState>();
+  final terminalIPController = TextEditingController();
+  final terminalSerialNoController = TextEditingController();
+  final terminalStoreIDController = TextEditingController();
+  final paymentAmount = TextEditingController();
 
   @override
   void initState() {
@@ -31,8 +37,7 @@ class _MyAppState extends State<MyApp> {
     // We also handle the message potentially returning null.
     try {
       platformVersion =
-          await AdyenTerminalPayment.platformVersion ??
-              'Unknown platform version';
+          await FlutterAdyen.platformVersion ?? 'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -50,24 +55,86 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        home: Scaffold(
+      home: Scaffold(
         appBar: AppBar(
-        title: const Text('Adyen Terminal Example'),
-    ),
-    body: Container(
-    child: Form(
-    key: _formKey,
-    child: Column(
-    children: [
-    TextFormField(),
-    ElevatedButton(
-    onPressed: () {},
-    child: const Text('Submit'),
-    )
-    ],
-    ),
-    )
-    ),
+          title: const Text('Adyen Terminal Example'),
+        ),
+        body: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  TextFormField(
+                    controller: terminalIPController,
+                    decoration: const InputDecoration(
+                      hintText: 'Ex 127.0.0.1',
+                      labelText: 'Terminal IP',
+                      border: OutlineInputBorder()
+                    ),
+                  ),
+                  const SizedBox(height: 8,),
+                  TextFormField(
+                    controller: terminalSerialNoController,
+                    decoration: const InputDecoration(
+                        labelText: 'Serial No',
+                        border: OutlineInputBorder()
+                    ),
+                  ),
+                  const SizedBox(height: 8,),
+                  TextFormField(
+                    controller: terminalStoreIDController,
+                    decoration: const InputDecoration(
+                        labelText: 'Store ID',
+                        border: OutlineInputBorder()
+                    ),
+                  ),
+
+                  const SizedBox(height: 8,),
+                  TextFormField(
+                    controller: terminalStoreIDController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                        labelText: 'Amount',
+                        border: OutlineInputBorder()
+                    ),
+                  ),
+
+                  const SizedBox(height: 8,),
+
+                  ElevatedButton(child : const Text("Send Terminal Request"),onPressed: (){
+
+                    String terminalIP = terminalIPController.text;
+                    String terminalSerialNo = terminalIPController.text;
+                    String merchantStoreID = terminalIPController.text;
+                    String amount = terminalIPController.text;
+
+
+                    AdyenTerminalConfig(
+                     endpoint: "https://$terminalIP",
+                     merchantId: "",
+                     environment: "",
+                     keyId: "",
+                     keyPassphrase: "",
+                     merchantName: "",
+                     keyVersion: "",
+                    );
+
+
+                    // FlutterAdyenTerminal.init
+
+
+                  })
+
+                ],
+              ),
+            ),
+          ),
+        )
+      ),
     );
   }
 }
