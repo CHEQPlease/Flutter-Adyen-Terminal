@@ -7,5 +7,6 @@ data class AdyenTerminalConfig(
     val key_passphrase: String,
     val key_version: String,
     val merchantId: String,
-    val merchant_name: String
+    val merchant_name: String,
+    val certPath : String
 )

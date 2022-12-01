@@ -56,85 +56,80 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Adyen Terminal Example'),
-        ),
-        body: Form(
-          key: _formKey,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  TextFormField(
-                    controller: terminalIPController,
-                    decoration: const InputDecoration(
-                      hintText: 'Ex 127.0.0.1',
-                      labelText: 'Terminal IP',
-                      border: OutlineInputBorder()
+          appBar: AppBar(
+            title: const Text('Adyen Terminal Example'),
+          ),
+          body: Form(
+            key: _formKey,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    TextFormField(
+                      controller: terminalIPController,
+                      decoration: const InputDecoration(
+                          hintText: 'Ex 127.0.0.1',
+                          labelText: 'Terminal IP',
+                          border: OutlineInputBorder()),
                     ),
-                  ),
-                  const SizedBox(height: 8,),
-                  TextFormField(
-                    controller: terminalSerialNoController,
-                    decoration: const InputDecoration(
-                        labelText: 'Serial No',
-                        border: OutlineInputBorder()
+                    const SizedBox(
+                      height: 8,
                     ),
-                  ),
-                  const SizedBox(height: 8,),
-                  TextFormField(
-                    controller: terminalStoreIDController,
-                    decoration: const InputDecoration(
-                        labelText: 'Store ID',
-                        border: OutlineInputBorder()
+                    TextFormField(
+                      controller: terminalSerialNoController,
+                      decoration: const InputDecoration(
+                          labelText: 'Serial No', border: OutlineInputBorder()),
                     ),
-                  ),
-
-                  const SizedBox(height: 8,),
-                  TextFormField(
-                    controller: terminalStoreIDController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                        labelText: 'Amount',
-                        border: OutlineInputBorder()
+                    const SizedBox(
+                      height: 8,
                     ),
-                  ),
+                    TextFormField(
+                      controller: terminalStoreIDController,
+                      decoration: const InputDecoration(
+                          labelText: 'Store ID', border: OutlineInputBorder()),
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    TextFormField(
+                      controller: terminalStoreIDController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                          labelText: 'Amount', border: OutlineInputBorder()),
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    ElevatedButton(
+                        child: const Text("Send Terminal Request"),
+                        onPressed: () {
+                          String terminalIP = terminalIPController.text;
+                          String terminalSerialNo = terminalIPController.text;
+                          String merchantStoreID = terminalIPController.text;
+                          String amount = terminalIPController.text;
 
-                  const SizedBox(height: 8,),
+                          AdyenTerminalConfig terminalConfig =
+                              AdyenTerminalConfig(
+                            endpoint: "https://$terminalIP",
+                            merchantId: "",
+                            environment: "",
+                            keyId: "",
+                            keyPassphrase: "",
+                            merchantName: "",
+                            keyVersion: "",
+                          );
 
-                  ElevatedButton(child : const Text("Send Terminal Request"),onPressed: (){
-
-                    String terminalIP = terminalIPController.text;
-                    String terminalSerialNo = terminalIPController.text;
-                    String merchantStoreID = terminalIPController.text;
-                    String amount = terminalIPController.text;
-
-
-                    AdyenTerminalConfig(
-                     endpoint: "https://$terminalIP",
-                     merchantId: "",
-                     environment: "",
-                     keyId: "",
-                     keyPassphrase: "",
-                     merchantName: "",
-                     keyVersion: "",
-                    );
-
-
-                    // FlutterAdyenTerminal.init
-
-
-                  })
-
-                ],
+                          FlutterAdyen.init(terminalConfig);
+                          FlutterAdyen.authorizePayment(20);
+                        })
+                  ],
+                ),
               ),
             ),
-          ),
-        )
-      ),
+          )),
     );
   }
 }

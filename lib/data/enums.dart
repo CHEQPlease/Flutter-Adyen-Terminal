@@ -1,0 +1,6 @@
+
+
+enum CaptureType{
+  delayed,
+  immediate
+}
