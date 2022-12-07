@@ -6,25 +6,53 @@ import 'package:flutter/services.dart';
 
 import 'data/enums.dart';
 
+typedef OnSuccess<T> = Function(T response);
+typedef OnFailure<T> = Function(T response);
+
+
 class FlutterAdyen {
   static const MethodChannel _channel = MethodChannel('com.itsniaz.adyenterminal/channel');
   static const String methodInit = "init";
-  static const String methodAuthorizePayment = "authorize_payment";
+  static const String methodAuthorizeTransaction = "authorize_transaction";
+  static const String methodCancelTransaction = "cancel_transaction";
 
   static late AdyenTerminalConfig _terminalConfig;
 
-
   static void init(AdyenTerminalConfig terminalConfig){
     _terminalConfig = terminalConfig;
-    _channel.invokeMethod(methodInit,terminalConfig.toJson());
+    _channel.invokeMethod(methodInit,_terminalConfig.toJson());
   }
 
-  static Future<dynamic> authorizePayment(double amount,{CaptureType captureType =  CaptureType.immediate}) async {
+  static Future<void> authorizeTransaction(
+      {
+      required double amount,
+      required String transactionId,
+      required String currency, CaptureType captureType =  CaptureType.delayed,
+      OnSuccess<String>? onSuccess,
+      OnFailure<String>? onFailure,
+      }) async {
 
-    var result = await _channel.invokeMethod(methodInit,{
+    _channel.invokeMethod(methodAuthorizeTransaction,{
       "amount" : amount,
+      "transactionId" : transactionId,
+      "currency" : currency,
       "captureType" : captureType.name
+    }).then((value){
+      onSuccess!(value);
+    }).catchError((value){
+      onFailure!(value.details);
     });
+
+  }
+
+  static Future<dynamic> cancelTransaction({required txnId,required cancelTxnId, required terminalId}) async {
+
+    var result = await _channel.invokeMethod(methodCancelTransaction,{
+      "transactionId" : txnId,
+      "cancelTxnId" : cancelTxnId
+    });
+
     return result;
   }
+
 }
