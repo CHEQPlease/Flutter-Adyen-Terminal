@@ -12,6 +12,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -40,6 +41,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
         channel.setMethodCallHandler(this)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
 
         if (call.method == "init") {
@@ -100,21 +102,21 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
 
         else if(call.method == "cancel_transaction"){
 
-            val txnId = call.argument<String>("transactionId")!!
-            val cancelTxnId = call.argument<String>("cancelTxnId")!!
-
+            val txnId = call.argument<String>("transactionId")
+            val cancelTxnId = call.argument<String>("cancelTxnId")
+            if (txnId!=null && cancelTxnId!=null) {
                 GlobalScope.launch(Dispatchers.IO) {
-                    try {
-                        AdyenTerminalManager.cancelTransaction(
-                            transactionId = txnId,
-                            txnIdToCancel = cancelTxnId,
-                            terminalId = adyenTerminalConfig.terminalId
-                        )
-                    } catch (e: Exception) {
-                        println(e.stackTraceToString())
+                        try {
+                            AdyenTerminalManager.cancelTransaction(
+                                transactionId = txnId,
+                                txnIdToCancel = cancelTxnId,
+                                terminalId = adyenTerminalConfig.terminalId
+                            )
+                        } catch (e: Exception) {
+                            println(e.stackTraceToString())
+                        }
                     }
-                }
-
+            }
         }
 
         else {

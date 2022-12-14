@@ -87,16 +87,11 @@ class _MyAppState extends State<MyApp> {
                       ElevatedButton(
                           child: const Text("Send Terminal Request"),
                           onPressed: () {
-                            String terminalIP = terminalIPController.text;
-                            String terminalSerialNo = terminalIPController.text;
-                            String merchantStoreID = terminalIPController.text;
-                            String amount = terminalIPController.text;
-
                             AdyenTerminalConfig terminalConfig =
                             AdyenTerminalConfig(
-                              endpoint: "https://192.168.1.52",
-                              terminalModelNo: "e285p",
-                              terminalSerialNo: "805336307",
+                              endpoint: "https://192.168.1.68",
+                              terminalModelNo: "V400cPlus",
+                              terminalSerialNo: "401710631",
                               terminalId: "bugsoyieugrys",
                               merchantId: null,
                               environment: "test",
@@ -109,15 +104,20 @@ class _MyAppState extends State<MyApp> {
 
                             FlutterAdyen.init(terminalConfig);
                             String txnId = _get10DigitNumber();
-                            FlutterAdyen.authorizeTransaction(amount: 10, transactionId: txnId, currency: "USD",onSuccess: (val){
-                              print("Transaction Successful $val");
-                              Navigator.of(context).pop();
-                            },onFailure: (val){
-                              print("Transaction Failure : $val");
-                              Navigator.of(context).pop();
-                            });
-                            _showMaterialDialog(txnId,terminalConfig);
-                          }
+                            FlutterAdyen.authorizeTransaction(
+                              amount: 10,
+                              transactionId: txnId,
+                              currency: "USD",
+                              onSuccess: (val) {
+                                print("Transaction Successful $val");
+                                Navigator.of(context).pop();
+                              },
+                              onFailure: (val) {
+                                print("Transaction Failure : $val");
+                                Navigator.of(context).pop();
+                              });
+                          _showMaterialDialog(txnId, terminalConfig);
+                        }
                           ),
                     ],
                   )
@@ -137,7 +137,10 @@ class _MyAppState extends State<MyApp> {
             actions: <Widget>[
               TextButton(
                   onPressed: () {
-                    FlutterAdyen.cancelTransaction(cancelTxnId: txnId,txnId: _get10DigitNumber(),terminalId: terminalConfig.terminalId);
+                    FlutterAdyen.cancelTransaction(
+                        cancelTxnId: txnId,
+                        txnId: _get10DigitNumber(),
+                        terminalId: terminalConfig.terminalId);
                     Navigator.of(context).pop();
                   },
                   child: const Text('Close')),
