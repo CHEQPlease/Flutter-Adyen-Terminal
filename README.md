@@ -25,7 +25,8 @@
       // Security KeyPassphrase
       keyPassphrase: "",  
       
-      merchantName: "CHEQPOS",  
+      // merchantName : ex. CHEQPOS
+      merchantName: "",  
       
       keyVersion: "1.0",
     
