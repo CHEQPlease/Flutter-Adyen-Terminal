@@ -64,7 +64,7 @@ object AdyenTerminalManager {
 
             if (response!=null) {
                 Log.d("terminalApiResponse>>", "" + Gson().toJson(response))
-                val resultJson = Gson().toJson(terminalApiRequest)
+                val resultJson = Gson().toJson(response)
                 if("success".equals(response.saleToPOIResponse.paymentResponse.response.result.value(),ignoreCase = true)){
                     paymentSuccessHandler.onSuccess(resultJson)
                 }else{
