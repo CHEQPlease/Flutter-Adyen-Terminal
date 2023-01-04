@@ -1,6 +1,7 @@
 package com.itsniaz.adyen.adyen_terminal_payment
 
 import android.content.Context
+import android.util.Base64.encodeToString
 import android.util.Log
 import com.adyen.Client
 import com.adyen.Config
@@ -17,6 +18,7 @@ import java.lang.ref.WeakReference
 import java.math.BigDecimal
 import java.util.*
 import javax.xml.datatype.DatatypeFactory
+import android.util.Base64
 
 object AdyenTerminalManager {
 
@@ -34,7 +36,9 @@ object AdyenTerminalManager {
         captureType: String,
         currency: String,
         requestAmount: BigDecimal,
-        paymentSuccessHandler: PaymentSuccessHandler<String>, paymentFailureHandler: PaymentFailureHandler<String>){
+        paymentSuccessHandler: TransactionSuccessHandler<String?>,
+        paymentFailureHandler: TransactionFailureHandler<String>
+    ) {
 
         val config: Config = getConfigurationData(terminalConfig)
         val terminalLocalAPIClient = Client(config)
@@ -48,35 +52,39 @@ object AdyenTerminalManager {
                 poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}",
                 messageCategory = MessageCategoryType.PAYMENT,
                 currency = currency,
-                requestAmount =  requestAmount,
+                requestAmount = requestAmount,
                 captureType = captureType
             )
         }
 
         val securityKey: SecurityKey = getSecurityKey(
             keyIdentifier = terminalConfig.key_id,
-            passphrase =  terminalConfig.key_passphrase
+            passphrase = terminalConfig.key_passphrase
         )
 
         Log.d("terminalApiRequest>>", "" + Gson().toJson(terminalApiRequest))
         try {
             val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
 
-            if (response!=null) {
+            if (response != null) {
                 Log.d("terminalApiResponse>>", "" + Gson().toJson(response))
                 val resultJson = Gson().toJson(response)
-                if("success".equals(response.saleToPOIResponse.paymentResponse.response.result.value(),ignoreCase = true)){
+                if ("success".equals(
+                        response.saleToPOIResponse.paymentResponse.response.result.value(),
+                        ignoreCase = true
+                    )
+                ) {
                     paymentSuccessHandler.onSuccess(resultJson)
-                }else{
+                } else {
                     paymentFailureHandler.onFailure(resultJson)
                 }
             }
 
         } catch (e: Exception) {
 
-            if(e.message != null){
+            if (e.message != null) {
                 paymentFailureHandler.onFailure(e.message!!)
-            }else{
+            } else {
                 paymentFailureHandler.onFailure("Failed to process transaction")
             }
         }
@@ -91,7 +99,7 @@ object AdyenTerminalManager {
 
         val securityKey: SecurityKey = getSecurityKey(
             keyIdentifier = terminalConfig.key_id,
-            passphrase =  terminalConfig.key_passphrase
+            passphrase = terminalConfig.key_passphrase
         )
 
         terminalApiRequest.apply {
@@ -104,7 +112,6 @@ object AdyenTerminalManager {
                     saleID = terminalId
                     serviceID = transactionId
                     poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}"
-
                 }
                 abortRequest = AbortRequest().apply {
                     abortReason = "Shopper Cancelled Transaction"
@@ -121,6 +128,77 @@ object AdyenTerminalManager {
         val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
         Log.d("terminalApiResponse>>", "" + Gson().toJson(response))
     }
+
+
+    fun printImage(
+        transactionId: String,
+        imageData: ByteArray,
+        successHandler: TransactionSuccessHandler<Void>,
+        failureHandler: TransactionFailureHandler<String>
+    ) {
+
+        val imageBase64Encoded = encodeToString(imageData, Base64.DEFAULT);
+        val printData =
+            """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()
+
+
+        val config: Config = getConfigurationData(terminalConfig)
+        val terminalLocalAPIClient = Client(config)
+        val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient)
+        val terminalApiRequest = TerminalAPIRequest()
+
+        val saleToPOIRequest = SaleToPOIRequest().apply {
+            messageHeader = MessageHeader().apply {
+
+                protocolVersion = "3.0"
+                messageClass = MessageClassType.DEVICE
+                messageCategory = MessageCategoryType.PRINT
+                messageType = MessageType.REQUEST
+                serviceID = transactionId
+                saleID = terminalConfig.terminalId
+                poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}"
+
+
+                printRequest = PrintRequest().apply {
+                    printOutput = PrintOutput().apply {
+                        documentQualifier = DocumentQualifierType.DOCUMENT
+                        responseMode = ResponseModeType.PRINT_END
+                        outputContent = OutputContent().apply {
+                            outputFormat = OutputFormatType.XHTML
+                            outputXHTML = printData.encodeToByteArray()
+                        }
+                    }
+                }
+            }
+        }
+
+        terminalApiRequest.saleToPOIRequest = saleToPOIRequest
+
+        try {
+
+            val response = terminalLocalAPI.request(
+                terminalApiRequest, getSecurityKey(
+                    keyIdentifier = terminalConfig.key_id,
+                    passphrase = terminalConfig.key_passphrase
+                )
+            )
+
+            if (response != null && "success".equals(response.saleToPOIResponse.printResponse.response.result.name, ignoreCase = true)) {
+                successHandler.onSuccess(null)
+            } else {
+                val errorMsg =
+                    response.saleToPOIResponse.printResponse.response.additionalResponse
+                failureHandler.onFailure(errorMsg)
+            }
+        } catch (e: Exception) {
+            if (e.message != null) {
+                failureHandler.onFailure("Printing Failed ${e.message!!}")
+            } else {
+                failureHandler.onFailure("Printing Failed")
+            }
+        }
+    }
+
 
     private fun buildSalePOIRequest(
         saleID: String,
@@ -149,7 +227,12 @@ object AdyenTerminalManager {
 
     }
 
-    private fun buildPaymentRequest(currency: String, requestAmount: BigDecimal, transactionId: String,captureType: String): PaymentRequest {
+    private fun buildPaymentRequest(
+        currency: String,
+        requestAmount: BigDecimal,
+        transactionId: String,
+        captureType: String
+    ): PaymentRequest {
         return PaymentRequest().apply {
             saleData = buildSaleData(transactionId = transactionId, captureType = captureType)
             paymentTransaction = buildPaymentTransaction(
@@ -171,14 +254,19 @@ object AdyenTerminalManager {
         }
     }
 
-    private fun buildSaleData(transactionId : String,captureType: String): SaleData {
+    private fun buildSaleData(transactionId: String, captureType: String): SaleData {
 
-        val authType = if("immediate".equals(captureType,ignoreCase = true)) mapOf("authorisationType" to "FinalAuth") else mapOf("authorisationType" to "PreAuth")
+        val authType = if ("immediate".equals(
+                captureType,
+                ignoreCase = true
+            )
+        ) mapOf("authorisationType" to "FinalAuth") else mapOf("authorisationType" to "PreAuth")
 
-        return  SaleData().apply {
+        return SaleData().apply {
             saleTransactionID = TransactionIdentification().apply {
                 transactionID = transactionId
-                timeStamp = DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar(TimeZone.getTimeZone("GMT+6")))
+                timeStamp = DatatypeFactory.newInstance()
+                    .newXMLGregorianCalendar(GregorianCalendar(TimeZone.getTimeZone("GMT+6")))
             }
 
             saleToAcquirerData = SaleToAcquirerData().apply {
@@ -191,7 +279,7 @@ object AdyenTerminalManager {
 
     private fun buildMessageHeader(
         saleID: String,
-        serviceID : String,
+        serviceID: String,
         messageCategory: MessageCategoryType,
         poiid: String
     ): MessageHeader {
@@ -220,13 +308,13 @@ object AdyenTerminalManager {
         config.merchantAccount = terminalConfig.merchant_name
         val inputStream: InputStream? = context.get()?.assets?.open(terminalConfig.certPath)
         config.setTerminalCertificate(inputStream)
-        config.connectionTimeoutMillis = 30000
-        config.readTimeoutMillis = 30000
+        config.connectionTimeoutMillis = 6000
+        config.readTimeoutMillis = 6000
         config.terminalApiLocalEndpoint = terminalConfig.endpoint
         return config
     }
 
-    private fun getSecurityKey(keyIdentifier : String, passphrase: String): SecurityKey {
+    private fun getSecurityKey(keyIdentifier: String, passphrase: String): SecurityKey {
         val securityKey = SecurityKey()
         securityKey.adyenCryptoVersion = 1
         securityKey.keyIdentifier = keyIdentifier

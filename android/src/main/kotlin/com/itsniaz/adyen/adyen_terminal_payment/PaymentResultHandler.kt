@@ -1,11 +1,9 @@
 package com.itsniaz.adyen.adyen_terminal_payment
 
-interface PaymentSuccessHandler<T> {
-
-    fun onSuccess(response : T)
-
+interface TransactionSuccessHandler<T> {
+    fun onSuccess(response : T?)
 }
 
-interface PaymentFailureHandler<T>{
+interface TransactionFailureHandler<T>{
     fun onFailure(response: T)
 }

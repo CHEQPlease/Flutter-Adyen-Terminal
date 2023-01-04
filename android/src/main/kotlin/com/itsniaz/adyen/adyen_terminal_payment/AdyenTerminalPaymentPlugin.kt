@@ -44,68 +44,66 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
     @OptIn(DelicateCoroutinesApi::class)
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
 
-        if (call.method == "init") {
+        when (call.method) {
+            "init" -> {
+                val certPath = call.argument<String>("cert_path")!!
+                adyenTerminalConfig = AdyenTerminalConfig(
+                    endpoint = call.argument<String>("endpoint")!!,
+                    terminalModelNo = call.argument<String>("terminal_model_no")!!,
+                    terminalSerialNo = call.argument<String>("terminal_serial_no")!!,
+                    terminalId = call.argument<String>("terminal_id")!!,
+                    merchantId = call.argument<String>("merchant_id"),
+                    environment = call.argument<String>("environment")!!,
+                    key_id = call.argument<String>("key_id")!!,
+                    key_passphrase = call.argument<String>("key_passphrase")!!,
+                    merchant_name = call.argument<String>("merchant_name")!!,
+                    key_version = call.argument<String>("key_version")!!,
+                    certPath = FlutterInjector.instance().flutterLoader().getLookupKeyForAsset(certPath)
+                )
+                AdyenTerminalManager.init(adyenTerminalConfig,applicationContext)
+            }
+            "authorize_transaction" -> {
 
-            val certPath = call.argument<String>("cert_path")!!
+                val amount = call.argument<Double>("amount")
+                val captureType = call.argument<String>("captureType")
+                val transactionId = call.argument<String>("transactionId")
+                val currency = call.argument<String>("currency")
+                val reqAmount = call.argument<Double>("amount")
 
-            adyenTerminalConfig = AdyenTerminalConfig(
-                endpoint = call.argument<String>("endpoint")!!,
-                terminalModelNo = call.argument<String>("terminal_model_no")!!,
-                terminalSerialNo = call.argument<String>("terminal_serial_no")!!,
-                terminalId = call.argument<String>("terminal_id")!!,
-                merchantId = call.argument<String>("merchant_id"),
-                environment = call.argument<String>("environment")!!,
-                key_id = call.argument<String>("key_id")!!,
-                key_passphrase = call.argument<String>("key_passphrase")!!,
-                merchant_name = call.argument<String>("merchant_name")!!,
-                key_version = call.argument<String>("key_version")!!,
-                certPath = FlutterInjector.instance().flutterLoader().getLookupKeyForAsset(certPath)
-            )
-            AdyenTerminalManager.init(adyenTerminalConfig,applicationContext)
-
-        } else if (call.method == "authorize_transaction") {
-
-            val amount = call.argument<Double>("amount")
-            val captureType = call.argument<String>("captureType")
-            val transactionId = call.argument<String>("transactionId")
-            val currency = call.argument<String>("currency")
-            val reqAmount = call.argument<Double>("amount")
-
-            if (amount != null && captureType!=null && transactionId!=null && currency!=null && reqAmount!=null) {
-                GlobalScope.launch(Dispatchers.IO) {
-                    try {
-                        AdyenTerminalManager.authorizeTransaction(
-                            transactionId = transactionId,
-                            captureType = captureType,
-                            currency = currency,
-                            requestAmount = BigDecimal.valueOf(reqAmount),
-                            terminalId = adyenTerminalConfig.terminalId,
-                            paymentSuccessHandler = object : PaymentSuccessHandler<String>{
-                                override fun onSuccess(response: String) {
-                                    result.success(response)
+                if (amount != null && captureType!=null && transactionId!=null && currency!=null && reqAmount!=null) {
+                    GlobalScope.launch(Dispatchers.IO) {
+                        try {
+                            AdyenTerminalManager.authorizeTransaction(
+                                transactionId = transactionId,
+                                captureType = captureType,
+                                currency = currency,
+                                requestAmount = BigDecimal.valueOf(reqAmount),
+                                terminalId = adyenTerminalConfig.terminalId,
+                                paymentSuccessHandler = object : TransactionSuccessHandler<String?>{
+                                    override fun onSuccess(response: String?) {
+                                        result.success(response)
+                                    }
+                                },
+                                paymentFailureHandler = object : TransactionFailureHandler<String>{
+                                    override fun onFailure(response: String) {
+                                        result.error("ERROR","TXN FAILED",response)
+                                    }
                                 }
-                            },
-                            paymentFailureHandler = object : PaymentFailureHandler<String>{
-                                override fun onFailure(response: String) {
-                                    result.error("ERROR","TXN FAILED",response)
-                                }
-                            }
 
-                        )
-                    } catch (e: Exception) {
-                        result.error("ERROR","TXN FAILED",e.message)
-                        println(e.stackTraceToString())
+                            )
+                        } catch (e: Exception) {
+                            result.error("ERROR","TXN FAILED",e.message)
+                            println(e.stackTraceToString())
+                        }
                     }
                 }
             }
-        }
+            "cancel_transaction" -> {
 
-        else if(call.method == "cancel_transaction"){
-
-            val txnId = call.argument<String>("transactionId")
-            val cancelTxnId = call.argument<String>("cancelTxnId")
-            if (txnId!=null && cancelTxnId!=null) {
-                GlobalScope.launch(Dispatchers.IO) {
+                val txnId = call.argument<String>("transactionId")
+                val cancelTxnId = call.argument<String>("cancelTxnId")
+                if (txnId!=null && cancelTxnId!=null) {
+                    GlobalScope.launch(Dispatchers.IO) {
                         try {
                             AdyenTerminalManager.cancelTransaction(
                                 transactionId = txnId,
@@ -116,11 +114,37 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                             println(e.stackTraceToString())
                         }
                     }
+                }
             }
-        }
+            "print_receipt" -> {
 
-        else {
-            result.notImplemented()
+                val transactionId = call.argument<String>("transactionId")!!
+                val imageData = call.argument<ByteArray>("imageDataInBytes")!!
+
+                GlobalScope.launch(Dispatchers.IO) {
+                    try {
+                        AdyenTerminalManager.printImage(
+                            transactionId = transactionId,
+                            imageData = imageData,
+                            successHandler = object : TransactionSuccessHandler<Void>{
+                                override fun onSuccess(response: Void?) {
+                                    result.success(true)
+                                }
+                            },
+                            failureHandler = object : TransactionFailureHandler<String>{
+                                override fun onFailure(response: String) {
+                                    result.error("PRINT_ERROR","Unable to print",response)
+                                }
+                            }
+                        )
+                    } catch (e: Exception) {
+                        result.error("PRINT_ERROR","Unable to print",e.message)
+                    }
+                }
+            }
+            else -> {
+                result.notImplemented()
+            }
         }
     }
 

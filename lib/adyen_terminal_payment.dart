@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:adyen_terminal_payment/data/AdyenTerminalConfig.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +16,7 @@ class FlutterAdyen {
   static const String methodInit = "init";
   static const String methodAuthorizeTransaction = "authorize_transaction";
   static const String methodCancelTransaction = "cancel_transaction";
+  static const String methodPrintReceipt = "print_receipt";
 
   static late AdyenTerminalConfig _terminalConfig;
 
@@ -53,6 +55,19 @@ class FlutterAdyen {
     });
 
     return result;
+  }
+
+  static Future<void> printReceipt(String txnId,Uint8List imageData,{OnSuccess<String>? onSuccess,
+      OnFailure<String>? onFailure}) async {
+
+    _channel.invokeMethod(methodPrintReceipt,{
+      "imageDataInBytes" : imageData,
+      "transactionId" : txnId
+    }).then((value){
+      onSuccess!("Print Successful");
+    }).catchError((value){
+      onFailure!(value.details);
+    });
   }
 
 }
