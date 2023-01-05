@@ -199,6 +199,64 @@ object AdyenTerminalManager {
         }
     }
 
+    fun scanBarcode(transactionId: String){
+
+        val jsonReq = """{
+            "Session": {
+                "Id": "$transactionId",
+                "Type": "Once"
+            },
+            "Operation": [
+                {
+                    "Type": "ScanBarcode",
+                    "TimeoutMs": 5000
+                }
+            ]
+        }
+        """;
+
+       val jsonBase64 =  encodeToString(jsonReq.toByteArray(), Base64.DEFAULT)
+
+        val config: Config = getConfigurationData(terminalConfig)
+        val terminalLocalAPIClient = Client(config)
+        val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient)
+        val terminalApiRequest = TerminalAPIRequest()
+
+        val saleToPOIRequest = SaleToPOIRequest().apply {
+            messageHeader = MessageHeader().apply {
+
+                protocolVersion = "3.0"
+                messageClass = MessageClassType.SERVICE
+                messageCategory = MessageCategoryType.ADMIN
+                messageType = MessageType.REQUEST
+                serviceID = transactionId
+                saleID = terminalConfig.terminalId
+                poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}"
+
+                adminRequest = AdminRequest().apply {
+                    serviceIdentification = jsonBase64
+                }
+
+            }
+        }
+
+        terminalApiRequest.saleToPOIRequest = saleToPOIRequest
+
+        try {
+
+            val response = terminalLocalAPI.request(
+                terminalApiRequest, getSecurityKey(
+                    keyIdentifier = terminalConfig.key_id,
+                    passphrase = terminalConfig.key_passphrase
+                )
+            )
+
+            var x = response
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
 
     private fun buildSalePOIRequest(
         saleID: String,

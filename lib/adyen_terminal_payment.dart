@@ -13,16 +13,17 @@ typedef OnFailure<T> = Function(T response);
 
 class FlutterAdyen {
   static const MethodChannel _channel = MethodChannel('com.itsniaz.adyenterminal/channel');
-  static const String methodInit = "init";
-  static const String methodAuthorizeTransaction = "authorize_transaction";
-  static const String methodCancelTransaction = "cancel_transaction";
-  static const String methodPrintReceipt = "print_receipt";
+  static const String _methodInit = "init";
+  static const String _methodAuthorizeTransaction = "authorize_transaction";
+  static const String _methodCancelTransaction = "cancel_transaction";
+  static const String _methodPrintReceipt = "print_receipt";
+  static const String _methodScanBarcode = "scan_barcode";
 
   static late AdyenTerminalConfig _terminalConfig;
 
   static void init(AdyenTerminalConfig terminalConfig){
     _terminalConfig = terminalConfig;
-    _channel.invokeMethod(methodInit,_terminalConfig.toJson());
+    _channel.invokeMethod(_methodInit,_terminalConfig.toJson());
   }
 
   static Future<void> authorizeTransaction(
@@ -34,7 +35,7 @@ class FlutterAdyen {
       OnFailure<String>? onFailure,
       }) async {
 
-    _channel.invokeMethod(methodAuthorizeTransaction,{
+    _channel.invokeMethod(_methodAuthorizeTransaction,{
       "amount" : amount,
       "transactionId" : transactionId,
       "currency" : currency,
@@ -49,7 +50,7 @@ class FlutterAdyen {
 
   static Future<dynamic> cancelTransaction({required txnId,required cancelTxnId, required terminalId}) async {
 
-    var result = await _channel.invokeMethod(methodCancelTransaction,{
+    var result = await _channel.invokeMethod(_methodCancelTransaction,{
       "transactionId" : txnId,
       "cancelTxnId" : cancelTxnId
     });
@@ -60,13 +61,24 @@ class FlutterAdyen {
   static Future<void> printReceipt(String txnId,Uint8List imageData,{OnSuccess<String>? onSuccess,
       OnFailure<String>? onFailure}) async {
 
-    _channel.invokeMethod(methodPrintReceipt,{
+    _channel.invokeMethod(_methodPrintReceipt,{
       "imageDataInBytes" : imageData,
       "transactionId" : txnId
     }).then((value){
       onSuccess!("Print Successful");
     }).catchError((value){
       onFailure!(value.details);
+    });
+  }
+
+  static Future<void> scanBarcode(String txnId) async {
+
+    _channel.invokeMethod(_methodScanBarcode,{
+      "transactionId" : txnId
+    }).then((value){
+
+    }).catchError((value){
+
     });
   }
 

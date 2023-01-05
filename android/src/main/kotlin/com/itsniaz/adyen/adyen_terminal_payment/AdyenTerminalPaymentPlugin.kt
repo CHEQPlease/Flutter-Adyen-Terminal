@@ -142,6 +142,18 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                     }
                 }
             }
+
+            "scan_barcode" ->{
+                val transactionId = call.argument<String>("transactionId")!!
+                GlobalScope.launch(Dispatchers.IO) {
+                    try {
+                        AdyenTerminalManager.scanBarcode(transactionId)
+                    } catch (e: Exception) {
+                        result.error("PRINT_ERROR","Unable to print",e.message)
+                    }
+                }
+            }
+
             else -> {
                 result.notImplemented()
             }
