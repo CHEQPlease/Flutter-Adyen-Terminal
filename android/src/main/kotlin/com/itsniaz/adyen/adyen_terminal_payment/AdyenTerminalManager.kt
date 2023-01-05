@@ -366,8 +366,8 @@ object AdyenTerminalManager {
         config.merchantAccount = terminalConfig.merchant_name
         val inputStream: InputStream? = context.get()?.assets?.open(terminalConfig.certPath)
         config.setTerminalCertificate(inputStream)
-        config.connectionTimeoutMillis = 6000
-        config.readTimeoutMillis = 6000
+        config.connectionTimeoutMillis = 500000
+        config.readTimeoutMillis = 500000
         config.terminalApiLocalEndpoint = terminalConfig.endpoint
         return config
     }
