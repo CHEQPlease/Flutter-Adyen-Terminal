@@ -1,11 +1,12 @@
 name: adyen_terminal_payment
 description: A new flutter plugin project.
-version: 0.0.1
+version: 0.0.2
 homepage:
 
 environment:
   sdk: ">=2.16.1 <3.0.0"
   flutter: ">=2.5.0"
+
 
 dependencies:
   flutter:
@@ -30,6 +31,7 @@ flutter:
       android:
         package: com.itsniaz.adyen.adyen_terminal_payment
         pluginClass: AdyenTerminalPaymentPlugin
+
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

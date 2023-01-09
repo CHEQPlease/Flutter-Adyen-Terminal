@@ -1,6 +1,8 @@
 package com.itsniaz.adyen.adyen_terminal_payment
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.util.Base64
 import android.util.Base64.encodeToString
 import android.util.Log
 import com.adyen.Client
@@ -13,12 +15,21 @@ import com.adyen.model.terminal.security.SecurityKey
 import com.adyen.service.TerminalLocalAPI
 import com.google.gson.Gson
 import com.itsniaz.adyen.adyen_terminal_payment.data.AdyenTerminalConfig
+import id.zelory.compressor.Compressor
+import id.zelory.compressor.constraint.format
+import id.zelory.compressor.constraint.quality
+import id.zelory.compressor.constraint.size
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.math.BigDecimal
 import java.util.*
 import javax.xml.datatype.DatatypeFactory
-import android.util.Base64
+
 
 object AdyenTerminalManager {
 
@@ -130,14 +141,28 @@ object AdyenTerminalManager {
     }
 
 
-    fun printImage(
+    suspend fun printImage(
+        context: Context,
         transactionId: String,
         imageData: ByteArray,
         successHandler: TransactionSuccessHandler<Void>,
         failureHandler: TransactionFailureHandler<String>
     ) {
 
-        val imageBase64Encoded = encodeToString(imageData, Base64.DEFAULT);
+        val outputFile: File = withContext(Dispatchers.IO) {
+            File.createTempFile("temp_img", ".png")
+        }
+        withContext(Dispatchers.IO) {
+            FileOutputStream(outputFile).use { outputStream -> outputStream.write(imageData) }
+        }
+
+        val compressedImageFile = Compressor.compress(context, outputFile) {
+            format(Bitmap.CompressFormat.PNG)
+            size(102000) // 2 MB
+        }
+
+        val encoded: ByteArray? = convertUsingTraditionalWay(compressedImageFile)
+        val imageBase64Encoded = encodeToString(encoded, Base64.DEFAULT);
         val printData =
             """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()
 
@@ -173,6 +198,8 @@ object AdyenTerminalManager {
         }
 
         terminalApiRequest.saleToPOIRequest = saleToPOIRequest
+
+
 
         try {
 
@@ -379,5 +406,15 @@ object AdyenTerminalManager {
         securityKey.passphrase = passphrase
         securityKey.keyVersion = 1
         return securityKey
+    }
+
+    fun convertUsingTraditionalWay(file: File): ByteArray? {
+        val fileBytes = ByteArray(file.length().toInt())
+        try {
+            FileInputStream(file).use { inputStream -> inputStream.read(fileBytes) }
+        } catch (ex: java.lang.Exception) {
+            ex.printStackTrace()
+        }
+        return fileBytes
     }
 }

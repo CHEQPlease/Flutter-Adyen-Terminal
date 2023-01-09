@@ -124,6 +124,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                 GlobalScope.launch(Dispatchers.IO) {
                     try {
                         AdyenTerminalManager.printImage(
+                            context = applicationContext,
                             transactionId = transactionId,
                             imageData = imageData,
                             successHandler = object : TransactionSuccessHandler<Void>{

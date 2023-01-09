@@ -95,8 +95,8 @@ class _MyAppState extends State<MyApp> {
                             
                             AdyenTerminalConfig terminalConfig =
                             AdyenTerminalConfig(
-                              endpoint: "https://192.168.1.100",
-                              terminalModelNo: "V400cPlus",
+                              endpoint: "https://192.168.1.108",
+                              terminalModelNo: "S1F2",
                               terminalSerialNo: "000158222016383",
                               terminalId: "bugsoyieugrys",
                               merchantId: null,
@@ -112,11 +112,13 @@ class _MyAppState extends State<MyApp> {
 
                             FlutterAdyen.init(terminalConfig);
                             // FlutterAdyen.scanBarcode(_get10DigitNumber());
-                            // FlutterAdyen.printReceipt(_get10DigitNumber(),list, onSuccess: (String val){
-                            //   print("Print Sucessful");
-                            // }, onFailure: (String errorMsg){
-                            //    print("Print failure : $errorMsg");
-                            // });
+                            final ByteData bytes = await rootBundle.load('assets/test.png');
+                            final Uint8List list = bytes.buffer.asUint8List();
+                            FlutterAdyen.printReceipt(_get10DigitNumber(),list, onSuccess: (String val){
+                              print("Print Sucessful");
+                            }, onFailure: (String errorMsg){
+                               print("Print failure : $errorMsg");
+                            });
                             String txnId = _get10DigitNumber();
                             FlutterAdyen.authorizeTransaction(
                               amount: 10,
