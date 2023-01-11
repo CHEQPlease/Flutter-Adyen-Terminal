@@ -15,4 +15,12 @@
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <item name="android:windowBackground">?android:colorBackground</item>
     </style>
+
+
+    <!-- Theme for receipt -->
+    <style name="receiptTheme">
+        <item name="android:textColor">@android:color/black</item>
+
+    </style>
+
 </resources>
