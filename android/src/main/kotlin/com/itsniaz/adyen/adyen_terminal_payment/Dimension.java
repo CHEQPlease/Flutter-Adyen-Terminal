@@ -1,3 +1,5 @@
+package com.itsniaz.adyen.adyen_terminal_payment;
+
 public class Dimension {
 
     public int width;

@@ -95,7 +95,7 @@ class _MyAppState extends State<MyApp> {
                             
                             AdyenTerminalConfig terminalConfig =
                             AdyenTerminalConfig(
-                              endpoint: "https://192.168.1.108",
+                              endpoint: "https://192.168.1.190",
                               terminalModelNo: "S1F2",
                               terminalSerialNo: "000158222016383",
                               terminalId: "bugsoyieugrys",
@@ -112,7 +112,7 @@ class _MyAppState extends State<MyApp> {
 
                             FlutterAdyen.init(terminalConfig);
                             // FlutterAdyen.scanBarcode(_get10DigitNumber());
-                            final ByteData bytes = await rootBundle.load('assets/test.png');
+                            final ByteData bytes = await rootBundle.load('assets/test.jpg');
                             final Uint8List list = bytes.buffer.asUint8List();
                             FlutterAdyen.printReceipt(_get10DigitNumber(),list, onSuccess: (String val){
                               print("Print Sucessful");
@@ -120,19 +120,19 @@ class _MyAppState extends State<MyApp> {
                                print("Print failure : $errorMsg");
                             });
                             String txnId = _get10DigitNumber();
-                            FlutterAdyen.authorizeTransaction(
-                              amount: 10,
-                              transactionId: txnId,
-                              currency: "USD",
-                              onSuccess: (val) {
-                                print("Transaction Successful $val");
-                                Navigator.of(context).pop();
-                              },
-                              onFailure: (val) {
-                                print("Transaction Failure : $val");
-                                Navigator.of(context).pop();
-                              });
-                          _showMaterialDialog(txnId, terminalConfig);
+                            // FlutterAdyen.authorizeTransaction(
+                            //   amount: 10,
+                            //   transactionId: txnId,
+                            //   currency: "USD",
+                            //   onSuccess: (val) {
+                            //     print("Transaction Successful $val");
+                            //     Navigator.of(context).pop();
+                            //   },
+                            //   onFailure: (val) {
+                            //     print("Transaction Failure : $val");
+                            //     Navigator.of(context).pop();
+                            //   });
+                          // _showMaterialDialog(txnId, terminalConfig);
                         }
                           ),
                     ],

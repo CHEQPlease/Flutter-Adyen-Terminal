@@ -1,10 +1,12 @@
 package com.itsniaz.adyen.adyen_terminal_payment
 
 import android.content.Context
-import android.graphics.Bitmap
+import android.graphics.*
+import android.os.Build
 import android.util.Base64
 import android.util.Base64.encodeToString
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.adyen.Client
 import com.adyen.Config
 import com.adyen.enums.Environment
@@ -15,18 +17,13 @@ import com.adyen.model.terminal.security.SecurityKey
 import com.adyen.service.TerminalLocalAPI
 import com.google.gson.Gson
 import com.itsniaz.adyen.adyen_terminal_payment.data.AdyenTerminalConfig
-import id.zelory.compressor.Compressor
-import id.zelory.compressor.constraint.format
-import id.zelory.compressor.constraint.quality
-import id.zelory.compressor.constraint.size
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.math.BigDecimal
+import java.nio.ByteBuffer
 import java.util.*
 import javax.xml.datatype.DatatypeFactory
 
@@ -141,6 +138,7 @@ object AdyenTerminalManager {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.R)
     suspend fun printImage(
         context: Context,
         transactionId: String,
@@ -149,81 +147,135 @@ object AdyenTerminalManager {
         failureHandler: TransactionFailureHandler<String>
     ) {
 
-        val outputFile: File = withContext(Dispatchers.IO) {
-            File.createTempFile("temp_img", ".png")
+//        val outputFile: File = withContext(Dispatchers.IO) {
+//            File.createTempFile("temp_img", ".png")
+//        }
+//        withContext(Dispatchers.IO) {
+//            FileOutputStream(outputFile).use { outputStream -> outputStream.write(imageData) }
+//        }
+
+        var originalBitmap = BitmapFactory.decodeByteArray(imageData,0,imageData.size)
+
+        var width = originalBitmap.width
+        var height = originalBitmap.height
+        var y = 0
+        var listOfBmp = arrayListOf<Bitmap>()
+        while (y < height){
+            val bitmap = Bitmap.createBitmap(
+                originalBitmap, 0, y, width,
+                if (y + 256 >= height) height - y else 256
+            )
+            listOfBmp.add(bitmap)
+            y += 256
         }
-        withContext(Dispatchers.IO) {
-            FileOutputStream(outputFile).use { outputStream -> outputStream.write(imageData) }
-        }
-
-        val compressedImageFile = Compressor.compress(context, outputFile) {
-            format(Bitmap.CompressFormat.PNG)
-            size(102000) // 2 MB
-        }
-
-        val encoded: ByteArray? = convertUsingTraditionalWay(compressedImageFile)
-        val imageBase64Encoded = encodeToString(encoded, Base64.DEFAULT);
-        val printData =
-            """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()
-
-
         val config: Config = getConfigurationData(terminalConfig)
         val terminalLocalAPIClient = Client(config)
         val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient)
         val terminalApiRequest = TerminalAPIRequest()
-
-        val saleToPOIRequest = SaleToPOIRequest().apply {
-            messageHeader = MessageHeader().apply {
-
-                protocolVersion = "3.0"
-                messageClass = MessageClassType.DEVICE
-                messageCategory = MessageCategoryType.PRINT
-                messageType = MessageType.REQUEST
-                serviceID = transactionId
-                saleID = terminalConfig.terminalId
-                poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}"
+//        bitmap = convertToBlackAndWhite(bitmap)
+//        bitmap = Utils.resize(bitmap, (bitmap.width*0.7).toInt(), (bitmap.height*0.7).toInt())
+//        val encoded: ByteArray? = bitmap?.convertToByteArray()
 
 
-                printRequest = PrintRequest().apply {
-                    printOutput = PrintOutput().apply {
-                        documentQualifier = DocumentQualifierType.DOCUMENT
-                        responseMode = ResponseModeType.PRINT_END
-                        outputContent = OutputContent().apply {
-                            outputFormat = OutputFormatType.XHTML
-                            outputXHTML = printData.encodeToByteArray()
-                        }
-                    }
-                }
-            }
+
+       for(bmp in listOfBmp){
+           val imageBase64Encoded = encodeTobase64(bmp)
+           val printData = """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()
+
+           val saleToPOIRequest = SaleToPOIRequest().apply {
+               messageHeader = MessageHeader().apply {
+
+                   protocolVersion = "3.0"
+                   messageClass = MessageClassType.DEVICE
+                   messageCategory = MessageCategoryType.PRINT
+                   messageType = MessageType.REQUEST
+                   serviceID = kotlin.random.Random.nextInt(1000000).toString()
+                   saleID = terminalConfig.terminalId
+                   poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}"
+
+
+                   printRequest = PrintRequest().apply {
+                       printOutput = PrintOutput().apply {
+                           documentQualifier = DocumentQualifierType.DOCUMENT
+                           responseMode = ResponseModeType.PRINT_END
+                           outputContent = OutputContent().apply {
+                               outputFormat = OutputFormatType.XHTML
+                               outputXHTML = printData.encodeToByteArray()
+                           }
+                       }
+                   }
+               }
+           }
+
+           terminalApiRequest.saleToPOIRequest = saleToPOIRequest
+
+           val response = terminalLocalAPI.request(
+               terminalApiRequest, getSecurityKey(
+                   keyIdentifier = terminalConfig.key_id,
+                   passphrase = terminalConfig.key_passphrase
+               )
+           )
+
+           var x = response;
+       }
+
+
+//        try {
+//
+//            val response = terminalLocalAPI.request(
+//                terminalApiRequest, getSecurityKey(
+//                    keyIdentifier = terminalConfig.key_id,
+//                    passphrase = terminalConfig.key_passphrase
+//                )
+//            )
+//
+//            if (response != null && "success".equals(response.saleToPOIResponse.printResponse.response.result.name, ignoreCase = true)) {
+//                successHandler.onSuccess(null)
+//            } else {
+//                val errorMsg =
+//                    response.saleToPOIResponse.printResponse.response.additionalResponse
+//                failureHandler.onFailure(errorMsg)
+//            }
+//        } catch (e: Exception) {
+//            if (e.message != null) {
+//                failureHandler.onFailure("Printing Failed ${e.message!!}")
+//            } else {
+//                failureHandler.onFailure("Printing Failed")
+//            }
+//        }
+    }
+
+    fun encodeTobase64(image: Bitmap): String? {
+        val baos = ByteArrayOutputStream()
+        image.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val b: ByteArray = baos.toByteArray()
+        return encodeToString(b, Base64.DEFAULT)
+    }
+
+    fun getBitmap(filePath:String):Bitmap?{
+        var bitmap:Bitmap?=null
+        try{
+            val f:File = File(filePath)
+            val options = BitmapFactory.Options()
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888
+            bitmap = BitmapFactory.decodeStream(FileInputStream(f),null,options)
+        }catch (_:Exception){
+
         }
+        return bitmap
+    }
 
-        terminalApiRequest.saleToPOIRequest = saleToPOIRequest
+    fun convertToBlackAndWhite(bitmap: Bitmap): Bitmap? {
 
+        val bmpMonochrome = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bmpMonochrome)
+        val ma = ColorMatrix()
+        ma.setSaturation(0f)
+        val paint = Paint()
+        paint.colorFilter = ColorMatrixColorFilter(ma)
+        canvas.drawBitmap(bitmap, 0.0f, 0.0f, paint)
 
-
-        try {
-
-            val response = terminalLocalAPI.request(
-                terminalApiRequest, getSecurityKey(
-                    keyIdentifier = terminalConfig.key_id,
-                    passphrase = terminalConfig.key_passphrase
-                )
-            )
-
-            if (response != null && "success".equals(response.saleToPOIResponse.printResponse.response.result.name, ignoreCase = true)) {
-                successHandler.onSuccess(null)
-            } else {
-                val errorMsg =
-                    response.saleToPOIResponse.printResponse.response.additionalResponse
-                failureHandler.onFailure(errorMsg)
-            }
-        } catch (e: Exception) {
-            if (e.message != null) {
-                failureHandler.onFailure("Printing Failed ${e.message!!}")
-            } else {
-                failureHandler.onFailure("Printing Failed")
-            }
-        }
+        return  bmpMonochrome
     }
 
     fun scanBarcode(transactionId: String){
@@ -416,5 +468,26 @@ object AdyenTerminalManager {
             ex.printStackTrace()
         }
         return fileBytes
+    }
+
+    fun Bitmap.convertToByteArray(): ByteArray {
+        //minimum number of bytes that can be used to store this bitmap's pixels
+        val size = this.byteCount
+
+        //allocate new instances which will hold bitmap
+        val buffer = ByteBuffer.allocate(size)
+        val bytes = ByteArray(size)
+
+        //copy the bitmap's pixels into the specified buffer
+        this.copyPixelsToBuffer(buffer)
+
+        //rewinds buffer (buffer position is set to zero and the mark is discarded)
+        buffer.rewind()
+
+        //transfer bytes from buffer into the given destination array
+        buffer.get(bytes)
+
+        //return bitmap's pixels
+        return bytes
     }
 }
