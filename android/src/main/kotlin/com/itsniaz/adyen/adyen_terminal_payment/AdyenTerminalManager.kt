@@ -2,9 +2,12 @@ package com.itsniaz.adyen.adyen_terminal_payment
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.util.Base64
 import android.util.Base64.encodeToString
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
 import com.adyen.Client
 import com.adyen.Config
 import com.adyen.enums.Environment
@@ -15,15 +18,8 @@ import com.adyen.model.terminal.security.SecurityKey
 import com.adyen.service.TerminalLocalAPI
 import com.google.gson.Gson
 import com.itsniaz.adyen.adyen_terminal_payment.data.AdyenTerminalConfig
-import id.zelory.compressor.Compressor
-import id.zelory.compressor.constraint.format
-import id.zelory.compressor.constraint.quality
-import id.zelory.compressor.constraint.size
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
+import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutCustomerReceiptBinding
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.math.BigDecimal
@@ -92,7 +88,6 @@ object AdyenTerminalManager {
             }
 
         } catch (e: Exception) {
-
             if (e.message != null) {
                 paymentFailureHandler.onFailure(e.message!!)
             } else {
@@ -141,7 +136,7 @@ object AdyenTerminalManager {
     }
 
 
-    suspend fun printImage(
+    fun printImage(
         context: Context,
         transactionId: String,
         imageData: ByteArray,
@@ -149,22 +144,10 @@ object AdyenTerminalManager {
         failureHandler: TransactionFailureHandler<String>
     ) {
 
-        val outputFile: File = withContext(Dispatchers.IO) {
-            File.createTempFile("temp_img", ".png")
-        }
-        withContext(Dispatchers.IO) {
-            FileOutputStream(outputFile).use { outputStream -> outputStream.write(imageData) }
-        }
-
-        val compressedImageFile = Compressor.compress(context, outputFile) {
-            format(Bitmap.CompressFormat.PNG)
-            size(102000) // 2 MB
-        }
-
-        val encoded: ByteArray? = convertUsingTraditionalWay(compressedImageFile)
+        val customerReceiptBitmap = generateCustomerReceiptBitmap()
+        val encoded: ByteArray? = customerReceiptBitmap?.let { bitmapToByteArray(bitmap = it) }
         val imageBase64Encoded = encodeToString(encoded, Base64.DEFAULT);
-        val printData =
-            """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()
+        val printData = """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()
 
 
         val config: Config = getConfigurationData(terminalConfig)
@@ -174,7 +157,6 @@ object AdyenTerminalManager {
 
         val saleToPOIRequest = SaleToPOIRequest().apply {
             messageHeader = MessageHeader().apply {
-
                 protocolVersion = "3.0"
                 messageClass = MessageClassType.DEVICE
                 messageCategory = MessageCategoryType.PRINT
@@ -182,8 +164,6 @@ object AdyenTerminalManager {
                 serviceID = transactionId
                 saleID = terminalConfig.terminalId
                 poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}"
-
-
                 printRequest = PrintRequest().apply {
                     printOutput = PrintOutput().apply {
                         documentQualifier = DocumentQualifierType.DOCUMENT
@@ -199,17 +179,13 @@ object AdyenTerminalManager {
 
         terminalApiRequest.saleToPOIRequest = saleToPOIRequest
 
-
-
         try {
-
             val response = terminalLocalAPI.request(
                 terminalApiRequest, getSecurityKey(
                     keyIdentifier = terminalConfig.key_id,
                     passphrase = terminalConfig.key_passphrase
                 )
             )
-
             if (response != null && "success".equals(response.saleToPOIResponse.printResponse.response.result.name, ignoreCase = true)) {
                 successHandler.onSuccess(null)
             } else {
@@ -224,6 +200,17 @@ object AdyenTerminalManager {
                 failureHandler.onFailure("Printing Failed")
             }
         }
+    }
+
+    private fun generateCustomerReceiptBitmap(): Bitmap? {
+
+        val binding = LayoutCustomerReceiptBinding.inflate(LayoutInflater.from(context.get()))
+        val layoutReceipt = binding.layoutCustomerReceipt
+
+        layoutReceipt.measure( View.MeasureSpec.makeMeasureSpec(700, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+        layoutReceipt.layout(0, 0, layoutReceipt.measuredWidth, layoutReceipt.measuredHeight)
+
+        return getBitmapFromView(layoutReceipt)
     }
 
     fun scanBarcode(transactionId: String){
@@ -282,6 +269,14 @@ object AdyenTerminalManager {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+
+    private  fun getBitmapFromView(view: View): Bitmap? {
+        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.RGB_565)
+        val canvas = Canvas(bitmap)
+        view.draw(canvas)
+        return bitmap
     }
 
 
@@ -408,13 +403,11 @@ object AdyenTerminalManager {
         return securityKey
     }
 
-    fun convertUsingTraditionalWay(file: File): ByteArray? {
-        val fileBytes = ByteArray(file.length().toInt())
-        try {
-            FileInputStream(file).use { inputStream -> inputStream.read(fileBytes) }
-        } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
-        }
-        return fileBytes
+    private fun bitmapToByteArray(bitmap : Bitmap) : ByteArray{
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 10, stream)
+        val byteArray: ByteArray = stream.toByteArray()
+        bitmap.recycle()
+        return byteArray
     }
 }

@@ -1,7 +1,65 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:orientation="vertical"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:theme="@style/receiptTheme"
+    >
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="5"
+        android:layout_marginTop="0.5mm"
+        android:layout_marginBottom="0.5mm"
+        tools:ignore="InOrMmUsage">
+
+        <TextView
+            android:id="@+id/tv_item_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Egg"
+            android:textSize="2.8mm"
+            android:layout_weight="8"
+            tools:ignore="NestedWeights" />
+
+        <TextView
+            android:id="@+id/tv_item_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="-- Cucumber Salad"
+            android:textSize="2.2mm"
+            android:textStyle="bold"
+            android:layout_weight="8"
+            />
+
+
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_qty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="1"
+        android:textStyle="bold"
+        android:layout_weight="2"
+        android:textSize="2.5mm"
+        tools:ignore="InOrMmUsage" />
+
+
+    <TextView
+        android:id="@+id/tv_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="$4.00"
+        android:textSize="2.2mm"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textStyle="bold"
+
+        tools:ignore="InOrMmUsage" />
 
 </LinearLayout>

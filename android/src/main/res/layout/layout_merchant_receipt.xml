@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_customer_receipt"
+    android:layout_width="48mm"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    android:layout_gravity="center_horizontal"
+    android:layout_height="wrap_content"
+    android:theme="@style/receiptTheme"
+    tools:ignore="InOrMmUsage">
+
+
+
+    <!-- Brand Name -->
+    <LinearLayout
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_brand_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="CHEQ Inc."
+            android:layout_marginTop="5mm"
+            android:layout_marginBottom="4mm"
+            android:textSize="4mm"
+            android:textStyle="bold"
+            />
+
+    </LinearLayout>
+
+    <!-- Table Section -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_table_no"
+            tools:text="Table #:"
+            android:textSize="3.5mm"
+            android:textStyle="bold"
+            android:layout_weight="2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/tv_order_no"
+            tools:text="Order #: K16"
+            android:textSize="3.5mm"
+            android:textStyle="bold"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+    <!-- Placed At -->
+    <TextView
+        android:id="@+id/tv_placed_at"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="2mm"
+        android:textStyle="bold"
+        android:layout_marginTop="1mm"
+        android:layout_marginBottom="2mm"
+        android:layout_gravity="center"
+        tools:text="Placed at 01/11/2023 1:00 AM PST"
+        />
+
+
+
+    <!-- Divider -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0.5mm"
+        android:src="@drawable/dotted_line"
+        android:layout_marginTop="1mm"
+        android:layout_marginBottom="1mm"
+        />
+
+    <!-- Payment Breakdown View -->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1mm"
+        tools:itemCount="3"
+        tools:listitem="@layout/layout_meta_info"
+        />
+
+
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0.5mm"
+        android:src="@drawable/dotted_line"
+        android:layout_marginTop="3mm"
+        android:layout_marginBottom="1mm"
+        />
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2mm"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="MERCHANT COPY"
+        android:textSize="2.5mm"
+        android:textStyle="bold"
+        />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="POWERED BY"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text=" CHEQ"
+            android:textSize="2.5mm"
+            android:textStyle="bold"
+            />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="3mm"
+        />
+
+</LinearLayout>

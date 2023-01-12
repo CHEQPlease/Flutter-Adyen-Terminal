@@ -95,7 +95,7 @@ class _MyAppState extends State<MyApp> {
                             
                             AdyenTerminalConfig terminalConfig =
                             AdyenTerminalConfig(
-                              endpoint: "https://192.168.1.108",
+                              endpoint: "https://192.168.1.190",
                               terminalModelNo: "S1F2",
                               terminalSerialNo: "000158222016383",
                               terminalId: "bugsoyieugrys",
@@ -119,20 +119,20 @@ class _MyAppState extends State<MyApp> {
                             }, onFailure: (String errorMsg){
                                print("Print failure : $errorMsg");
                             });
-                            String txnId = _get10DigitNumber();
-                            FlutterAdyen.authorizeTransaction(
-                              amount: 10,
-                              transactionId: txnId,
-                              currency: "USD",
-                              onSuccess: (val) {
-                                print("Transaction Successful $val");
-                                Navigator.of(context).pop();
-                              },
-                              onFailure: (val) {
-                                print("Transaction Failure : $val");
-                                Navigator.of(context).pop();
-                              });
-                          _showMaterialDialog(txnId, terminalConfig);
+                            // String txnId = _get10DigitNumber();
+                            // FlutterAdyen.authorizeTransaction(
+                            //   amount: 10,
+                            //   transactionId: txnId,
+                            //   currency: "USD",
+                            //   onSuccess: (val) {
+                            //     print("Transaction Successful $val");
+                            //     Navigator.of(context).pop();
+                            //   },
+                            //   onFailure: (val) {
+                            //     print("Transaction Failure : $val");
+                            //     Navigator.of(context).pop();
+                            //   });
+                          // _showMaterialDialog(txnId, terminalConfig);
                         }
                           ),
                     ],
