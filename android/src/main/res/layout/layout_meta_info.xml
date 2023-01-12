@@ -13,21 +13,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="SUBTOTAL"
-        android:textSize="16sp"
-        android:layout_weight="8"
+        android:textStyle="bold"
+        android:textSize="2.5mm"
         />
 
 
 
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        />
 
     <TextView
         android:id="@+id/tv_breakdown_key_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="$4.00"
-        android:textSize="16sp"
-        android:layout_weight="1"
-        android:gravity="center"
+        android:textStyle="bold"
+        android:textSize="2.5mm"
+        android:gravity="end"
         />
 
 </LinearLayout>

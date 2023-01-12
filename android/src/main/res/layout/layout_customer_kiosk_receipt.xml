@@ -109,7 +109,7 @@
     <!-- Divider -->
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="0.5mm"
+        android:layout_height="1mm"
         android:src="@drawable/dotted_line"
         android:layout_marginTop="1mm"
         android:layout_marginBottom="1mm"
@@ -200,7 +200,7 @@
         android:layout_height="wrap_content"
         android:text="@string/promo_text"
         android:gravity="center"
-        android:textSize="1.8mm"
+        android:textSize="2mm"
         android:layout_marginTop="0.5mm"
         android:layout_marginBottom="0.5mm"
         android:textStyle="bold"
@@ -228,7 +228,7 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="0.5mm"
+        android:layout_height="1mm"
         android:src="@drawable/dotted_line"
         android:layout_marginTop="1mm"
         android:layout_marginBottom="1mm"
@@ -258,6 +258,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="POWERED BY"
+            android:textSize="2.5mm"
+
             />
 
         <TextView
@@ -266,7 +268,7 @@
             android:layout_gravity="center"
             android:text=" CHEQ"
             android:textSize="2.5mm"
-            android:textStyle="bold"
+            android:textStyle="normal"
             />
 
     </LinearLayout>

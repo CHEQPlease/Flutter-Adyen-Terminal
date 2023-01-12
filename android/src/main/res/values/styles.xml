@@ -5,7 +5,7 @@
     <!-- Theme for receipt -->
     <style name="receiptTheme">
         <item name="android:textColor">@android:color/black</item>
-
+        <item name="android:fontFamily">@font/opensans</item>
     </style>
 
 </resources>

@@ -95,7 +95,7 @@ class _MyAppState extends State<MyApp> {
                             
                             AdyenTerminalConfig terminalConfig =
                             AdyenTerminalConfig(
-                              endpoint: "https://192.168.1.245",
+                              endpoint: "https://192.168.31.158",
                               terminalModelNo: "S1F2",
                               terminalSerialNo: "000158222016383",
                               terminalId: "bugsoyieugrys",
@@ -116,12 +116,12 @@ class _MyAppState extends State<MyApp> {
                            
 {
   "brandName": "CHEQ Diner1",
-  "orderType": "",
+  "orderType": "Self-Order",
   "orderSubtitle": null,
   "totalItems": "2",
   "orderNo": "K10",
   "tableNo": "",
-  "receiptType": "Merchant",
+  "receiptType": "Kiosk",
   "timeOfOrder": "Placed at : 01/12/2023 03:57 AM AKST",
   "items": [
     {
@@ -210,16 +210,7 @@ class _MyAppState extends State<MyApp> {
                             }, onFailure: (String errorMsg){
                                print("Print failure : $errorMsg");
                             });
-                            FlutterAdyen.printReceipt(_get10DigitNumber(),receiptDTOJSON, onSuccess: (String val){
-                              print("Print Sucessful");
-                            }, onFailure: (String errorMsg){
-                              print("Print failure : $errorMsg");
-                            });
-                            FlutterAdyen.printReceipt(_get10DigitNumber(),receiptDTOJSON, onSuccess: (String val){
-                              print("Print Sucessful");
-                            }, onFailure: (String errorMsg){
-                              print("Print failure : $errorMsg");
-                            });
+
                             // String txnId = _get10DigitNumber();
                             // FlutterAdyen.authorizeTransaction(
                             //   amount: 10,

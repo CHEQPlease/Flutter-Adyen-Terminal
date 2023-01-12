@@ -385,7 +385,7 @@ object AdyenTerminalManager {
 
     private fun bitmapToByteArray(bitmap : Bitmap) : ByteArray{
         val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 10, stream)
+        bitmap.compress(Bitmap.CompressFormat.PNG, 50, stream)
         val byteArray: ByteArray = stream.toByteArray()
         bitmap.recycle()
         return byteArray
