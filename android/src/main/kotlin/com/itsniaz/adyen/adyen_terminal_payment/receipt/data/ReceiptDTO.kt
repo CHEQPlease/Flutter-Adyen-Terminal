@@ -13,6 +13,8 @@ data class ReceiptDTO(
     val orderNo: String?,
     @SerializedName("orderType")
     val orderType: String?,
+    @SerializedName("orderSubtitle")
+    val orderSubtitle: String?,
     @SerializedName("receiptType")
     val receiptType: String?,
     @SerializedName("tableNo")

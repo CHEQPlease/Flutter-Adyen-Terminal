@@ -111,48 +111,114 @@ class _MyAppState extends State<MyApp> {
 
 
                             FlutterAdyen.init(terminalConfig);
-                            String receiptDTOJSON = """                                {
-                                    "brandName": "CHEQ Inc.",
-                                    "orderType": "Self - Order",
-                                    "totalItems": 3,
-                                    "orderNo": "K20",
-                                    "tableNo": "-",
-                                    "receiptType": "Kiosk",
-                                    "timeOfOrder": "Placed at 01/11/2023 1:00 AM PST",
-                                    "items": [{
-                                        "itemName": "Egg",
-                                        "description": "--Cucumber Salad",
-                                        "quantity": "1",
-                                        "price": "\${'\$'}4",
-                                        "strikethrough": false
-                                    }],
-                                    "breakdown": [{
-                                            "key": "Payment Type",
-                                            "value": "CARD"
-                                        },
-                                        {
-                                            "key": "Sub Total",
-                                            "value": "\${'\$'}4.00"
-                                        },
-                                        {
-                                            "key": "",
-                                            "value": ""
-                                        },
-                                        {
-                                            "key": "TAX",
-                                            "value": "\${'\$'}0.00"
-                                        },
-                                        {
-                                            "key": "GRAND TOTAL",
-                                            "value": "\${'\$'}4.00",
-                                            "important": true
-                                        }
-                                    ]
-                                }""";
+                            String receiptDTOJSON =
+                            """
+                           
+{
+  "brandName": "CHEQ Diner1",
+  "orderType": "",
+  "orderSubtitle": null,
+  "totalItems": "2",
+  "orderNo": "K10",
+  "tableNo": "",
+  "receiptType": "Merchant",
+  "timeOfOrder": "Placed at : 01/12/2023 03:57 AM AKST",
+  "items": [
+    {
+      "itemName": "Salmon Fry",
+      "description": "  -- Olive\n  -- Deep Fried Salmon\n  -- ADD Addition 1\n  -- no Nuts\n  -- no Olive Oil\n  -- Substitution 1 SUB\n  -- allergy 1 ALLERGY\n",
+      "quantity": "1",
+      "price": "\$10.0",
+      "strikethrough": false
+    },
+    {
+      "itemName": "Water + Apple Pay",
+      "description": "  -- Onions\n",
+      "quantity": "1",
+      "price": "\$1.0",
+      "strikethrough": false
+    }
+  ],
+  "breakdown": [
+    {
+      "key": "Payment Type",
+      "value": "Card",
+      "important": null
+    },
+    {
+      "key": "Card Type",
+      "value": "mc",
+      "important": null
+    },
+    {
+      "key": "Card #:",
+      "value": "541333 **** 9999",
+      "important": null
+    },
+    {
+      "key": "Card Entry",
+      "value": "CONTACTLESS",
+      "important": null
+    },
+    {
+      "key": "",
+      "value": "",
+      "important": null
+    },
+    {
+      "key": "Sub Total",
+      "value": "\$21.01",
+      "important": null
+    },
+    {
+      "key": "Area Tax",
+      "value": "\$1.00",
+      "important": null
+    },
+    {
+      "key": "VAT",
+      "value": "\$2.10",
+      "important": null
+    },
+    {
+      "key": "Customer Fee",
+      "value": "\$0.63",
+      "important": null
+    },
+    {
+      "key": "Service Fee",
+      "value": "\$0.91",
+      "important": null
+    },
+    {
+      "key": "Tax",
+      "value": "\$0.01",
+      "important": null
+    },
+    {
+      "key": "GRAND TOTAL",
+      "value": "\$25.66",
+      "important": true
+    }
+  ]
+}
+                            
+                            """
+                            ;
                             FlutterAdyen.printReceipt(_get10DigitNumber(),receiptDTOJSON, onSuccess: (String val){
                               print("Print Sucessful");
                             }, onFailure: (String errorMsg){
                                print("Print failure : $errorMsg");
+                            });
+                            FlutterAdyen.printReceipt(_get10DigitNumber(),receiptDTOJSON, onSuccess: (String val){
+                              print("Print Sucessful");
+                            }, onFailure: (String errorMsg){
+                              print("Print failure : $errorMsg");
+                            });
+                            FlutterAdyen.printReceipt(_get10DigitNumber(),receiptDTOJSON, onSuccess: (String val){
+                              print("Print Sucessful");
+                            }, onFailure: (String errorMsg){
+                              print("Print failure : $errorMsg");
                             });
                             // String txnId = _get10DigitNumber();
                             // FlutterAdyen.authorizeTransaction(
