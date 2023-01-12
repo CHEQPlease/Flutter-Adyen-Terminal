@@ -2,12 +2,9 @@ package com.itsniaz.adyen.adyen_terminal_payment
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.util.Base64
 import android.util.Base64.encodeToString
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
 import com.adyen.Client
 import com.adyen.Config
 import com.adyen.enums.Environment
@@ -18,7 +15,8 @@ import com.adyen.model.terminal.security.SecurityKey
 import com.adyen.service.TerminalLocalAPI
 import com.google.gson.Gson
 import com.itsniaz.adyen.adyen_terminal_payment.data.AdyenTerminalConfig
-import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutCustomerReceiptBinding
+import com.itsniaz.adyen.adyen_terminal_payment.receipt.ReceiptBuilder
+import com.itsniaz.adyen.adyen_terminal_payment.receipt.data.ReceiptDTO
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.lang.ref.WeakReference
@@ -136,15 +134,15 @@ object AdyenTerminalManager {
     }
 
 
-    fun printImage(
+    fun printReceipt(
         context: Context,
         transactionId: String,
-        imageData: ByteArray,
+        receiptDTOJSON: String,
         successHandler: TransactionSuccessHandler<Void>,
         failureHandler: TransactionFailureHandler<String>
     ) {
 
-        val customerReceiptBitmap = generateCustomerReceiptBitmap()
+        val customerReceiptBitmap = ReceiptBuilder.getInstance(context).buildReceipt(receiptDTO = Gson().fromJson(receiptDTOJSON,ReceiptDTO::class.java))
         val encoded: ByteArray? = customerReceiptBitmap?.let { bitmapToByteArray(bitmap = it) }
         val imageBase64Encoded = encodeToString(encoded, Base64.DEFAULT);
         val printData = """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()
@@ -200,17 +198,6 @@ object AdyenTerminalManager {
                 failureHandler.onFailure("Printing Failed")
             }
         }
-    }
-
-    private fun generateCustomerReceiptBitmap(): Bitmap? {
-
-        val binding = LayoutCustomerReceiptBinding.inflate(LayoutInflater.from(context.get()))
-        val layoutReceipt = binding.layoutCustomerReceipt
-
-        layoutReceipt.measure( View.MeasureSpec.makeMeasureSpec(700, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
-        layoutReceipt.layout(0, 0, layoutReceipt.measuredWidth, layoutReceipt.measuredHeight)
-
-        return getBitmapFromView(layoutReceipt)
     }
 
     fun scanBarcode(transactionId: String){
@@ -271,13 +258,6 @@ object AdyenTerminalManager {
         }
     }
 
-
-    private  fun getBitmapFromView(view: View): Bitmap? {
-        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.RGB_565)
-        val canvas = Canvas(bitmap)
-        view.draw(canvas)
-        return bitmap
-    }
 
 
     private fun buildSalePOIRequest(

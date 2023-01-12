@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layout_customer_receipt"
+    android:id="@+id/layout_customer_receipt_kiosk"
     android:layout_width="48mm"
     android:background="@android:color/white"
     android:orientation="vertical"
@@ -101,6 +101,7 @@
         android:layout_height="wrap_content"
         android:textSize="2mm"
         android:textStyle="bold"
+        android:layout_gravity="center"
         tools:text="Placed at 01/11/2023 1:00 AM PST"
         />
 
@@ -155,6 +156,7 @@
     <!-- Item List View -->
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_dishes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="1mm"
@@ -174,6 +176,7 @@
     <!-- Payment Breakdown View -->
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_breakdown"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="1mm"
@@ -206,7 +209,7 @@
     <ImageView
         android:layout_width="12mm"
         android:layout_height="12mm"
-        android:src="@drawable/qr"
+        android:src="@drawable/qr_cheq_app_apple_qr"
         android:layout_gravity="center"
         android:layout_marginTop="1mm"
         />

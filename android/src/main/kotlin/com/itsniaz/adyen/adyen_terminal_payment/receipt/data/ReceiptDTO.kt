@@ -6,9 +6,9 @@ data class ReceiptDTO(
     @SerializedName("brandName")
     val brandName: String?,
     @SerializedName("breakdown")
-    val breakdown: List<Breakdown?>?,
+    val breakdown: List<Breakdown> = listOf(),
     @SerializedName("items")
-    val items: List<Item?>?,
+    val items: List<Item> = listOf(),
     @SerializedName("orderNo")
     val orderNo: String?,
     @SerializedName("orderType")
@@ -20,7 +20,7 @@ data class ReceiptDTO(
     @SerializedName("timeOfOrder")
     val timeOfOrder: String?,
     @SerializedName("totalItems")
-    val totalItems: Int?
+    val totalItems: String?
 )
 
 data class Breakdown(
@@ -46,5 +46,5 @@ data class Item(
 )
 
 enum class RECEIPT_TYPE {
-    CUSTOMER, MERCHANT, KITHCEN, KIOSK
+    CUSTOMER, MERCHANT, KITCHEN, KIOSK
 }

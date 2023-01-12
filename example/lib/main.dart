@@ -95,7 +95,7 @@ class _MyAppState extends State<MyApp> {
                             
                             AdyenTerminalConfig terminalConfig =
                             AdyenTerminalConfig(
-                              endpoint: "https://192.168.1.190",
+                              endpoint: "https://192.168.1.245",
                               terminalModelNo: "S1F2",
                               terminalSerialNo: "000158222016383",
                               terminalId: "bugsoyieugrys",

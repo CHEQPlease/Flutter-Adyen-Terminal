@@ -58,11 +58,11 @@ class FlutterAdyen {
     return result;
   }
 
-  static Future<void> printReceipt(String txnId,Uint8List imageData,{OnSuccess<String>? onSuccess,
+  static Future<void> printReceipt(String txnId,String receiptDTOJSON,{OnSuccess<String>? onSuccess,
       OnFailure<String>? onFailure}) async {
 
     _channel.invokeMethod(_methodPrintReceipt,{
-      "imageDataInBytes" : imageData,
+      "receiptDTOJSON" : receiptDTOJSON,
       "transactionId" : txnId
     }).then((value){
       onSuccess!("Print Successful");

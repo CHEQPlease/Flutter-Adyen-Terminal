@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layout_customer_receipt"
+    android:id="@+id/layout_customer_receipt_pos"
     android:layout_width="48mm"
     android:background="@android:color/white"
     android:orientation="vertical"
@@ -33,6 +33,7 @@
     <!-- Order -->
 
     <TextView
+        android:id="@+id/tv_order_no"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="ORDER # 7"
@@ -116,6 +117,7 @@
     <!-- Item List View -->
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_dishes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="1mm"
@@ -135,6 +137,7 @@
     <!-- Payment Breakdown View -->
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_breakdown"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="1mm"
@@ -151,9 +154,6 @@
         android:layout_marginTop="1mm"
         android:layout_marginBottom="1mm"
         />
-
-
-
 
 
     <View
