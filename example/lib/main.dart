@@ -111,10 +111,45 @@ class _MyAppState extends State<MyApp> {
 
 
                             FlutterAdyen.init(terminalConfig);
-                            // FlutterAdyen.scanBarcode(_get10DigitNumber());
-                            final ByteData bytes = await rootBundle.load('assets/test.png');
-                            final Uint8List list = bytes.buffer.asUint8List();
-                            FlutterAdyen.printReceipt(_get10DigitNumber(),list, onSuccess: (String val){
+                            String receiptDTOJSON = """                                {
+                                    "brandName": "CHEQ Inc.",
+                                    "orderType": "Self - Order",
+                                    "totalItems": 3,
+                                    "orderNo": "K20",
+                                    "tableNo": "-",
+                                    "receiptType": "Kiosk",
+                                    "timeOfOrder": "Placed at 01/11/2023 1:00 AM PST",
+                                    "items": [{
+                                        "itemName": "Egg",
+                                        "description": "--Cucumber Salad",
+                                        "quantity": "1",
+                                        "price": "\${'\$'}4",
+                                        "strikethrough": false
+                                    }],
+                                    "breakdown": [{
+                                            "key": "Payment Type",
+                                            "value": "CARD"
+                                        },
+                                        {
+                                            "key": "Sub Total",
+                                            "value": "\${'\$'}4.00"
+                                        },
+                                        {
+                                            "key": "",
+                                            "value": ""
+                                        },
+                                        {
+                                            "key": "TAX",
+                                            "value": "\${'\$'}0.00"
+                                        },
+                                        {
+                                            "key": "GRAND TOTAL",
+                                            "value": "\${'\$'}4.00",
+                                            "important": true
+                                        }
+                                    ]
+                                }""";
+                            FlutterAdyen.printReceipt(_get10DigitNumber(),receiptDTOJSON, onSuccess: (String val){
                               print("Print Sucessful");
                             }, onFailure: (String errorMsg){
                                print("Print failure : $errorMsg");

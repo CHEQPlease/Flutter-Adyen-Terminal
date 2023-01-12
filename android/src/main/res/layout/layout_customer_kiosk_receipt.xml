@@ -207,8 +207,8 @@
         />
 
     <ImageView
-        android:layout_width="12mm"
-        android:layout_height="12mm"
+        android:layout_width="14mm"
+        android:layout_height="14mm"
         android:src="@drawable/qr_cheq_app_apple_qr"
         android:layout_gravity="center"
         android:layout_marginTop="1mm"

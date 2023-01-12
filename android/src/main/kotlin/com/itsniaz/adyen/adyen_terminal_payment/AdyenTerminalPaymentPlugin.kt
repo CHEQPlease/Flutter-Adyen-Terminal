@@ -126,48 +126,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                         AdyenTerminalManager.printReceipt(
                             context = applicationContext,
                             transactionId = transactionId,
-                            receiptDTOJSON = receiptDTOJSON
-//                            receiptDTOJSON = """
-//                                {
-//                                    "brandName": "CHEQ Inc.",
-//                                    "orderType": "Self - Order",
-//                                    "totalItems": 3,
-//                                    "orderNo": "K20",
-//                                    "tableNo": "-",
-//                                    "receiptType": "Kiosk",
-//                                    "timeOfOrder": "Placed at 01/11/2023 1:00 AM PST",
-//                                    "items": [{
-//                                        "itemName": "Egg",
-//                                        "description": "--Cucumber Salad",
-//                                        "quantity": "1",
-//                                        "price": "${'$'}4",
-//                                        "strikethrough": false
-//                                    }],
-//                                    "breakdown": [{
-//                                            "key": "Payment Type",
-//                                            "value": "CARD"
-//                                        },
-//                                        {
-//                                            "key": "Sub Total",
-//                                            "value": "${'$'}4.00"
-//                                        },
-//                                        {
-//                                            "key": "",
-//                                            "value": ""
-//                                        },
-//                                        {
-//                                            "key": "TAX",
-//                                            "value": "${'$'}0.00"
-//                                        },
-//                                        {
-//                                            "key": "GRAND TOTAL",
-//                                            "value": "${'$'}4.00",
-//                                            "important": true
-//                                        }
-//                                    ]
-//                                }
-//                            """.trimIndent(),
-                                    ,
+                            receiptDTOJSON = receiptDTOJSON,
                             successHandler = object : TransactionSuccessHandler<Void>{
                                 override fun onSuccess(response: Void?) {
                                     result.success(true)

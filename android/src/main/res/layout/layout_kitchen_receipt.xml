@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layout_customer_receipt_kiosk"
+    android:id="@+id/layout_kitchen_receipt"
     android:layout_width="48mm"
     android:background="@android:color/white"
     android:orientation="vertical"
@@ -18,9 +18,10 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:id="@+id/tv_order_no"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Order # 398"
+            tools:text="Order # 398"
             android:layout_marginTop="5mm"
             android:layout_marginBottom="1mm"
             android:textSize="4.5mm"
@@ -29,9 +30,10 @@
             />
 
         <TextView
+            android:id="@+id/order_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Kiosk -  Counter"
+            tools:text="Kiosk - Counter"
             android:textSize="3mm"
             android:layout_marginBottom="3mm"
             android:gravity="center"
@@ -75,6 +77,7 @@
 
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_dishes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:listitem="@layout/layout_kitchen_item_info"

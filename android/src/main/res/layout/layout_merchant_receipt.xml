@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layout_customer_receipt_kiosk"
+    android:id="@+id/layout_merchant_receipt_binding"
     android:layout_width="48mm"
     android:background="@android:color/white"
     android:orientation="vertical"
@@ -9,8 +9,6 @@
     android:layout_height="wrap_content"
     android:theme="@style/receiptTheme"
     tools:ignore="InOrMmUsage">
-
-
 
     <!-- Brand Name -->
     <LinearLayout
@@ -85,6 +83,7 @@
     <!-- Payment Breakdown View -->
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_breakdown"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="1mm"

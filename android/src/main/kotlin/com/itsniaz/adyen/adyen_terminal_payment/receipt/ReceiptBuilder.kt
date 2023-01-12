@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.itsniaz.adyen.adyen_terminal_payment.SingletonHolder
 import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutCustomerKioskReceiptBinding
 import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutCustomerPosReceiptBinding
+import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutKitchenReceiptBinding
+import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutMerchantReceiptBinding
 import com.itsniaz.adyen.adyen_terminal_payment.receipt.adapter.BreakdownListAdapter
 import com.itsniaz.adyen.adyen_terminal_payment.receipt.adapter.DishListAdapterCustomer
 import com.itsniaz.adyen.adyen_terminal_payment.receipt.data.RECEIPT_TYPE
@@ -34,8 +36,8 @@ class ReceiptBuilder private constructor(context: Context) {
                 return buildCustomerKioskReceipt(receiptDTO)
 
             }
-            RECEIPT_TYPE.KIOSK.name ->{
-                return buildCustomerKioskReceipt(receiptDTO)
+            RECEIPT_TYPE.KITCHEN.name ->{
+                return buildKitchenReceipt(receiptDTO)
             }
         }
 
@@ -89,13 +91,39 @@ class ReceiptBuilder private constructor(context: Context) {
         return getBitmapFromView(customerReceiptKiosk)
     }
 
-    private fun buildMerchantReceipt(receiptDTO: ReceiptDTO) : Bitmap? {
-        return  null
+    private fun buildMerchantReceipt(receiptDTO: ReceiptDTO) : Bitmap {
+        val binding = LayoutMerchantReceiptBinding.inflate(LayoutInflater.from(context))
+        val customerReceiptKiosk = binding.layoutMerchantReceiptBinding
+
+        /* TODO : Move to string resource to support localization in future */
+
+        binding.tvBrandName.text = receiptDTO.brandName
+        binding.tvOrderNo.text = "ORDER #${receiptDTO.orderNo}"
+        binding.tvTableNo.text = receiptDTO.tableNo
+        binding.tvPlacedAt.text = receiptDTO.timeOfOrder
+        binding.rvBreakdown.adapter = BreakdownListAdapter(receiptDTO.breakdown)
+        binding.rvBreakdown.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        customerReceiptKiosk.measure( View.MeasureSpec.makeMeasureSpec(700, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+        customerReceiptKiosk.layout(0, 0, customerReceiptKiosk.measuredWidth, customerReceiptKiosk.measuredHeight)
+
+        return getBitmapFromView(customerReceiptKiosk)
 
     }
 
     private fun buildKitchenReceipt(receiptDTO: ReceiptDTO) : Bitmap? {
-        return  null
+        val binding = LayoutKitchenReceiptBinding.inflate(LayoutInflater.from(context))
+        val customerReceiptKiosk = binding.layoutKitchenReceipt
+
+        /* TODO : Move to string resource to support localization in future */
+
+        binding.tvOrderNo.text = receiptDTO.orderNo
+        binding.tvPlacedAt.text = receiptDTO.timeOfOrder
+        binding.rvDishes.adapter = DishListAdapterCustomer(receiptDTO.items)
+        binding.rvDishes.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        customerReceiptKiosk.measure( View.MeasureSpec.makeMeasureSpec(700, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+        customerReceiptKiosk.layout(0, 0, customerReceiptKiosk.measuredWidth, customerReceiptKiosk.measuredHeight)
+
+        return getBitmapFromView(customerReceiptKiosk)
 
     }
 
