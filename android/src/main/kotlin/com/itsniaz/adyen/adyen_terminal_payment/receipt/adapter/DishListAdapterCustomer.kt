@@ -17,7 +17,7 @@ class DishListAdapterCustomer(private val dishes: List<Item>) : RecyclerView.Ada
 
         val dish = dishes[position]
 
-        holder.binding.tvItemName.text = "${dish.itemName}x" /* TODO : Move to string resource to support localization in future */
+        holder.binding.tvItemName.text = "${dish.itemName}" /* TODO : Move to string resource to support localization in future */
         holder.binding.tvItemDetails.text = dish.description
         holder.binding.tvPrice.text = "${dish.price}"
         holder.binding.tvQty.text = "${dish.quantity}"
