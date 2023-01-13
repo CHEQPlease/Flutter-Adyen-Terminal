@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             tools:text="Egg"
             android:textStyle="bold"
-            android:textSize="3mm"
+            android:textSize="3.5mm"
             tools:ignore="NestedWeights" />
 
         <TextView
@@ -29,7 +29,7 @@
             android:layout_width="30mm"
             android:layout_height="wrap_content"
             tools:text="-- Cucumba sdf adsf asdf\n"
-            android:textSize="2.4mm"
+            android:textSize="3mm"
             android:textStyle="bold"
             />
 
@@ -53,7 +53,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="$4.00"
-        android:textSize="2.8mm"
+        android:textSize="3mm"
         android:gravity="end"
         android:textStyle="bold"
         android:layout_weight="1"

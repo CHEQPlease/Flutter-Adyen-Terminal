@@ -50,8 +50,8 @@ android {
         applicationId "com.itsniaz.adyen.adyen_terminal_payment_example"
         minSdkVersion 21
         targetSdkVersion flutter.targetSdkVersion
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
+        versionCode 5
+        versionName "1.4"
         multiDexEnabled true
     }
 

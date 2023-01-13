@@ -99,7 +99,7 @@
         android:id="@+id/tv_placed_at"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="2.2mm"
+        android:textSize="2mm"
         android:textStyle="bold"
         android:layout_gravity="center"
         tools:text="Placed at 01/11/2023 1:00 AM PST"

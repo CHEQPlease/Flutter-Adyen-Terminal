@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         tools:text="SUBTOTAL"
         android:textStyle="bold"
-        android:textSize="3mm"
+        android:textSize="2.5mm"
         />
 
 
@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         tools:text="$4.00"
         android:textStyle="bold"
-        android:textSize="3mm"
+        android:textSize="2.5mm"
         android:gravity="end"
         />
 

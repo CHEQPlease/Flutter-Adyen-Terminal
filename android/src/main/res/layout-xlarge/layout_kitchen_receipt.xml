@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_kitchen_receipt"
+    android:layout_width="48mm"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    android:layout_gravity="center_horizontal"
+    android:layout_height="wrap_content"
+    android:theme="@style/receiptTheme"
+    tools:ignore="InOrMmUsage">
+
+    <!-- Brand Name -->
+    <LinearLayout
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_order_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Order # 398"
+            android:layout_marginTop="5mm"
+            android:layout_marginBottom="1mm"
+            android:textSize="4.5mm"
+            android:gravity="center"
+            android:textStyle="bold"
+            />
+
+        <TextView
+            android:id="@+id/tv_order_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Kiosk - Counter"
+            android:textSize="3mm"
+            android:layout_marginBottom="3mm"
+            android:gravity="center"
+            android:textStyle="bold"
+            />
+
+    </LinearLayout>
+
+    <!-- Divider -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1mm"
+        android:src="@drawable/dotted_line"
+        android:layout_marginTop="1mm"
+        android:layout_marginBottom="1mm"
+        />
+
+    <!-- Placed At -->
+    <TextView
+        android:id="@+id/tv_placed_at"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="2.2mm"
+        android:textStyle="bold"
+        android:layout_marginTop="2mm"
+        android:layout_marginBottom="2mm"
+        android:layout_gravity="center"
+        android:text="Placed at 01/11/2023 1:00 AM PST"
+        />
+
+
+
+    <!-- Divider -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0.5mm"
+        android:src="@drawable/dotted_line"
+        android:layout_marginTop="1mm"
+        android:layout_marginBottom="1mm"
+        />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_dishes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:listitem="@layout/layout_kitchen_item_info"
+        tools:itemCount="3"
+        />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1mm"
+        android:src="@drawable/dotted_line"
+        android:layout_marginTop="3mm"
+        android:layout_marginBottom="1mm"
+        />
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="3mm"
+        />
+
+</LinearLayout>

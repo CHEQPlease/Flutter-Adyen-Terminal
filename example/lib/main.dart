@@ -121,7 +121,7 @@ class _MyAppState extends State<MyApp> {
   "totalItems": "2",
   "orderNo": "K10",
   "tableNo": "234",
-  "receiptType": "kitchen",
+  "receiptType": "kiosk",
   "timeOfOrder": "Placed at : 01/12/2023 03:57 AM AKST",
   "items": [
     {

@@ -99,7 +99,7 @@
         android:id="@+id/tv_placed_at"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="2.2mm"
+        android:textSize="2.3mm"
         android:textStyle="bold"
         android:layout_gravity="center"
         tools:text="Placed at 01/11/2023 1:00 AM PST"
@@ -200,15 +200,15 @@
         android:layout_height="wrap_content"
         android:text="@string/promo_text"
         android:gravity="center"
-        android:textSize="2mm"
+        android:textSize="2.5mm"
         android:layout_marginTop="0.5mm"
         android:layout_marginBottom="0.5mm"
         android:textStyle="bold"
         />
 
     <ImageView
-        android:layout_width="14mm"
-        android:layout_height="14mm"
+        android:layout_width="16mm"
+        android:layout_height="16mm"
         android:src="@drawable/qr_cheq_app_apple_qr"
         android:layout_gravity="center"
         android:layout_marginTop="1mm"
@@ -244,7 +244,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="CUSTOMER COPY"
-        android:textSize="2.5mm"
+        android:textSize="2.8mm"
         android:textStyle="bold"
         />
 
@@ -258,7 +258,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="POWERED BY"
-            android:textSize="2.5mm"
+            android:textSize="2.8mm"
 
             />
 
@@ -267,7 +267,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text=" CHEQ"
-            android:textSize="2.5mm"
+            android:textSize="2.8mm"
             android:textStyle="normal"
             />
 
