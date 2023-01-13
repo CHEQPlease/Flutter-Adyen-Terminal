@@ -45,7 +45,7 @@
     <!-- Divider -->
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="0.5mm"
+        android:layout_height="1mm"
         android:src="@drawable/dotted_line"
         android:layout_marginTop="1mm"
         android:layout_marginBottom="1mm"
@@ -56,7 +56,7 @@
         android:id="@+id/tv_placed_at"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="2.5mm"
+        android:textSize="2.2mm"
         android:textStyle="bold"
         android:layout_marginTop="2mm"
         android:layout_marginBottom="2mm"
@@ -86,7 +86,7 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="0.5mm"
+        android:layout_height="1mm"
         android:src="@drawable/dotted_line"
         android:layout_marginTop="3mm"
         android:layout_marginBottom="1mm"

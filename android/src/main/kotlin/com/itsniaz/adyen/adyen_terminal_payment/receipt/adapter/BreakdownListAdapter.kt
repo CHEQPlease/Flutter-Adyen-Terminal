@@ -1,5 +1,6 @@
 package com.itsniaz.adyen.adyen_terminal_payment.receipt.adapter
 
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -20,6 +21,11 @@ class BreakdownListAdapter(private val breakdowns: List<Breakdown>) : RecyclerVi
         val breakdown = breakdowns[position]
         holder.binding.tvBreakdownKeyName.text = breakdown.key
         holder.binding.tvBreakdownKeyValue.text = breakdown.value
+
+        if(breakdown.important){
+            holder.binding.tvBreakdownKeyName.setTextSize(TypedValue.COMPLEX_UNIT_MM,3.0f)
+            holder.binding.tvBreakdownKeyValue.setTextSize(TypedValue.COMPLEX_UNIT_MM,3.0f)
+        }
     }
 
     override fun getItemCount(): Int {

@@ -14,6 +14,7 @@ import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutKitchenReceipt
 import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutMerchantReceiptBinding
 import com.itsniaz.adyen.adyen_terminal_payment.receipt.adapter.BreakdownListAdapter
 import com.itsniaz.adyen.adyen_terminal_payment.receipt.adapter.DishListAdapterCustomer
+import com.itsniaz.adyen.adyen_terminal_payment.receipt.adapter.KitchenDishListAdapter
 import com.itsniaz.adyen.adyen_terminal_payment.receipt.data.RECEIPT_TYPE
 import com.itsniaz.adyen.adyen_terminal_payment.receipt.data.ReceiptDTO
 
@@ -119,8 +120,11 @@ class ReceiptBuilder private constructor(context: Context) {
         binding.tvOrderNo.text = receiptDTO.orderNo
         binding.tvPlacedAt.text = receiptDTO.timeOfOrder
         binding.tvOrderSubtitle.text = receiptDTO.orderSubtitle
-        binding.rvDishes.adapter = DishListAdapterCustomer(receiptDTO.items)
+        binding.rvDishes.adapter = KitchenDishListAdapter(receiptDTO.items)
         binding.rvDishes.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        if(receiptDTO.orderSubtitle.isNullOrEmpty()){
+            binding.tvOrderSubtitle.visibility = View.GONE
+        }
         customerReceiptKiosk.measure( View.MeasureSpec.makeMeasureSpec(700, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
         customerReceiptKiosk.layout(0, 0, customerReceiptKiosk.measuredWidth, customerReceiptKiosk.measuredHeight)
 

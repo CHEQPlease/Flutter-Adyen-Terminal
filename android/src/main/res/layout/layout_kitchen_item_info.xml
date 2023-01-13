@@ -8,17 +8,22 @@
     >
 
 
-    <TextView
-        android:id="@+id/tv_qty"
+    <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="x1"
-        android:textSize="4mm"
-        android:layout_marginRight="3.5mm"
-        android:layout_marginLeft="2mm"
-        android:textStyle="bold"
-        android:layout_gravity="center"
-        />
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_qty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="x1"
+            android:textSize="4mm"
+            android:layout_marginRight="3.5mm"
+            android:layout_marginLeft="2mm"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            />
+    </RelativeLayout>
 
     <LinearLayout
         android:orientation="vertical"
@@ -36,7 +41,7 @@
             />
 
         <TextView
-            android:id="@+id/tv_item_qty"
+            android:id="@+id/tv_item_details"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="-- Side 1"

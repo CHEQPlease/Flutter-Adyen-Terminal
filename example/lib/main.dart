@@ -117,11 +117,11 @@ class _MyAppState extends State<MyApp> {
 {
   "brandName": "CHEQ Diner1",
   "orderType": "Self-Order",
-  "orderSubtitle": null,
+  "orderSubtitle": "Kiosk-Order",
   "totalItems": "2",
   "orderNo": "K10",
-  "tableNo": "",
-  "receiptType": "Kiosk",
+  "tableNo": "234",
+  "receiptType": "kitchen",
   "timeOfOrder": "Placed at : 01/12/2023 03:57 AM AKST",
   "items": [
     {
@@ -136,7 +136,7 @@ class _MyAppState extends State<MyApp> {
       "description": "  -- Onions\n",
       "quantity": "1",
       "price": "\$1.0",
-      "strikethrough": false
+      "strikethrough": true
     }
   ],
   "breakdown": [

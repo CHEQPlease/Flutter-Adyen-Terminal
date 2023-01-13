@@ -27,7 +27,7 @@ data class ReceiptDTO(
 
 data class Breakdown(
     @SerializedName("important")
-    val important: Boolean?,
+    val important: Boolean = false,
     @SerializedName("key")
     val key: String?,
     @SerializedName("value")
@@ -44,7 +44,7 @@ data class Item(
     @SerializedName("quantity")
     val quantity: String?,
     @SerializedName("strikethrough")
-    val strikethrough: Boolean?
+    val strikethrough: Boolean = false
 )
 
 enum class RECEIPT_TYPE {
