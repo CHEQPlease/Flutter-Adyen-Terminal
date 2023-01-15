@@ -28,17 +28,6 @@
             android:textStyle="bold"
             />
 
-        <TextView
-            android:id="@+id/test"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="S"
-            android:layout_marginTop="2mm"
-            android:layout_marginBottom="1mm"
-            android:textSize="4mm"
-            android:textStyle="bold"
-            />
-
     </LinearLayout>
 
     <!-- Order -->

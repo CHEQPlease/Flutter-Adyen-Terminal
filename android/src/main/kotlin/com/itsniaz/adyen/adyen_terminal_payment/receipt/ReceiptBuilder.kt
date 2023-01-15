@@ -117,7 +117,7 @@ class ReceiptBuilder private constructor(context: Context) {
 
         /* TODO : Move to string resource to support localization in future */
 
-        binding.tvOrderNo.text = "Order #:receiptDTO.orderNo"
+        binding.tvOrderNo.text = "Order #:${receiptDTO.orderNo}"
         binding.tvPlacedAt.text = receiptDTO.timeOfOrder
         binding.tvOrderSubtitle.text = receiptDTO.orderSubtitle
         binding.rvDishes.adapter = KitchenDishListAdapter(receiptDTO.items)
