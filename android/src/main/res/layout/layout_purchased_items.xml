@@ -8,7 +8,7 @@
     >
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="35mm"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginBottom="0.5mm"
@@ -19,21 +19,21 @@
             android:id="@+id/tv_item_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingRight="3mm"
             tools:text="Egg"
             android:textStyle="bold"
             android:textSize="3mm"
-            tools:ignore="NestedWeights" />
+            tools:ignore="NestedWeights"
+            android:paddingEnd="3mm" />
 
         <TextView
             android:id="@+id/tv_item_details"
-            android:layout_width="30mm"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="-- Cucumba sdf adsf asdf\n"
+            tools:text="-- Cucumber\n"
             android:textSize="2.4mm"
             android:textStyle="bold"
             />
-
-
 
     </LinearLayout>
 
@@ -50,9 +50,9 @@
 
     <TextView
         android:id="@+id/tv_price"
-        android:layout_width="wrap_content"
+        android:layout_width="10mm"
         android:layout_height="wrap_content"
-        tools:text="$4.00"
+        tools:text="$4.0"
         android:textSize="2.8mm"
         android:gravity="end"
         android:textStyle="bold"
