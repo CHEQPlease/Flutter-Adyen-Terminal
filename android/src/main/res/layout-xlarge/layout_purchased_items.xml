@@ -28,9 +28,9 @@
 
         <TextView
             android:id="@+id/tv_item_details"
-            android:layout_width="10mm"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="-- Cucumber\n"
+            tools:text="-- Cucumber\nCarrot"
             android:textSize="2.4mm"
             android:textStyle="bold"
             />
@@ -39,9 +39,11 @@
 
     <TextView
         android:id="@+id/tv_qty"
-        android:layout_width="wrap_content"
+        android:layout_width="10mm"
         android:layout_height="wrap_content"
+        android:paddingEnd="1mm"
         tools:text="1"
+        android:gravity="end"
         android:textStyle="bold"
         android:layout_weight="1"
         android:textSize="2.8mm"
@@ -50,9 +52,9 @@
 
     <TextView
         android:id="@+id/tv_price"
-        android:layout_width="wrap_content"
+        android:layout_width="10mm"
         android:layout_height="wrap_content"
-        tools:text="$4.00"
+        tools:text="$4.0"
         android:textSize="2.8mm"
         android:gravity="end"
         android:textStyle="bold"
