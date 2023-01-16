@@ -8,7 +8,7 @@
     >
 
     <LinearLayout
-        android:layout_width="35mm"
+        android:layout_width="32mm"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginBottom="0.5mm"
@@ -52,9 +52,9 @@
 
     <TextView
         android:id="@+id/tv_price"
-        android:layout_width="12mm"
+        android:layout_width="14mm"
         android:layout_height="wrap_content"
-        tools:text="$4.0"
+        tools:text="$40.00"
         android:textSize="2.8mm"
         android:gravity="end"
         android:textStyle="bold"
