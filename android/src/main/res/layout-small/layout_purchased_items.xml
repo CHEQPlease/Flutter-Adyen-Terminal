@@ -8,7 +8,7 @@
     >
 
     <LinearLayout
-        android:layout_width="32mm"
+        android:layout_width="30mm"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginBottom="0.5mm"
@@ -17,7 +17,7 @@
 
         <TextView
             android:id="@+id/tv_item_name"
-            android:layout_width="wrap_content"
+            android:layout_width="28mm"
             android:layout_height="wrap_content"
             android:paddingRight="3mm"
             tools:text="Egg"
@@ -28,7 +28,7 @@
 
         <TextView
             android:id="@+id/tv_item_details"
-            android:layout_width="wrap_content"
+            android:layout_width="28mm"
             android:layout_height="wrap_content"
             tools:text="-- Cucumber\nCarrot"
             android:textSize="2.4mm"
@@ -39,10 +39,10 @@
 
     <TextView
         android:id="@+id/tv_qty"
-        android:layout_width="6mm"
+        android:layout_width="10mm"
         android:layout_height="wrap_content"
         android:paddingEnd="1mm"
-        tools:text="1"
+        tools:text="123"
         android:gravity="center"
         android:textStyle="bold"
         android:layout_weight="1"
@@ -52,9 +52,9 @@
 
     <TextView
         android:id="@+id/tv_price"
-        android:layout_width="14mm"
+        android:layout_width="18mm"
         android:layout_height="wrap_content"
-        tools:text="$40.00"
+        tools:text="$4000.00"
         android:textSize="2.8mm"
         android:gravity="end"
         android:textStyle="bold"
