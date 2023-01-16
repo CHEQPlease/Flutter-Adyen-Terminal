@@ -52,7 +52,7 @@
 
     <TextView
         android:id="@+id/tv_price"
-        android:layout_width="10mm"
+        android:layout_width="12mm"
         android:layout_height="wrap_content"
         tools:text="$4.0"
         android:textSize="2.8mm"

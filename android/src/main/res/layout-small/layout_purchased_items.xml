@@ -39,11 +39,11 @@
 
     <TextView
         android:id="@+id/tv_qty"
-        android:layout_width="10mm"
+        android:layout_width="6mm"
         android:layout_height="wrap_content"
         android:paddingEnd="1mm"
         tools:text="1"
-        android:gravity="end"
+        android:gravity="center"
         android:textStyle="bold"
         android:layout_weight="1"
         android:textSize="2.8mm"
@@ -52,7 +52,7 @@
 
     <TextView
         android:id="@+id/tv_price"
-        android:layout_width="10mm"
+        android:layout_width="12mm"
         android:layout_height="wrap_content"
         tools:text="$4.0"
         android:textSize="2.8mm"
