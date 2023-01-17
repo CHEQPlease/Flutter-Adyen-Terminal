@@ -127,7 +127,7 @@
             android:text="ITEM"
             android:textSize="2.5mm"
             android:textStyle="bold"
-            android:layout_weight="8"
+            android:layout_weight="5"
             />
 
 
