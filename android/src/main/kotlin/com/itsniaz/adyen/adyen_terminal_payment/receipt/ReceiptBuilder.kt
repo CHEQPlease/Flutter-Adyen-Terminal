@@ -54,7 +54,7 @@ class ReceiptBuilder private constructor(context: Context) {
         /* TODO : Move to string resource to support localization in future*/
 
         binding.tvBrandName.text = receiptDTO.brandName
-        binding.tvOrderNo.text = "ORDER #${receiptDTO.orderNo}"
+        binding.tvOrderNo.text = "ORDER #: ${receiptDTO.orderNo}"
         binding.tvTotalItems.text = "TOTAL ITEMS - ${receiptDTO.totalItems}" /* TODO : Move to plural type string resource*/
         binding.tvPlacedAt.text = receiptDTO.timeOfOrder
         binding.rvDishes.adapter = DishListAdapterCustomer(receiptDTO.items)
@@ -78,7 +78,7 @@ class ReceiptBuilder private constructor(context: Context) {
         /* TODO : Move to string resource to support localization in future */
 
         binding.tvBrandName.text = receiptDTO.brandName
-        binding.tvOrderNo.text = "ORDER #${receiptDTO.orderNo}"
+        binding.tvOrderNo.text = "ORDER #: ${receiptDTO.orderNo}"
         binding.tvTotalItems.text = "TOTAL ITEMS - ${receiptDTO.totalItems}" /* TODO : Move to plural type string resource*/
         binding.tvPlacedAt.text = receiptDTO.timeOfOrder
         binding.rvDishes.adapter = DishListAdapterCustomer(receiptDTO.items)
@@ -99,7 +99,7 @@ class ReceiptBuilder private constructor(context: Context) {
         /* TODO : Move to string resource to support localization in future */
 
         binding.tvBrandName.text = receiptDTO.brandName
-        binding.tvOrderNo.text = "ORDER #${receiptDTO.orderNo}"
+        binding.tvOrderNo.text = "ORDER #: ${receiptDTO.orderNo}"
         binding.tvTableNo.text = receiptDTO.tableNo
         binding.tvPlacedAt.text = receiptDTO.timeOfOrder
         binding.rvBreakdown.adapter = BreakdownListAdapter(receiptDTO.breakdown)
@@ -117,7 +117,7 @@ class ReceiptBuilder private constructor(context: Context) {
 
         /* TODO : Move to string resource to support localization in future */
 
-        binding.tvOrderNo.text = "Order #:${receiptDTO.orderNo}"
+        binding.tvOrderNo.text = "Order #: ${receiptDTO.orderNo}"
         binding.tvPlacedAt.text = receiptDTO.timeOfOrder
         binding.tvOrderSubtitle.text = receiptDTO.orderSubtitle
         binding.rvDishes.adapter = KitchenDishListAdapter(receiptDTO.items)

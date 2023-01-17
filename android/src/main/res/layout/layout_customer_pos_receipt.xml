@@ -37,7 +37,7 @@
         android:id="@+id/tv_order_no"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="ORDER # 7"
+        tools:text="ORDER #: 7"
         android:layout_gravity="center"
         android:textSize="3mm"
         android:textStyle="bold"
