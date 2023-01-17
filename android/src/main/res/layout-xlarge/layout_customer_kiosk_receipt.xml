@@ -99,7 +99,7 @@
         android:id="@+id/tv_placed_at"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="2mm"
+        android:textSize="2.2mm"
         android:textStyle="bold"
         android:layout_gravity="center"
         tools:text="Placed at 01/11/2023 1:00 AM PST"
@@ -127,18 +127,17 @@
             android:text="ITEM"
             android:textSize="2.5mm"
             android:textStyle="bold"
-            android:layout_weight="8"
+            android:layout_weight="5"
             />
 
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
             android:text="QTY"
             android:textSize="2.5mm"
-            android:textStyle="bold"
-            android:layout_weight="1"
-            />
+            android:textStyle="bold" />
 
 
         <TextView
