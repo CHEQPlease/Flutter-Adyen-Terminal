@@ -81,12 +81,14 @@ class FlutterAdyen {
     });
   }
 
-  static Future<void> getTerminalInfo(String txnId) async{
+  static Future<void> getTerminalInfo(String txnId,{OnSuccess<String>? onSuccess,
+    OnFailure<String>? onFailure}) async{
     _channel.invokeMethod(_methodGetDeviceInfo, {
       "transactionId" : txnId
-    }).then((value){})
-      .catchError((value){
-
+    }).then((value){
+      onSuccess!(value);
+    }).catchError((value){
+      onFailure!("Unable to retrieve terminal info");
     });
   }
 
