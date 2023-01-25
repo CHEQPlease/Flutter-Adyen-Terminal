@@ -85,7 +85,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                                     }
                                 },
                                 paymentFailureHandler = object : TransactionFailureHandler<String>{
-                                    override fun onFailure(response: String) {
+                                    override fun onFailure(response: String?) {
                                         result.error("ERROR","TXN FAILED",response)
                                     }
                                 }
@@ -133,7 +133,8 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                                 }
                             },
                             failureHandler = object : TransactionFailureHandler<String>{
-                                override fun onFailure(response: String) {
+
+                                override fun onFailure(response: String?) {
                                     result.error("PRINT_ERROR","Unable to print",response)
                                 }
                             }
@@ -153,6 +154,32 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                         result.error("PRINT_ERROR","Unable to print",e.message)
                     }
                 }
+            }
+
+            "get_terminal_info" -> {
+                val transactionId = call.argument<String>("transactionId")!!
+                GlobalScope.launch(Dispatchers.IO) {
+                    try {
+                        AdyenTerminalManager.getDeviceInfo(
+                            txnId = transactionId,
+                            successHandler = object : TransactionSuccessHandler<String>{
+                                override fun onSuccess(response: String?) {
+                                    result.success(response)
+                                }
+                            },
+                            failureHandler = object  : TransactionFailureHandler<String>{
+                                override fun onFailure(response: String?) {
+                                    result.error("ERROR", "Unable to get device info", null)
+                                }
+
+                            }
+
+                        )
+                    } catch (e: Exception){
+                        result.error("PRINT_ERROR","Unable to print",e.message)
+                    }
+                }
+
             }
 
             else -> {

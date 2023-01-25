@@ -200,6 +200,49 @@ object AdyenTerminalManager {
         }
     }
 
+
+    fun getDeviceInfo(txnId: String, successHandler: TransactionSuccessHandler<String>, failureHandler: TransactionFailureHandler<String>){
+
+        val config: Config = getConfigurationData(terminalConfig)
+        val terminalLocalAPIClient = Client(config)
+        val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient)
+        val terminalApiRequest = TerminalAPIRequest()
+
+        val securityKey: SecurityKey = getSecurityKey(
+            keyIdentifier = terminalConfig.key_id,
+            passphrase = terminalConfig.key_passphrase
+        )
+
+        terminalApiRequest.apply {
+            saleToPOIRequest = SaleToPOIRequest().apply {
+                messageHeader = MessageHeader().apply {
+                    protocolVersion = "3.0"
+                    messageClass = MessageClassType.SERVICE
+                    messageCategory = MessageCategoryType.DIAGNOSIS
+                    messageType = MessageType.REQUEST
+                    saleID = terminalConfig.terminalId
+                    serviceID = txnId
+                    poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}"
+                }
+                diagnosisRequest = DiagnosisRequest().apply {
+                    isHostDiagnosisFlag = false
+                }
+            }
+        }
+
+        try {
+            Log.d("terminalApiRequest>>", "" + Gson().toJson(terminalApiRequest))
+            val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
+            val resultJSON = Gson().toJson(response)
+            successHandler.onSuccess(resultJSON);
+            Log.d("terminalApiResponse>>", "" + Gson().toJson(response))
+        } catch (e: Exception) {
+            failureHandler.onFailure(null)
+        }
+
+    }
+
+
     fun scanBarcode(transactionId: String){
 
         val jsonReq = """{
@@ -251,8 +294,6 @@ object AdyenTerminalManager {
                     passphrase = terminalConfig.key_passphrase
                 )
             )
-
-            var x = response
         } catch (e: Exception) {
             e.printStackTrace()
         }

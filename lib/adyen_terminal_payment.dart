@@ -1,6 +1,4 @@
 
-import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:adyen_terminal_payment/data/AdyenTerminalConfig.dart';
 import 'package:flutter/services.dart';
@@ -18,6 +16,7 @@ class FlutterAdyen {
   static const String _methodCancelTransaction = "cancel_transaction";
   static const String _methodPrintReceipt = "print_receipt";
   static const String _methodScanBarcode = "scan_barcode";
+  static const String _methodGetDeviceInfo = "get_terminal_info";
 
   static late AdyenTerminalConfig _terminalConfig;
 
@@ -76,8 +75,17 @@ class FlutterAdyen {
     _channel.invokeMethod(_methodScanBarcode,{
       "transactionId" : txnId
     }).then((value){
-
+      /* TODO: Parse the barcode */
     }).catchError((value){
+      /* TODO: Parse the barcode */
+    });
+  }
+
+  static Future<void> getTerminalInfo(String txnId) async{
+    _channel.invokeMethod(_methodGetDeviceInfo, {
+      "transactionId" : txnId
+    }).then((value){})
+      .catchError((value){
 
     });
   }
