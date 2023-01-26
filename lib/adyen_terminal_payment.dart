@@ -40,9 +40,13 @@ class FlutterAdyen {
       "currency" : currency,
       "captureType" : captureType.name
     }).then((value){
-      onSuccess!(value);
+      if (onSuccess != null) {
+        onSuccess(value);
+      }
     }).catchError((value){
-      onFailure!(value.details);
+      if (onFailure != null) {
+        onFailure(value.details);
+      }
     });
 
   }
@@ -64,9 +68,13 @@ class FlutterAdyen {
       "receiptDTOJSON" : receiptDTOJSON,
       "transactionId" : txnId
     }).then((value){
-      onSuccess!("Print Successful");
+      if (onSuccess != null) {
+        onSuccess("Print Successful");
+      }
     }).catchError((value){
-      onFailure!(value.details);
+      if (onFailure != null) {
+        onFailure(value.details);
+      }
     });
   }
 
@@ -87,11 +95,11 @@ class FlutterAdyen {
       "transactionId" : txnId,
       "terminalIP" : terminalIP
     }).then((value){
-      if (onSuccess!=null) {
+      if (onSuccess != null) {
         onSuccess(value);
       }
     }).catchError((value){
-      if (onFailure!=null) {
+      if (onFailure != null) {
         onFailure("Unable to retrieve terminal info");
       }
     });

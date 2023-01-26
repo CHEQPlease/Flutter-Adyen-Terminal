@@ -209,8 +209,6 @@ class _MyAppState extends State<MyApp> {
                             ;
                             // FlutterAdyen.printReceipt(_get10DigitNumber(),receiptDTOJSON, onSuccess: (String val){
                             //   print("Print Sucessful");
-                            // }, onFailure: (String errorMsg){
-                            //    print("Print failure : $errorMsg");
                             // });
 
                             String txnId = _get10DigitNumber();
