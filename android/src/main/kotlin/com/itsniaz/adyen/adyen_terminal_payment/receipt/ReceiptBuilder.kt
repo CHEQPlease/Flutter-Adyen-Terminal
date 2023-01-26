@@ -3,6 +3,7 @@ package com.itsniaz.adyen.adyen_terminal_payment.receipt
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -100,7 +101,13 @@ class ReceiptBuilder private constructor(context: Context) {
 
         binding.tvBrandName.text = receiptDTO.brandName
         binding.tvOrderNo.text = "ORDER #: ${receiptDTO.orderNo}"
-        binding.tvTableNo.text = receiptDTO.tableNo
+        if (receiptDTO.tableNo.isNullOrEmpty()) {
+            binding.tvTableNo.visibility = View.GONE
+            binding.tvOrderNo.gravity = Gravity.CENTER
+        }else{
+            binding.tvTableNo.text = receiptDTO.tableNo
+            binding.tvOrderNo.gravity = Gravity.END
+        }
         binding.tvPlacedAt.text = receiptDTO.timeOfOrder
         binding.rvBreakdown.adapter = BreakdownListAdapter(receiptDTO.breakdown)
         binding.rvBreakdown.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
