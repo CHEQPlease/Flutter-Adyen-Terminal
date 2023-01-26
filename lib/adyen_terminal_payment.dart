@@ -86,9 +86,13 @@ class FlutterAdyen {
     _channel.invokeMethod(_methodGetDeviceInfo, {
       "transactionId" : txnId
     }).then((value){
-      onSuccess!(value);
+      if (onSuccess!=null) {
+        onSuccess(value);
+      }
     }).catchError((value){
-      onFailure!("Unable to retrieve terminal info");
+      if (onFailure!=null) {
+        onFailure("Unable to retrieve terminal info");
+      }
     });
   }
 

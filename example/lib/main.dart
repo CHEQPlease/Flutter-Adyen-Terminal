@@ -214,7 +214,9 @@ class _MyAppState extends State<MyApp> {
                             // });
 
                             String txnId = _get10DigitNumber();
-                            FlutterAdyen.getTerminalInfo(txnId);
+                            await FlutterAdyen.getTerminalInfo(txnId,onSuccess: (val){
+                              print("SAKSES: $val");
+                            });
 
                             // String txnId = _get10DigitNumber();
                             // FlutterAdyen.authorizeTransaction(
