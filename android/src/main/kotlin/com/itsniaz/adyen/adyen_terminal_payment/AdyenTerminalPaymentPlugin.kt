@@ -158,10 +158,12 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
 
             "get_terminal_info" -> {
                 val transactionId = call.argument<String>("transactionId")!!
+                val terminalIP = call.argument<String>("terminalIP")!!
                 GlobalScope.launch(Dispatchers.IO) {
                     try {
-                        AdyenTerminalManager.getDeviceInfo(
+                        AdyenTerminalManager.getTerminalInfo(
                             txnId = transactionId,
+                            terminalIP = terminalIP,
                             successHandler = object : TransactionSuccessHandler<String>{
                                 override fun onSuccess(response: String?) {
                                     result.success(response)
@@ -171,9 +173,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                                 override fun onFailure(response: String?) {
                                     result.error("ERROR", "Unable to get device info", null)
                                 }
-
                             }
-
                         )
                     } catch (e: Exception){
                         result.error("PRINT_ERROR","Unable to print",e.message)

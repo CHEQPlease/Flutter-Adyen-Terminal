@@ -214,8 +214,8 @@ class _MyAppState extends State<MyApp> {
                             // });
 
                             String txnId = _get10DigitNumber();
-                            await FlutterAdyen.getTerminalInfo(txnId,onSuccess: (val){
-                              print("SAKSES: $val");
+                            await FlutterAdyen.getTerminalInfo("https://192.168.1.198",txnId,onSuccess: (val){
+                              print("Success: $val");
                             });
 
                             // String txnId = _get10DigitNumber();

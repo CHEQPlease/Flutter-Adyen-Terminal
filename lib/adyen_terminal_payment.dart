@@ -81,10 +81,11 @@ class FlutterAdyen {
     });
   }
 
-  static Future<void> getTerminalInfo(String txnId,{OnSuccess<String>? onSuccess,
+  static Future<void> getTerminalInfo(String terminalIP, String txnId,{OnSuccess<String>? onSuccess,
     OnFailure<String>? onFailure}) async{
     _channel.invokeMethod(_methodGetDeviceInfo, {
-      "transactionId" : txnId
+      "transactionId" : txnId,
+      "terminalIP" : terminalIP
     }).then((value){
       if (onSuccess!=null) {
         onSuccess(value);

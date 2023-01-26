@@ -201,9 +201,12 @@ object AdyenTerminalManager {
     }
 
 
-    fun getDeviceInfo(txnId: String, successHandler: TransactionSuccessHandler<String>, failureHandler: TransactionFailureHandler<String>){
+    fun getTerminalInfo(terminalIP: String, txnId: String, successHandler: TransactionSuccessHandler<String>, failureHandler: TransactionFailureHandler<String>){
 
         val config: Config = getConfigurationData(terminalConfig)
+        config.apply {
+            terminalApiLocalEndpoint = terminalIP
+        }
         val terminalLocalAPIClient = Client(config)
         val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient)
         val terminalApiRequest = TerminalAPIRequest()
@@ -225,7 +228,7 @@ object AdyenTerminalManager {
                     poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}"
                 }
                 diagnosisRequest = DiagnosisRequest().apply {
-                    isHostDiagnosisFlag = false
+                    isHostDiagnosisFlag = true
                 }
             }
         }
