@@ -1,4 +1,4 @@
-package com.itsniaz.adyen.adyen_terminal_payment
+package com.cheqplease.adyen_terminal
 
 open class SingletonHolder<out T, in A>(private val constructor: (A) -> T) {
 

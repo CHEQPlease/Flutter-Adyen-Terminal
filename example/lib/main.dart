@@ -1,11 +1,11 @@
 import 'dart:math';
-import 'dart:typed_data';
 
-import 'package:adyen_terminal_payment/adyen_terminal_payment.dart';
-import 'package:adyen_terminal_payment/data/AdyenTerminalConfig.dart';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_adyen_terminal/adyen_terminal_payment.dart';
+import 'package:flutter_adyen_terminal/data/AdyenTerminalConfig.dart';
 
 void main() {
   runApp(const MaterialApp(

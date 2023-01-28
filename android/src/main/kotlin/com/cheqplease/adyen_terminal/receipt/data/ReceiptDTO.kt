@@ -1,4 +1,4 @@
-package com.itsniaz.adyen.adyen_terminal_payment.receipt.data
+package com.cheqplease.adyen_terminal.receipt.data
 
 import com.google.gson.annotations.SerializedName
 

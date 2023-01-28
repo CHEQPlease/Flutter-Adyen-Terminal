@@ -1,12 +1,11 @@
-package com.itsniaz.adyen.adyen_terminal_payment.receipt.adapter
+package com.cheqplease.adyen_terminal.receipt.adapter
 
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutMetaInfoBinding
-import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutPurchasedItemsBinding
-import com.itsniaz.adyen.adyen_terminal_payment.receipt.data.Breakdown
+import com.cheqplease.adyen_terminal.databinding.LayoutMetaInfoBinding
+import com.cheqplease.adyen_terminal.receipt.data.Breakdown
 
 class BreakdownListAdapter(private val breakdowns: List<Breakdown>) : RecyclerView.Adapter<BreakdownListAdapter.ViewHolder>() {
 

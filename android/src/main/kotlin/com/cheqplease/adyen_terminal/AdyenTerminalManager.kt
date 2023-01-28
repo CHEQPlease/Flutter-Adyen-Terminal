@@ -1,4 +1,4 @@
-package com.itsniaz.adyen.adyen_terminal_payment
+package com.cheqplease.adyen_terminal
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -14,9 +14,11 @@ import com.adyen.model.terminal.TerminalAPIRequest
 import com.adyen.model.terminal.security.SecurityKey
 import com.adyen.service.TerminalLocalAPI
 import com.google.gson.Gson
-import com.itsniaz.adyen.adyen_terminal_payment.data.AdyenTerminalConfig
-import com.itsniaz.adyen.adyen_terminal_payment.receipt.ReceiptBuilder
-import com.itsniaz.adyen.adyen_terminal_payment.receipt.data.ReceiptDTO
+import com.cheqplease.adyen_terminal.data.AdyenTerminalConfig
+import com.cheqplease.adyen_terminal.receipt.ReceiptBuilder
+import com.cheqplease.adyen_terminal.receipt.data.ReceiptDTO
+import com.cheqplease.adyen_terminal_payment.TransactionFailureHandler
+import com.cheqplease.adyen_terminal_payment.TransactionSuccessHandler
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.lang.ref.WeakReference
@@ -31,8 +33,8 @@ object AdyenTerminalManager {
     private lateinit var context: WeakReference<Context>
 
     fun init(adyenTerminalConfig: AdyenTerminalConfig, context: Context) {
-        this.terminalConfig = adyenTerminalConfig
-        this.context = WeakReference<Context>(context)
+        terminalConfig = adyenTerminalConfig
+        AdyenTerminalManager.context = WeakReference<Context>(context)
     }
 
     fun authorizeTransaction(
@@ -142,7 +144,8 @@ object AdyenTerminalManager {
         failureHandler: TransactionFailureHandler<String>
     ) {
 
-        val customerReceiptBitmap = ReceiptBuilder.getInstance(context).buildReceipt(receiptDTO = Gson().fromJson(receiptDTOJSON,ReceiptDTO::class.java))
+        val customerReceiptBitmap = ReceiptBuilder.getInstance(context).buildReceipt(receiptDTO = Gson().fromJson(receiptDTOJSON,
+            ReceiptDTO::class.java))
         val encoded: ByteArray? = customerReceiptBitmap?.let { bitmapToByteArray(bitmap = it) }
         val imageBase64Encoded = encodeToString(encoded, Base64.DEFAULT);
         val printData = """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()

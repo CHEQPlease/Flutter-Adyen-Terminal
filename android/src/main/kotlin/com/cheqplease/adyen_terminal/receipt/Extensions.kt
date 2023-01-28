@@ -1,4 +1,4 @@
-package com.itsniaz.adyen.adyen_terminal_payment.receipt
+package com.cheqplease.adyen_terminal.receipt
 
 import android.graphics.Paint
 import android.widget.TextView

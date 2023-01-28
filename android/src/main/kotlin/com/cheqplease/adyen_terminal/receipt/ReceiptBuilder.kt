@@ -1,4 +1,4 @@
-package com.itsniaz.adyen.adyen_terminal_payment.receipt
+package com.cheqplease.adyen_terminal.receipt
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -8,16 +8,16 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.itsniaz.adyen.adyen_terminal_payment.SingletonHolder
-import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutCustomerKioskReceiptBinding
-import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutCustomerPosReceiptBinding
-import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutKitchenReceiptBinding
-import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutMerchantReceiptBinding
-import com.itsniaz.adyen.adyen_terminal_payment.receipt.adapter.BreakdownListAdapter
-import com.itsniaz.adyen.adyen_terminal_payment.receipt.adapter.DishListAdapterCustomer
-import com.itsniaz.adyen.adyen_terminal_payment.receipt.adapter.KitchenDishListAdapter
-import com.itsniaz.adyen.adyen_terminal_payment.receipt.data.RECEIPT_TYPE
-import com.itsniaz.adyen.adyen_terminal_payment.receipt.data.ReceiptDTO
+import com.cheqplease.adyen_terminal.SingletonHolder
+import com.cheqplease.adyen_terminal.databinding.LayoutCustomerKioskReceiptBinding
+import com.cheqplease.adyen_terminal.databinding.LayoutCustomerPosReceiptBinding
+import com.cheqplease.adyen_terminal.databinding.LayoutKitchenReceiptBinding
+import com.cheqplease.adyen_terminal.databinding.LayoutMerchantReceiptBinding
+import com.cheqplease.adyen_terminal.receipt.adapter.BreakdownListAdapter
+import com.cheqplease.adyen_terminal.receipt.adapter.DishListAdapterCustomer
+import com.cheqplease.adyen_terminal.receipt.adapter.KitchenDishListAdapter
+import com.cheqplease.adyen_terminal.receipt.data.RECEIPT_TYPE
+import com.cheqplease.adyen_terminal.receipt.data.ReceiptDTO
 
 class ReceiptBuilder private constructor(context: Context) {
 

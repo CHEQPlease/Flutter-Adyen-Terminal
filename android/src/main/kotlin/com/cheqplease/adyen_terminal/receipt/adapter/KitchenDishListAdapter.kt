@@ -1,17 +1,16 @@
-package com.itsniaz.adyen.adyen_terminal_payment.receipt.adapter
+package com.cheqplease.adyen_terminal.receipt.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutKitchenItemInfoBinding
-import com.itsniaz.adyen.adyen_terminal_payment.databinding.LayoutPurchasedItemsBinding
-import com.itsniaz.adyen.adyen_terminal_payment.receipt.data.Item
-import com.itsniaz.adyen.adyen_terminal_payment.receipt.showStrikeThrough
+import com.cheqplease.adyen_terminal.databinding.LayoutKitchenItemInfoBinding
+import com.cheqplease.adyen_terminal.receipt.data.Item
+import com.cheqplease.adyen_terminal.receipt.showStrikeThrough
 
 class KitchenDishListAdapter(private val dishes: List<Item>) : RecyclerView.Adapter<KitchenDishListAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding :  LayoutKitchenItemInfoBinding = LayoutKitchenItemInfoBinding.inflate(LayoutInflater.from(parent.context),parent,false)
+        val binding : LayoutKitchenItemInfoBinding = LayoutKitchenItemInfoBinding.inflate(LayoutInflater.from(parent.context),parent,false)
         return ViewHolder(binding)
     }
 

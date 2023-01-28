@@ -1,4 +1,4 @@
-group 'com.itsniaz.adyen.adyen_terminal_payment'
+group 'com.cheqplease.adyen_terminal'
 version '1.0-SNAPSHOT'
 
 buildscript {

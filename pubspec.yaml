@@ -1,4 +1,4 @@
-name: adyen_terminal_payment
+name: flutter_adyen_terminal
 description: A new flutter plugin project.
 version: 0.0.2
 homepage:
@@ -29,7 +29,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.itsniaz.adyen.adyen_terminal_payment
+        package: com.cheqplease.adyen_terminal
         pluginClass: AdyenTerminalPaymentPlugin
 
 
