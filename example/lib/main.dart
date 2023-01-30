@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import 'package:flutter/services.dart';
 import 'package:flutter_adyen_terminal/adyen_terminal_payment.dart';
 import 'package:flutter_adyen_terminal/data/AdyenTerminalConfig.dart';
 
@@ -96,8 +95,8 @@ class _MyAppState extends State<MyApp> {
                             AdyenTerminalConfig terminalConfig =
                             AdyenTerminalConfig(
                               endpoint: "https://192.168.31.142",
-                              terminalModelNo: "wertw",
-                              terminalSerialNo: "fdgsdfg",
+                              terminalModelNo: "S1F2",
+                              terminalSerialNo: "000158222016383",
                               terminalId: "bugsoyieugrys",
                               merchantId: null,
                               environment: "test",
@@ -121,9 +120,9 @@ class _MyAppState extends State<MyApp> {
                                 "orderType": "Self-Order",
                                 "orderSubtitle": "Kiosk-Order",
                                 "totalItems": "2",
-                                "orderNo": "K10",
-                                "tableNo": "234",
-                                "receiptType": "kiosk",
+                                "orderNo": "pos_3_7350_Big_Cheese 108-1 Another big string to test whitespace",
+                                "tableNo": null,
+                                "receiptType": "merchant",
                                 "timeOfOrder": "Placed at : 01/12/2023 03:57 AM AKST",
                                 "items": [
                                   {
@@ -207,14 +206,14 @@ class _MyAppState extends State<MyApp> {
                                                           
                             """
                             ;
-                            // FlutterAdyen.printReceipt(_get10DigitNumber(),receiptDTOJSON, onSuccess: (String val){
-                            //   print("Print Sucessful");
-                            // });
-
-                            String txnId = _get10DigitNumber();
-                            await FlutterAdyen.getTerminalInfo("https://192.168.1.198",txnId,onSuccess: (val){
-                              print("Success: $val");
+                            FlutterAdyen.printReceipt(_get10DigitNumber(),receiptDTOJSON, onSuccess: (String val){
+                              print("Print Sucessful");
                             });
+
+                            // String txnId = _get10DigitNumber();
+                            // await FlutterAdyen.getTerminalInfo("https://192.168.1.198",txnId,onSuccess: (val){
+                            //   print("Success: $val");
+                            // });
 
                             // String txnId = _get10DigitNumber();
                             // FlutterAdyen.authorizeTransaction(

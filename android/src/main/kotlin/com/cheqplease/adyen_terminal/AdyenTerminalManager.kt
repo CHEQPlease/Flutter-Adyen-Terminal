@@ -12,7 +12,9 @@ import com.adyen.model.nexo.*
 import com.adyen.model.terminal.SaleToAcquirerData
 import com.adyen.model.terminal.TerminalAPIRequest
 import com.adyen.model.terminal.security.SecurityKey
+import com.adyen.service.TerminalCloudAPI
 import com.adyen.service.TerminalLocalAPI
+import com.cheqplease.adyen_terminal.data.APIType
 import com.google.gson.Gson
 import com.cheqplease.adyen_terminal.data.AdyenTerminalConfig
 import com.cheqplease.adyen_terminal.receipt.ReceiptBuilder
@@ -154,6 +156,7 @@ object AdyenTerminalManager {
         val config: Config = getConfigurationData(terminalConfig)
         val terminalLocalAPIClient = Client(config)
         val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient)
+        val terminalCloudAPI = TerminalCloudAPI(terminalLocalAPIClient)
         val terminalApiRequest = TerminalAPIRequest()
 
         val saleToPOIRequest = SaleToPOIRequest().apply {
@@ -180,25 +183,35 @@ object AdyenTerminalManager {
 
         terminalApiRequest.saleToPOIRequest = saleToPOIRequest
 
-        try {
-            val response = terminalLocalAPI.request(
-                terminalApiRequest, getSecurityKey(
-                    keyIdentifier = terminalConfig.key_id,
-                    passphrase = terminalConfig.key_passphrase
+        if (terminalConfig.apiType == APIType.LOCAL) {
+            try {
+                val response = terminalLocalAPI.request(
+                    terminalApiRequest, getSecurityKey(
+                        keyIdentifier = terminalConfig.key_id,
+                        passphrase = terminalConfig.key_passphrase
+                    )
                 )
-            )
-            if (response != null && "success".equals(response.saleToPOIResponse.printResponse.response.result.name, ignoreCase = true)) {
-                successHandler.onSuccess(null)
-            } else {
-                val errorMsg =
-                    response.saleToPOIResponse.printResponse.response.additionalResponse
-                failureHandler.onFailure(errorMsg)
+                if (response != null && "success".equals(response.saleToPOIResponse.printResponse.response.result.name, ignoreCase = true)) {
+                    successHandler.onSuccess(null)
+                } else {
+                    val errorMsg =
+                        response.saleToPOIResponse.printResponse.response.additionalResponse
+                    failureHandler.onFailure(errorMsg)
+                }
+            } catch (e: Exception) {
+                if (e.message != null) {
+                    failureHandler.onFailure("Printing Failed ${e.message!!}")
+                } else {
+                    failureHandler.onFailure("Printing Failed")
+                }
             }
-        } catch (e: Exception) {
-            if (e.message != null) {
-                failureHandler.onFailure("Printing Failed ${e.message!!}")
-            } else {
-                failureHandler.onFailure("Printing Failed")
+        }
+        else{
+            try {
+                var response =  terminalCloudAPI.sync(terminalApiRequest)
+                var x = response
+            } catch (e: Exception) {
+                var x = e;
             }
         }
     }
@@ -413,12 +426,22 @@ object AdyenTerminalManager {
             )
         ) Environment.TEST else Environment.LIVE
         config.merchantAccount = terminalConfig.merchant_name
-        val inputStream: InputStream? = context.get()?.assets?.open(terminalConfig.certPath)
-        config.setTerminalCertificate(inputStream)
-        config.connectionTimeoutMillis = 500000
-        config.readTimeoutMillis = 500000
-        config.terminalApiLocalEndpoint = terminalConfig.endpoint
-        return config
+
+        return if (terminalConfig.apiType == APIType.CLOUD) {
+            config.connectionTimeoutMillis = 150000
+            config.readTimeoutMillis = 150000
+            config.terminalApiCloudEndpoint = "https://terminal-api-test.adyen.com/sync"
+            config.apiKey = "AQEshmfxKYPHbxVLw0m/n3Q5qf3VZY5fDoZYUURG1j5IFoitgahOnpzkpPFxhxoQwV1bDb7kfNy1WIxIIkxgBw==-yEZVmu0nkq/hdPFIpwClaCFpaMHrW5DBi5JYboJjkLo=-u8*W^35p#D\$9L}~h"
+            config
+
+        }else{
+            val inputStream: InputStream? = context.get()?.assets?.open(terminalConfig.certPath)
+            config.setTerminalCertificate(inputStream)
+            config.connectionTimeoutMillis = 500000
+            config.readTimeoutMillis = 500000
+            config.terminalApiLocalEndpoint = terminalConfig.endpoint
+            config
+        }
     }
 
     private fun getSecurityKey(keyIdentifier: String, passphrase: String): SecurityKey {

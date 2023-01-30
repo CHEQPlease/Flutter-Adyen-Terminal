@@ -1,7 +1,5 @@
 
 
-
-
 import 'package:flutter/services.dart';
 
 import 'data/AdyenTerminalConfig.dart';
@@ -12,7 +10,7 @@ typedef OnFailure<T> = Function(T response);
 
 
 class FlutterAdyen {
-  static const MethodChannel _channel = MethodChannel('com.cheqplease.adyenterminal/channel');
+  static const MethodChannel _channel = MethodChannel('com.cheqplease.adyen_terminal/channel');
   static const String _methodInit = "init";
   static const String _methodAuthorizeTransaction = "authorize_transaction";
   static const String _methodCancelTransaction = "cancel_transaction";
