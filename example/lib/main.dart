@@ -96,8 +96,9 @@ class _MyAppState extends State<MyApp> {
                             AdyenTerminalConfig terminalConfig =
                             AdyenTerminalConfig(
                               endpoint: "https://192.168.31.142",
-                              terminalModelNo: "wertw",
-                              terminalSerialNo: "fdgsdfg",
+                              apiKey: "AQEshmfxKYPHbxVLw0m/n3Q5qf3VZY5fDoZYUURG1j5IFoitgahOnpzkpPFxhxoQwV1bDb7kfNy1WIxIIkxgBw==-FYIz59zfp9ueanmeREYYz/Cf5SPNbFEK6K+yHjyGIBc=-)GbhN.3:vUM##:jp",
+                              terminalModelNo: "V400cPlus",
+                              terminalSerialNo: "401710631",
                               terminalId: "bugsoyieugrys",
                               merchantId: null,
                               environment: "test",
@@ -212,7 +213,7 @@ class _MyAppState extends State<MyApp> {
                             // });
 
                             String txnId = _get10DigitNumber();
-                            await FlutterAdyen.getTerminalInfo("https://192.168.1.198",txnId,onSuccess: (val){
+                            await FlutterAdyen.getTerminalInfo("https://192.168.31.142",txnId,onSuccess: (val){
                               print("Success: $val");
                             });
 

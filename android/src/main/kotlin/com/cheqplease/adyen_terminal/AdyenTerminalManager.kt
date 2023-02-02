@@ -9,9 +9,12 @@ import com.adyen.Client
 import com.adyen.Config
 import com.adyen.enums.Environment
 import com.adyen.model.nexo.*
+import com.adyen.model.posterminalmanagement.FindTerminalRequest
+import com.adyen.model.posterminalmanagement.FindTerminalResponse
 import com.adyen.model.terminal.SaleToAcquirerData
 import com.adyen.model.terminal.TerminalAPIRequest
 import com.adyen.model.terminal.security.SecurityKey
+import com.adyen.service.PosTerminalManagement
 import com.adyen.service.TerminalLocalAPI
 import com.google.gson.Gson
 import com.cheqplease.adyen_terminal.data.AdyenTerminalConfig
@@ -19,6 +22,8 @@ import com.cheqplease.adyen_terminal.receipt.ReceiptBuilder
 import com.cheqplease.adyen_terminal.receipt.data.ReceiptDTO
 import com.cheqplease.adyen_terminal_payment.TransactionFailureHandler
 import com.cheqplease.adyen_terminal_payment.TransactionSuccessHandler
+import com.google.gson.reflect.TypeToken
+import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.lang.ref.WeakReference
@@ -238,14 +243,33 @@ object AdyenTerminalManager {
 
         try {
             Log.d("terminalApiRequest>>", "" + Gson().toJson(terminalApiRequest))
+            // Terminal POIID retrieval successful
             val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
-            val resultJSON = Gson().toJson(response)
-            successHandler.onSuccess(resultJSON);
-            Log.d("terminalApiResponse>>", "" + Gson().toJson(response))
+            val resultJSONString = Gson().toJson(response)
+            val updatedResultJSON = JSONObject(resultJSONString).getJSONObject("SaleToPOIResponse").getJSONObject("messageHeader").put("storeId","a_demo_store_id")
+
+
+            //Get Verbose TerminalInfo from Web Mgmt API
+            //var terminalWebAPIResponse = getTerminalInfoVerbose("V400cPlus-401710631")
+            successHandler.onSuccess(updatedResultJSON.toString());
+            Log.d("terminalApiResponse>>", "" + Gson().toJson(updatedResultJSON.toString()))
         } catch (e: Exception) {
             failureHandler.onFailure(null)
         }
 
+    }
+
+
+    private fun getTerminalInfoVerbose(poiid: String): FindTerminalResponse {
+        val config: Config = getConfigurationDataForMgmtAPI(terminalConfig)
+        val terminalMgmtClient = Client(config)
+        val terminalMgmtAPI = PosTerminalManagement(terminalMgmtClient)
+
+        val findTerminalRequest: FindTerminalRequest = FindTerminalRequest().apply {
+            terminal = poiid
+        }
+
+        return terminalMgmtAPI.findTerminal(findTerminalRequest)
     }
 
 
@@ -418,6 +442,25 @@ object AdyenTerminalManager {
         config.connectionTimeoutMillis = 500000
         config.readTimeoutMillis = 500000
         config.terminalApiLocalEndpoint = terminalConfig.endpoint
+        return config
+    }
+
+    private fun getConfigurationDataForMgmtAPI(
+        terminalConfig: AdyenTerminalConfig
+    ): Config {
+        val config = Config()
+        config.environment = if ("test".equals(
+                terminalConfig.environment,
+                ignoreCase = true
+            )
+        ) Environment.TEST else Environment.LIVE
+        config.merchantAccount = terminalConfig.merchant_name
+        config.connectionTimeoutMillis = 10000
+        config.readTimeoutMillis = 10000
+//        val inputStream: InputStream? = context.get()?.assets?.open(terminalConfig.certPath)
+//        config.setTerminalCertificate(inputStream)
+        config.posTerminalManagementApiEndpoint = if(config.environment == Environment.TEST) Client.POS_TERMINAL_MANAGEMENT_ENDPOINT_TEST else Client.POS_TERMINAL_MANAGEMENT_ENDPOINT_LIVE
+        config.apiKey = "AQEshmfxLIvMaBdHw0m/n3Q5qf3VZY5fDoZYUURG1qV/UKZUoDNbJ11sNSfmQuMQwV1bDb7kfNy1WIxIIkxgBw==-TO/+BX8bzCm8XRY6v+V+x9uJp2GmZvZIySst4C9eFQc=-a]h}]6J4FKan}NMf"
         return config
     }
 
