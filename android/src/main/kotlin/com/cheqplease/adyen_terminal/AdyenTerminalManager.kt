@@ -246,13 +246,14 @@ object AdyenTerminalManager {
             // Terminal POIID retrieval successful
             val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
             val resultJSONString = Gson().toJson(response)
-            val updatedResultJSON = JSONObject(resultJSONString).getJSONObject("SaleToPOIResponse").getJSONObject("messageHeader").put("storeId","a_demo_store_id")
+            val salePOIResponse = JSONObject(resultJSONString).getJSONObject("SaleToPOIResponse");
+            salePOIResponse.getJSONObject("messageHeader").put("storeId","a_demo_store_id")
 
 
             //Get Verbose TerminalInfo from Web Mgmt API
             //var terminalWebAPIResponse = getTerminalInfoVerbose("V400cPlus-401710631")
-            successHandler.onSuccess(updatedResultJSON.toString());
-            Log.d("terminalApiResponse>>", "" + Gson().toJson(updatedResultJSON.toString()))
+            successHandler.onSuccess(salePOIResponse.toString());
+            Log.d("terminalApiResponse>>", "" + Gson().toJson(salePOIResponse.toString()))
         } catch (e: Exception) {
             failureHandler.onFailure(null)
         }
