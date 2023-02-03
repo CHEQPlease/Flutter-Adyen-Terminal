@@ -259,7 +259,7 @@ object AdyenTerminalManager {
                 successHandler.onSuccess(terminalDetailsJSON.toString())
             } catch (e: Exception) {
                 Log.d("terminalMgmtAPIResponse", " : Failed to get WebApiResponse")
-                successHandler.onSuccess(resultJSONString)
+                successHandler.onSuccess(terminalDetailsJSON.toString())
             }
         } catch (e: Exception) {
             Log.d("terminalMgmtAPIResponse", " : Error occurred retrieving terminal info.")
