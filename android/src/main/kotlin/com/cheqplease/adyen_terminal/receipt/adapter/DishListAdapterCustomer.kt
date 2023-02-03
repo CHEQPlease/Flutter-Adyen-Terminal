@@ -16,16 +16,10 @@ class DishListAdapterCustomer(private val dishes: List<Item>) : RecyclerView.Ada
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val dish = dishes[position]
-
         holder.binding.tvItemName.text = "${dish.itemName}" /* TODO : Move to string resource to support localization in future */
         holder.binding.tvItemDetails.text = dish.description
         holder.binding.tvPrice.text = "${dish.price}"
         holder.binding.tvQty.text = "${dish.quantity}"
-
-//        if(dish.strikethrough){
-//            holder.binding.tvQty
-//        }
-
     }
 
     override fun getItemCount(): Int {

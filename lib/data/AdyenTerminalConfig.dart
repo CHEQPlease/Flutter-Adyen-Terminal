@@ -2,6 +2,7 @@ class AdyenTerminalConfig {
 
   AdyenTerminalConfig({
       required this.endpoint,
+      required this.apiKey,
       required this.merchantId,
       required this.terminalModelNo,
       required this.terminalSerialNo,
@@ -16,6 +17,7 @@ class AdyenTerminalConfig {
 
   AdyenTerminalConfig.fromJson(dynamic json) {
     endpoint = json['endpoint'];
+    apiKey = json['api_key'];
     merchantId = json['merchant_id'];
     terminalModelNo = json['terminal_model_no'];
     terminalSerialNo = json['terminal_serial_no'];
@@ -29,6 +31,7 @@ class AdyenTerminalConfig {
   }
 
   String? endpoint;
+  String? apiKey;
   String? merchantId;
   String? terminalModelNo;
   String? terminalSerialNo;
@@ -43,6 +46,7 @@ class AdyenTerminalConfig {
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['endpoint'] = endpoint;
+    map['api_key'] = apiKey;
     map['merchant_id'] = merchantId;
     map['terminal_model_no'] = terminalModelNo;
     map['terminal_serial_no'] = terminalSerialNo;

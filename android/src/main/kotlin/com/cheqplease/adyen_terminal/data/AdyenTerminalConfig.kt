@@ -2,6 +2,7 @@ package com.cheqplease.adyen_terminal.data
 
 data class AdyenTerminalConfig(
     val endpoint: String,
+    val apiKey: String?,
     val terminalModelNo : String,
     val terminalSerialNo : String,
     val terminalId: String,
