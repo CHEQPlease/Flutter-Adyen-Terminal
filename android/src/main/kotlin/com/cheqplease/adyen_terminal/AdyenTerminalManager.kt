@@ -246,6 +246,7 @@ object AdyenTerminalManager {
             val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
             val resultJSONString = Gson().toJson(response)
             val terminalDetailsJSON = JSONObject()
+            val saleToPoiJsonObject = JSONObject(resultJSONString)
             terminalDetailsJSON.put("SaleToPOIResponse",resultJSONString)
 
             //Get Verbose TerminalInfo from Web Mgmt API
@@ -258,10 +259,10 @@ object AdyenTerminalManager {
                 successHandler.onSuccess(terminalDetailsJSON.toString())
             } catch (e: Exception) {
                 Log.d("terminalMgmtAPIResponse", " : Failed to get WebApiResponse")
-                successHandler.onSuccess(terminalDetailsJSON.toString())
+                successHandler.onSuccess(resultJSONString)
             }
         } catch (e: Exception) {
-            Log.d("terminalMgmtAPIResponse", " : Error occurred retrieving terminal info. Error")
+            Log.d("terminalMgmtAPIResponse", " : Error occurred retrieving terminal info.")
             if(BuildConfig.DEBUG){
                 e.printStackTrace()
             }
