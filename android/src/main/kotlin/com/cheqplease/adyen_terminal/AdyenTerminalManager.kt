@@ -247,7 +247,7 @@ object AdyenTerminalManager {
             val resultJSONString = Gson().toJson(response)
             val terminalDetailsJSON = JSONObject()
             val saleToPoiJsonObject = JSONObject(resultJSONString)
-            terminalDetailsJSON.put("SaleToPOIResponse",resultJSONString)
+            terminalDetailsJSON.put("SaleToPOIResponse",saleToPoiJsonObject)
 
             //Get Verbose TerminalInfo from Web Mgmt API
             try {
