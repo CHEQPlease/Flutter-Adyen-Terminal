@@ -1,4 +1,4 @@
-package com.itsniaz.adyen.adyen_terminal_payment.data
+package com.cheqplease.adyen_terminal.data
 
 data class AdyenTerminalConfig(
     val endpoint: String,

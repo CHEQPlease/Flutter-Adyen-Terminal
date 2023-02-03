@@ -1,0 +1,64 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:theme="@style/receiptTheme"
+    >
+
+    <LinearLayout
+        android:layout_width="30mm"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="0.5mm"
+        android:layout_weight="1"
+        tools:ignore="InOrMmUsage">
+
+        <TextView
+            android:id="@+id/tv_item_name"
+            android:layout_width="28mm"
+            android:layout_height="wrap_content"
+            android:paddingRight="3mm"
+            tools:text="Egg"
+            android:textStyle="bold"
+            android:textSize="3mm"
+            tools:ignore="NestedWeights"
+            android:paddingEnd="3mm" />
+
+        <TextView
+            android:id="@+id/tv_item_details"
+            android:layout_width="28mm"
+            android:layout_height="wrap_content"
+            tools:text="-- Cucumber\nCarrot"
+            android:textSize="2.4mm"
+            android:textStyle="bold"
+            />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_qty"
+        android:layout_width="10mm"
+        android:layout_height="wrap_content"
+        android:paddingEnd="1mm"
+        tools:text="123"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:layout_weight="1"
+        android:textSize="2.8mm"
+        tools:ignore="InOrMmUsage" />
+
+
+    <TextView
+        android:id="@+id/tv_price"
+        android:layout_width="18mm"
+        android:layout_height="wrap_content"
+        tools:text="$4000.00"
+        android:textSize="2.8mm"
+        android:gravity="end"
+        android:textStyle="bold"
+        android:layout_weight="1"
+        tools:ignore="InOrMmUsage" />
+
+</LinearLayout>

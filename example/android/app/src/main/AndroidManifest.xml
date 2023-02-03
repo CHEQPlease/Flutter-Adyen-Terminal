@@ -1,12 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.itsniaz.adyen.adyen_terminal_payment_example">
+    package="com.cheqplease.adyen_terminal_example">
     <uses-permission android:name="android.permission.INTERNET"/>
    <application
         android:label="adyen_terminal_payment_example"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
-            android:name=".MainActivity"
+            android:name="com.cheqplease.adyen_terminal.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"

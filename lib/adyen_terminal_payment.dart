@@ -1,10 +1,10 @@
 
-import 'dart:async';
-import 'dart:typed_data';
 
-import 'package:adyen_terminal_payment/data/AdyenTerminalConfig.dart';
+
+
 import 'package:flutter/services.dart';
 
+import 'data/AdyenTerminalConfig.dart';
 import 'data/enums.dart';
 
 typedef OnSuccess<T> = Function(T response);
@@ -12,12 +12,13 @@ typedef OnFailure<T> = Function(T response);
 
 
 class FlutterAdyen {
-  static const MethodChannel _channel = MethodChannel('com.itsniaz.adyenterminal/channel');
+  static const MethodChannel _channel = MethodChannel('com.cheqplease.adyen_terminal/channel');
   static const String _methodInit = "init";
   static const String _methodAuthorizeTransaction = "authorize_transaction";
   static const String _methodCancelTransaction = "cancel_transaction";
   static const String _methodPrintReceipt = "print_receipt";
   static const String _methodScanBarcode = "scan_barcode";
+  static const String _methodGetDeviceInfo = "get_terminal_info";
 
   static late AdyenTerminalConfig _terminalConfig;
 
@@ -41,9 +42,13 @@ class FlutterAdyen {
       "currency" : currency,
       "captureType" : captureType.name
     }).then((value){
-      onSuccess!(value);
+      if (onSuccess != null) {
+        onSuccess(value);
+      }
     }).catchError((value){
-      onFailure!(value.details);
+      if (onFailure != null) {
+        onFailure(value.details);
+      }
     });
 
   }
@@ -58,16 +63,20 @@ class FlutterAdyen {
     return result;
   }
 
-  static Future<void> printReceipt(String txnId,Uint8List imageData,{OnSuccess<String>? onSuccess,
+  static Future<void> printReceipt(String txnId,String receiptDTOJSON,{OnSuccess<String>? onSuccess,
       OnFailure<String>? onFailure}) async {
 
     _channel.invokeMethod(_methodPrintReceipt,{
-      "imageDataInBytes" : imageData,
+      "receiptDTOJSON" : receiptDTOJSON,
       "transactionId" : txnId
     }).then((value){
-      onSuccess!("Print Successful");
+      if (onSuccess != null) {
+        onSuccess("Print Successful");
+      }
     }).catchError((value){
-      onFailure!(value.details);
+      if (onFailure != null) {
+        onFailure(value.details);
+      }
     });
   }
 
@@ -76,9 +85,25 @@ class FlutterAdyen {
     _channel.invokeMethod(_methodScanBarcode,{
       "transactionId" : txnId
     }).then((value){
-
+      /* TODO: Parse the barcode */
     }).catchError((value){
+      /* TODO: Parse the barcode */
+    });
+  }
 
+  static Future<void> getTerminalInfo(String terminalIP, String txnId,{OnSuccess<String>? onSuccess,
+    OnFailure<String>? onFailure}) async{
+    _channel.invokeMethod(_methodGetDeviceInfo, {
+      "transactionId" : txnId,
+      "terminalIP" : terminalIP
+    }).then((value){
+      if (onSuccess != null) {
+        onSuccess(value);
+      }
+    }).catchError((value){
+      if (onFailure != null) {
+        onFailure("Unable to retrieve terminal info");
+      }
     });
   }
 

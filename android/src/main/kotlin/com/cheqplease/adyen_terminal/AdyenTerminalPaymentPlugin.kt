@@ -1,8 +1,10 @@
-package com.itsniaz.adyen.adyen_terminal_payment
+package com.cheqplease.adyen_terminal
 
 import android.content.Context
 import androidx.annotation.NonNull
-import com.itsniaz.adyen.adyen_terminal_payment.data.AdyenTerminalConfig
+import com.cheqplease.adyen_terminal.data.AdyenTerminalConfig
+import com.cheqplease.adyen_terminal_payment.TransactionFailureHandler
+import com.cheqplease.adyen_terminal_payment.TransactionSuccessHandler
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
@@ -37,7 +39,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
     private fun onAttachedToEngine(applicationContext: Context, messenger: BinaryMessenger,flutterAssets: FlutterAssets) {
         this.applicationContext = applicationContext
         this.flutterAssets = flutterAssets
-        channel = MethodChannel(messenger, "com.itsniaz.adyenterminal/channel")
+        channel = MethodChannel(messenger, "com.cheqplease.adyen_terminal/channel")
         channel.setMethodCallHandler(this)
     }
 
@@ -79,13 +81,14 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                                 currency = currency,
                                 requestAmount = BigDecimal.valueOf(reqAmount),
                                 terminalId = adyenTerminalConfig.terminalId,
-                                paymentSuccessHandler = object : TransactionSuccessHandler<String?>{
+                                paymentSuccessHandler = object :
+                                    TransactionSuccessHandler<String?> {
                                     override fun onSuccess(response: String?) {
                                         result.success(response)
                                     }
                                 },
-                                paymentFailureHandler = object : TransactionFailureHandler<String>{
-                                    override fun onFailure(response: String) {
+                                paymentFailureHandler = object : TransactionFailureHandler<String> {
+                                    override fun onFailure(response: String?) {
                                         result.error("ERROR","TXN FAILED",response)
                                     }
                                 }
@@ -119,21 +122,22 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
             "print_receipt" -> {
 
                 val transactionId = call.argument<String>("transactionId")!!
-                val imageData = call.argument<ByteArray>("imageDataInBytes")!!
+                val receiptDTOJSON = call.argument<String>("receiptDTOJSON")!!
 
                 GlobalScope.launch(Dispatchers.IO) {
                     try {
-                        AdyenTerminalManager.printImage(
+                        AdyenTerminalManager.printReceipt(
                             context = applicationContext,
                             transactionId = transactionId,
-                            imageData = imageData,
+                            receiptDTOJSON = receiptDTOJSON,
                             successHandler = object : TransactionSuccessHandler<Void>{
                                 override fun onSuccess(response: Void?) {
                                     result.success(true)
                                 }
                             },
                             failureHandler = object : TransactionFailureHandler<String>{
-                                override fun onFailure(response: String) {
+
+                                override fun onFailure(response: String?) {
                                     result.error("PRINT_ERROR","Unable to print",response)
                                 }
                             }
@@ -153,6 +157,32 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                         result.error("PRINT_ERROR","Unable to print",e.message)
                     }
                 }
+            }
+
+            "get_terminal_info" -> {
+                val transactionId = call.argument<String>("transactionId")!!
+                val terminalIP = call.argument<String>("terminalIP")!!
+                GlobalScope.launch(Dispatchers.IO) {
+                    try {
+                        AdyenTerminalManager.getTerminalInfo(
+                            txnId = transactionId,
+                            terminalIP = terminalIP,
+                            successHandler = object : TransactionSuccessHandler<String>{
+                                override fun onSuccess(response: String?) {
+                                    result.success(response)
+                                }
+                            },
+                            failureHandler = object  : TransactionFailureHandler<String>{
+                                override fun onFailure(response: String?) {
+                                    result.error("ERROR", "Unable to get device info", null)
+                                }
+                            }
+                        )
+                    } catch (e: Exception){
+                        result.error("PRINT_ERROR","Unable to print",e.message)
+                    }
+                }
+
             }
 
             else -> {

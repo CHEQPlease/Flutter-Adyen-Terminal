@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_customer_receipt_kiosk"
+    android:layout_width="48mm"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    android:layout_gravity="center_horizontal"
+    android:layout_height="wrap_content"
+    android:theme="@style/receiptTheme"
+    tools:ignore="InOrMmUsage">
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4mm"/>
+
+    <!--  Top Section -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+
+                <TextView
+                    android:id="@+id/tv_order_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="Self Order"
+                    android:textSize="2.5mm"
+                    android:textStyle="bold"
+                    />
+
+                <TextView
+                    android:id="@+id/tv_total_items"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="Total Items : 1"
+                    android:textSize="2.5mm"
+                    android:textStyle="bold"
+                    />
+
+            </LinearLayout>
+
+            <View
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_order_no"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="Order #K20"
+                    android:textSize="3mm"
+                    android:textStyle="bold"
+                    />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Brand Name -->
+    <LinearLayout
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_brand_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="CHEQ Inc."
+            android:padding="2mm"
+            android:textSize="4mm"
+            android:textStyle="bold"
+            />
+
+    </LinearLayout>
+
+    <!-- Placed At -->
+    <TextView
+        android:id="@+id/tv_placed_at"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="2.2mm"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        tools:text="Placed at 01/11/2023 1:00 AM PST"
+        />
+
+
+    <!-- Divider -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1mm"
+        android:src="@drawable/dotted_line"
+        android:layout_marginTop="1mm"
+        android:layout_marginBottom="1mm"
+        />
+
+
+    <!-- Item table header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ITEM"
+            android:textSize="2.5mm"
+            android:textStyle="bold"
+            android:layout_weight="5"
+            />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="QTY"
+            android:textSize="2.5mm"
+            android:textStyle="bold"
+            android:layout_weight="1"
+            />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PRICE"
+            android:gravity="end"
+            android:textStyle="bold"
+            android:textSize="2.5mm"
+            android:layout_weight="1"
+            />
+
+    </LinearLayout>
+
+    <!-- Item List View -->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_dishes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1mm"
+        tools:itemCount="3"
+        tools:listitem="@layout/layout_purchased_items"
+        />
+
+    <!-- Divider -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1mm"
+        android:src="@drawable/dotted_line"
+        android:layout_marginTop="1mm"
+        android:layout_marginBottom="1mm"
+        />
+
+    <!-- Payment Breakdown View -->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_breakdown"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1mm"
+        tools:itemCount="3"
+        tools:listitem="@layout/layout_meta_info"
+        />
+
+
+    <!-- Divider -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1mm"
+        android:src="@drawable/dotted_line"
+        android:layout_marginTop="1mm"
+        android:layout_marginBottom="1mm"
+        />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/promo_text"
+        android:gravity="center"
+        android:textSize="2mm"
+        android:layout_marginTop="0.5mm"
+        android:layout_marginBottom="0.5mm"
+        android:textStyle="bold"
+        />
+
+    <ImageView
+        android:layout_width="14mm"
+        android:layout_height="14mm"
+        android:src="@drawable/qr_cheq_app_apple_qr"
+        android:layout_gravity="center"
+        android:layout_marginTop="1mm"
+        />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="CHEQ Inc."
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textSize="1.8mm"
+        android:layout_marginTop="0.5mm"
+        android:layout_marginBottom="0.5mm"
+        />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1mm"
+        android:src="@drawable/dotted_line"
+        android:layout_marginTop="1mm"
+        android:layout_marginBottom="1mm"
+        />
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4mm"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="CUSTOMER COPY"
+        android:textSize="2.5mm"
+        android:textStyle="bold"
+        />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="POWERED BY"
+            android:textSize="2.5mm"
+
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text=" CHEQ"
+            android:textSize="2.5mm"
+            android:textStyle="normal"
+            />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4mm"/>
+
+</LinearLayout>

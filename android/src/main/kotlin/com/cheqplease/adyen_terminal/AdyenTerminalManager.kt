@@ -1,4 +1,4 @@
-package com.itsniaz.adyen.adyen_terminal_payment
+package com.cheqplease.adyen_terminal
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -14,16 +14,12 @@ import com.adyen.model.terminal.TerminalAPIRequest
 import com.adyen.model.terminal.security.SecurityKey
 import com.adyen.service.TerminalLocalAPI
 import com.google.gson.Gson
-import com.itsniaz.adyen.adyen_terminal_payment.data.AdyenTerminalConfig
-import id.zelory.compressor.Compressor
-import id.zelory.compressor.constraint.format
-import id.zelory.compressor.constraint.quality
-import id.zelory.compressor.constraint.size
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
+import com.cheqplease.adyen_terminal.data.AdyenTerminalConfig
+import com.cheqplease.adyen_terminal.receipt.ReceiptBuilder
+import com.cheqplease.adyen_terminal.receipt.data.ReceiptDTO
+import com.cheqplease.adyen_terminal_payment.TransactionFailureHandler
+import com.cheqplease.adyen_terminal_payment.TransactionSuccessHandler
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.math.BigDecimal
@@ -37,8 +33,8 @@ object AdyenTerminalManager {
     private lateinit var context: WeakReference<Context>
 
     fun init(adyenTerminalConfig: AdyenTerminalConfig, context: Context) {
-        this.terminalConfig = adyenTerminalConfig
-        this.context = WeakReference<Context>(context)
+        terminalConfig = adyenTerminalConfig
+        AdyenTerminalManager.context = WeakReference<Context>(context)
     }
 
     fun authorizeTransaction(
@@ -92,7 +88,6 @@ object AdyenTerminalManager {
             }
 
         } catch (e: Exception) {
-
             if (e.message != null) {
                 paymentFailureHandler.onFailure(e.message!!)
             } else {
@@ -141,30 +136,19 @@ object AdyenTerminalManager {
     }
 
 
-    suspend fun printImage(
+    fun printReceipt(
         context: Context,
         transactionId: String,
-        imageData: ByteArray,
+        receiptDTOJSON: String,
         successHandler: TransactionSuccessHandler<Void>,
         failureHandler: TransactionFailureHandler<String>
     ) {
 
-        val outputFile: File = withContext(Dispatchers.IO) {
-            File.createTempFile("temp_img", ".png")
-        }
-        withContext(Dispatchers.IO) {
-            FileOutputStream(outputFile).use { outputStream -> outputStream.write(imageData) }
-        }
-
-        val compressedImageFile = Compressor.compress(context, outputFile) {
-            format(Bitmap.CompressFormat.PNG)
-            size(102000) // 2 MB
-        }
-
-        val encoded: ByteArray? = convertUsingTraditionalWay(compressedImageFile)
+        val customerReceiptBitmap = ReceiptBuilder.getInstance(context).buildReceipt(receiptDTO = Gson().fromJson(receiptDTOJSON,
+            ReceiptDTO::class.java))
+        val encoded: ByteArray? = customerReceiptBitmap?.let { bitmapToByteArray(bitmap = it) }
         val imageBase64Encoded = encodeToString(encoded, Base64.DEFAULT);
-        val printData =
-            """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()
+        val printData = """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()
 
 
         val config: Config = getConfigurationData(terminalConfig)
@@ -174,7 +158,6 @@ object AdyenTerminalManager {
 
         val saleToPOIRequest = SaleToPOIRequest().apply {
             messageHeader = MessageHeader().apply {
-
                 protocolVersion = "3.0"
                 messageClass = MessageClassType.DEVICE
                 messageCategory = MessageCategoryType.PRINT
@@ -182,8 +165,6 @@ object AdyenTerminalManager {
                 serviceID = transactionId
                 saleID = terminalConfig.terminalId
                 poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}"
-
-
                 printRequest = PrintRequest().apply {
                     printOutput = PrintOutput().apply {
                         documentQualifier = DocumentQualifierType.DOCUMENT
@@ -199,17 +180,13 @@ object AdyenTerminalManager {
 
         terminalApiRequest.saleToPOIRequest = saleToPOIRequest
 
-
-
         try {
-
             val response = terminalLocalAPI.request(
                 terminalApiRequest, getSecurityKey(
                     keyIdentifier = terminalConfig.key_id,
                     passphrase = terminalConfig.key_passphrase
                 )
             )
-
             if (response != null && "success".equals(response.saleToPOIResponse.printResponse.response.result.name, ignoreCase = true)) {
                 successHandler.onSuccess(null)
             } else {
@@ -225,6 +202,52 @@ object AdyenTerminalManager {
             }
         }
     }
+
+
+    fun getTerminalInfo(terminalIP: String, txnId: String, successHandler: TransactionSuccessHandler<String>, failureHandler: TransactionFailureHandler<String>){
+
+        val config: Config = getConfigurationData(terminalConfig)
+        config.apply {
+            terminalApiLocalEndpoint = terminalIP
+        }
+        val terminalLocalAPIClient = Client(config)
+        val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient)
+        val terminalApiRequest = TerminalAPIRequest()
+
+        val securityKey: SecurityKey = getSecurityKey(
+            keyIdentifier = terminalConfig.key_id,
+            passphrase = terminalConfig.key_passphrase
+        )
+
+        terminalApiRequest.apply {
+            saleToPOIRequest = SaleToPOIRequest().apply {
+                messageHeader = MessageHeader().apply {
+                    protocolVersion = "3.0"
+                    messageClass = MessageClassType.SERVICE
+                    messageCategory = MessageCategoryType.DIAGNOSIS
+                    messageType = MessageType.REQUEST
+                    saleID = terminalConfig.terminalId
+                    serviceID = txnId
+                    poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}"
+                }
+                diagnosisRequest = DiagnosisRequest().apply {
+                    isHostDiagnosisFlag = true
+                }
+            }
+        }
+
+        try {
+            Log.d("terminalApiRequest>>", "" + Gson().toJson(terminalApiRequest))
+            val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
+            val resultJSON = Gson().toJson(response)
+            successHandler.onSuccess(resultJSON);
+            Log.d("terminalApiResponse>>", "" + Gson().toJson(response))
+        } catch (e: Exception) {
+            failureHandler.onFailure(null)
+        }
+
+    }
+
 
     fun scanBarcode(transactionId: String){
 
@@ -277,12 +300,11 @@ object AdyenTerminalManager {
                     passphrase = terminalConfig.key_passphrase
                 )
             )
-
-            var x = response
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
+
 
 
     private fun buildSalePOIRequest(
@@ -408,13 +430,11 @@ object AdyenTerminalManager {
         return securityKey
     }
 
-    fun convertUsingTraditionalWay(file: File): ByteArray? {
-        val fileBytes = ByteArray(file.length().toInt())
-        try {
-            FileInputStream(file).use { inputStream -> inputStream.read(fileBytes) }
-        } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
-        }
-        return fileBytes
+    private fun bitmapToByteArray(bitmap : Bitmap) : ByteArray{
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 10, stream)
+        val byteArray: ByteArray = stream.toByteArray()
+        bitmap.recycle()
+        return byteArray
     }
 }
