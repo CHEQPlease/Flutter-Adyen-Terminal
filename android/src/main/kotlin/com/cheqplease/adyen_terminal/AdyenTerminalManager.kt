@@ -244,7 +244,7 @@ object AdyenTerminalManager {
             Log.d("terminalApiRequest>>", "" + Gson().toJson(terminalApiRequest))
             // Terminal poiid retrieval successful
             val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
-            val resultJSONString = Gson().toJson(response)
+            val resultJSONString = Gson().toJson(response.saleToPOIResponse)
             val terminalDetailsJSON = JSONObject()
             val saleToPoiJsonObject = JSONObject(resultJSONString)
             terminalDetailsJSON.put("SaleToPOIResponse",saleToPoiJsonObject)
