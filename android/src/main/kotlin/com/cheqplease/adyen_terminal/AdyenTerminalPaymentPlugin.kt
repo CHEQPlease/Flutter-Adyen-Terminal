@@ -180,7 +180,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                             }
                         )
                     } catch (e: Exception){
-                        result.error("PRINT_ERROR","Unable to print",e.message)
+                        result.error("ERROR", "Unable to get device info", null)
                     }
                 }
 
