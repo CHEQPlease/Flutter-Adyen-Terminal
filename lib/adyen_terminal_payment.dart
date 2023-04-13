@@ -107,4 +107,10 @@ class FlutterAdyen {
     });
   }
 
+  static Future<void> testUSBPrinting(String receiptDTOJSON)async {
+
+   await _channel.invokeMethod("test_usb_printer",  {"receiptDTOJSON" : receiptDTOJSON});
+
+  }
+
 }

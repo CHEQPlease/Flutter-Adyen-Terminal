@@ -2,9 +2,13 @@ package com.cheqplease.adyen_terminal
 
 import android.content.Context
 import androidx.annotation.NonNull
+import com.cheqplease.adyen_terminal.dantsu.DantsuPrintManager
 import com.cheqplease.adyen_terminal.data.AdyenTerminalConfig
+import com.cheqplease.adyen_terminal.receipt.ReceiptBuilder
+import com.cheqplease.adyen_terminal.receipt.data.ReceiptDTO
 import com.cheqplease.adyen_terminal_payment.TransactionFailureHandler
 import com.cheqplease.adyen_terminal_payment.TransactionSuccessHandler
+import com.google.gson.Gson
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
@@ -182,7 +186,21 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                         result.error("PRINT_ERROR","Unable to print",e.message)
                     }
                 }
+            }
 
+            "test_usb_printer" -> {
+
+                val receiptDTOJSON = call.argument<String>("receiptDTOJSON")!!
+
+                GlobalScope.launch(Dispatchers.IO) {
+
+                    val customerReceiptBitmap = ReceiptBuilder.getInstance(applicationContext).buildReceipt(receiptDTO = Gson().fromJson(receiptDTOJSON,
+                        ReceiptDTO::class.java))
+                    DantsuPrintManager.init(applicationContext);
+                    if (customerReceiptBitmap != null) {
+                        DantsuPrintManager.printUsb(customerReceiptBitmap)
+                    };
+                }
             }
 
             else -> {

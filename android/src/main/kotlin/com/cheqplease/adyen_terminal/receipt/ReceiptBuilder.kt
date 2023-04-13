@@ -3,6 +3,7 @@ package com.cheqplease.adyen_terminal.receipt
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -87,10 +88,21 @@ class ReceiptBuilder private constructor(context: Context) {
         binding.rvBreakdown.adapter = BreakdownListAdapter(receiptDTO.breakdown)
         binding.rvBreakdown.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         binding.tvOrderType.text = receiptDTO.orderType
-        customerReceiptKiosk.measure( View.MeasureSpec.makeMeasureSpec(700, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+        customerReceiptKiosk.measure( View.MeasureSpec.makeMeasureSpec(mmToPx(75f,context).toInt(), View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
         customerReceiptKiosk.layout(0, 0, customerReceiptKiosk.measuredWidth, customerReceiptKiosk.measuredHeight)
 
         return getBitmapFromView(customerReceiptKiosk)
+    }
+    private fun pxToMm(px: Int, context: Context): Float {
+        val dm = context.resources.displayMetrics
+        return px / TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 1f, dm)
+    }
+
+    private fun mmToPx(mm: Float, context: Context): Float {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_MM, mm,
+            context.resources.displayMetrics
+        )
     }
 
     private fun buildMerchantReceipt(receiptDTO: ReceiptDTO) : Bitmap {
@@ -124,8 +136,7 @@ class ReceiptBuilder private constructor(context: Context) {
 
         /* TODO : Move to string resource to support localization in future */
 
-        binding.tvOrderNo.text = "Order #: ${receiptDTO.orderNo
-        }"
+        binding.tvOrderNo.text = "Order #: ${receiptDTO.orderNo}"
         binding.tvPlacedAt.text = receiptDTO.timeOfOrder
         binding.tvOrderSubtitle.text = receiptDTO.orderSubtitle
         binding.rvDishes.adapter = KitchenDishListAdapter(receiptDTO.items)
@@ -146,5 +157,6 @@ class ReceiptBuilder private constructor(context: Context) {
         view.draw(canvas)
         return bitmap
     }
+
 
 }
