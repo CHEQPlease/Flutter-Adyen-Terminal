@@ -95,13 +95,13 @@ class _MyAppState extends State<MyApp> {
                             
                             AdyenTerminalConfig terminalConfig =
                             AdyenTerminalConfig(
-                              endpoint: "https://192.168.31.92",
-                              apiKey: "AQEshmfxLIvMaBdHw0m/n3Q5qf3VZY5fDoZYUURG1qV/UKZUoDNbJ11sNSfmQuMQwV1bDb7kfNy1WIxIIkxgBw==-N4UNCKOXcPSSSpcXvH6lP3txJiPdlSPLISEaCw7aoF8=-=+,[d^2R][G,)cm",
-                              terminalModelNo: "V400cPlus",
-                              terminalSerialNo: "401710631",
+                              apiKey: "",
+                              endpoint: "https://192.168.31.142",
+                              terminalModelNo: "S1F2",
+                              terminalSerialNo: "000158224307897",
                               terminalId: "bugsoyieugrys",
                               merchantId: null,
-                              environment: "test",
+                              environment: "live",
                               keyId: "dhaka-pos-cc-test-id",
                               keyPassphrase: "Dh@kaCheq1!",
                               merchantName: "CHEQPOS",
@@ -212,24 +212,24 @@ class _MyAppState extends State<MyApp> {
                             //   print("Print Sucessful");
                             // });
 
-                            String txnId = _get10DigitNumber();
-                            await FlutterAdyen.getTerminalInfo("https://192.168.31.92",txnId,onSuccess: (val){
-                              print("Success: $val");
-                            });
-
                             // String txnId = _get10DigitNumber();
-                            // FlutterAdyen.authorizeTransaction(
-                            //   amount: 10,
-                            //   transactionId: txnId,
-                            //   currency: "USD",
-                            //   onSuccess: (val) {
-                            //     print("Transaction Successful $val");
-                            //     Navigator.of(context).pop();
-                            //   },
-                            //   onFailure: (val) {
-                            //     print("Transaction Failure : $val");
-                            //     Navigator.of(context).pop();
-                            //   });
+                            // await FlutterAdyen.getTerminalInfo("https://192.168.1.198",txnId,onSuccess: (val){
+                            //   print("Success: $val");
+                            // });
+
+                            String txnId = _get10DigitNumber();
+                            FlutterAdyen.authorizeTransaction(
+                              amount: 0.99,
+                              transactionId: txnId,
+                              currency: "USD",
+                              onSuccess: (val) {
+                                print("Transaction Successful $val");
+                                Navigator.of(context).pop();
+                              },
+                              onFailure: (val) {
+                                // print("Transaction Failure : $val");
+                                // Navigator.of(context).pop();
+                              });
                           // _showMaterialDialog(txnId, terminalConfig);
                         }
                           ),
