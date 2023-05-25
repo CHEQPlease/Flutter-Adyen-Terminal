@@ -1,10 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.cheqplease.adyen_terminal_example">
     <uses-permission android:name="android.permission.INTERNET"/>
    <application
         android:label="adyen_terminal_payment_example"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        tools:replace="android:label"
+       >
         <activity
             android:name="com.cheqplease.adyen_terminal.MainActivity"
             android:exported="true"
