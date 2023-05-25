@@ -16,6 +16,7 @@ import com.adyen.model.terminal.TerminalAPIRequest
 import com.adyen.model.terminal.security.SecurityKey
 import com.adyen.service.PosTerminalManagement
 import com.adyen.service.TerminalLocalAPI
+import com.cheq.receiptify.Receiptify
 import com.google.gson.Gson
 import com.cheqplease.adyen_terminal.data.AdyenTerminalConfig
 import com.cheqplease.adyen_terminal.receipt.ReceiptBuilder
@@ -148,8 +149,9 @@ object AdyenTerminalManager {
         failureHandler: TransactionFailureHandler<String>
     ) {
 
-        val customerReceiptBitmap = ReceiptBuilder.getInstance(context).buildReceipt(receiptDTO = Gson().fromJson(receiptDTOJSON,
-            ReceiptDTO::class.java))
+        Receiptify.init(context)
+        val customerReceiptBitmap = Receiptify.buildReceipt(receiptDTOJSON)
+//        val customerReceiptBitmap = ReceiptBuilder.getInstance(context).buildReceipt(Gson().fromJson(receiptDTOJSON, ReceiptDTO::class.java))
         val encoded: ByteArray? = customerReceiptBitmap?.let { bitmapToByteArray(bitmap = it) }
         val imageBase64Encoded = encodeToString(encoded, Base64.DEFAULT)
         val printData = """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()
