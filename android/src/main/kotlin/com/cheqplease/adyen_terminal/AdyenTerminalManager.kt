@@ -47,7 +47,6 @@ import com.orhanobut.logger.Logger
 import com.orhanobut.logger.PrettyFormatStrategy
 import org.apache.hc.client5.http.ConnectTimeoutException
 import org.apache.hc.client5.http.HttpHostConnectException
-import org.apache.hc.core5.http.ConnectionRequestTimeoutException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -62,7 +61,7 @@ object AdyenTerminalManager {
 
     private lateinit var terminalConfig: AdyenTerminalConfig
     private lateinit var context: WeakReference<Context>
-    private const val LOG_TAG = "AdyenTerminalManager"
+    private const val LOG_TAG = "FLUTTER_ADYEN"
 
     fun init(adyenTerminalConfig: AdyenTerminalConfig, context: Context) {
         terminalConfig = adyenTerminalConfig
@@ -88,13 +87,7 @@ object AdyenTerminalManager {
         paymentSuccessHandler: TransactionSuccessHandler<String?>,
         paymentFailureHandler: TransactionFailureHandler<Int, String>
     ) {
-
-        val config: Config = getConfigurationData(terminalConfig)
-        val terminalLocalAPIClient = Client(config)
-        val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient)
-        val terminalApiRequest = TerminalAPIRequest()
-
-        terminalApiRequest.apply {
+        val terminalApiRequest = TerminalAPIRequest().apply {
             saleToPOIRequest = buildSalePOIRequest(
                 saleID = terminalId,
                 transactionId = transactionId,
@@ -106,43 +99,58 @@ object AdyenTerminalManager {
             )
         }
 
+        Logger.d("ADYEN TERMINAL TRANSACTION REQUEST")
+        Logger.json(Gson().toJson(terminalApiRequest))
+
         val securityKey: SecurityKey = getSecurityKey(
             keyIdentifier = terminalConfig.keyId,
             passphrase = terminalConfig.keyPassphrase
         )
 
         try {
-            val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
+            val response = getTerminalLocalAPI().request(terminalApiRequest, securityKey)
+            response?.let {
+                val resultJson = Gson().toJson(it)
 
-            if (response != null) {
-
-                val resultJson = Gson().toJson(response)
-                val txnResult = response.saleToPOIResponse.paymentResponse.response.result
-                val isTxnSuccessful = txnResult == ResultType.SUCCESS ||txnResult  == ResultType.PARTIAL
+                val txnResult = it.saleToPOIResponse.paymentResponse.response.result
+                val isTxnSuccessful =
+                    txnResult == ResultType.SUCCESS || txnResult == ResultType.PARTIAL
 
                 if (isTxnSuccessful) {
+                    Logger.d("ADYEN TERMINAL TRANSACTION RESPONSE")
+                    Logger.json(Gson().toJson(resultJson))
                     paymentSuccessHandler.onSuccess(resultJson)
                 } else {
-                    paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE,resultJson)
+                    Logger.e("ADYEN TERMINAL TRANSACTION RESPONSE")
+                    Logger.json(Gson().toJson(resultJson))
+                    paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE, resultJson)
                 }
             }
+        } catch (e: Exception) {
+            Logger.e("ADYEN TERMINAL TRANSACTION RESPONSE")
+            Logger.e(e.message ?: "Unknown Error")
+            when (e) {
+                is ConnectTimeoutException -> paymentFailureHandler.onFailure(
+                    ErrorCode.CONNECTION_TIMEOUT,
+                    e.message ?: "Connection timeout"
+                )
 
+                is HttpHostConnectException -> paymentFailureHandler.onFailure(
+                    ErrorCode.DEVICE_UNREACHABLE,
+                    e.message ?: "Device Unreachable. Please check your internet connection"
+                )
+
+                else -> paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE, e.message!!)
+            }
         }
-
-        catch (timeoutException : ConnectTimeoutException){
-            paymentFailureHandler.onFailure(ErrorCode.CONNECTION_TIMEOUT, timeoutException.message ?: "Connection timeout")
-        }
-
-        catch (hostConnectionException : HttpHostConnectException){
-            paymentFailureHandler.onFailure(ErrorCode.DEVICE_UNREACHABLE, hostConnectionException.message ?: "Device Unreachable. Please check your internet connection")
-
-        }
-
-        catch (e: Exception) {
-            paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE,e.message!!)
-        }
-
     }
+
+    private fun getTerminalLocalAPI(): TerminalLocalAPI {
+        val config: Config = getConfigurationData(terminalConfig)
+        val terminalLocalAPIClient = Client(config)
+        return TerminalLocalAPI(terminalLocalAPIClient)
+    }
+
 
     fun cancelTransaction(terminalId: String, transactionId: String, txnIdToCancel: String) {
 
@@ -178,9 +186,11 @@ object AdyenTerminalManager {
             }
         }
 
-        Log.d("terminalApiRequest>>", "" + Gson().toJson(terminalApiRequest))
+        Logger.d("ADYEN TERMINAL CANCEL REQUEST")
+        Logger.json(Gson().toJson(terminalApiRequest))
         val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
-        Log.d("terminalApiResponse>>", "" + Gson().toJson(response))
+        Logger.d("ADYEN TERMINAL CANCEL RESPONSE")
+        Logger.json(Gson().toJson(response))
     }
 
 
@@ -189,7 +199,7 @@ object AdyenTerminalManager {
         transactionId: String,
         receiptDTOJSON: String,
         successHandler: TransactionSuccessHandler<Void>,
-        failureHandler: TransactionFailureHandler<Int,String>
+        failureHandler: TransactionFailureHandler<Int, String>
     ) {
 
         Receiptify.init(context)
@@ -246,13 +256,16 @@ object AdyenTerminalManager {
             } else {
                 val errorMsg =
                     response.saleToPOIResponse.printResponse.response.additionalResponse
-                failureHandler.onFailure(ErrorCode.FAILURE_GENERIC,errorMsg)
+                failureHandler.onFailure(ErrorCode.FAILURE_GENERIC, errorMsg)
             }
         } catch (e: Exception) {
             if (e.message != null) {
-                failureHandler.onFailure(ErrorCode.FAILURE_GENERIC,"Printing Failed ${e.message!!}")
+                failureHandler.onFailure(
+                    ErrorCode.FAILURE_GENERIC,
+                    "Printing Failed ${e.message!!}"
+                )
             } else {
-                failureHandler.onFailure(ErrorCode.FAILURE_GENERIC,"Printing Failed")
+                failureHandler.onFailure(ErrorCode.FAILURE_GENERIC, "Printing Failed")
             }
         }
     }
@@ -262,7 +275,7 @@ object AdyenTerminalManager {
         terminalIP: String,
         txnId: String,
         successHandler: TransactionSuccessHandler<String>,
-        failureHandler: TransactionFailureHandler<Int,String>
+        failureHandler: TransactionFailureHandler<Int, String>
     ) {
 
         val config: Config = getConfigurationData(terminalConfig)
@@ -322,7 +335,10 @@ object AdyenTerminalManager {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
             }
-            failureHandler.onFailure(ErrorCode.FAILURE_GENERIC,e.message ?: "Error occurred retrieving terminal info.")
+            failureHandler.onFailure(
+                ErrorCode.FAILURE_GENERIC,
+                e.message ?: "Error occurred retrieving terminal info."
+            )
         }
 
     }
