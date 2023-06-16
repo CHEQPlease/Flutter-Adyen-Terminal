@@ -1,63 +1,117 @@
-class AdyenTerminalConfig {
+import 'dart:convert';
 
+class AdyenTerminalConfig {
   AdyenTerminalConfig({
-      required this.endpoint,
-      required this.apiKey,
-      required this.merchantId,
-      required this.terminalModelNo,
-      required this.terminalSerialNo,
-      required this.terminalId,
-      required this.environment,
-      required this.keyId,
-      required this.keyPassphrase,
-      required this.merchantName,
-      required this.keyVersion,
-      required this.certPath,
+    required this.endpoint,
+    this.backendApiKey,
+    required this.terminalModelNo,
+    required this.terminalSerialNo,
+    required this.terminalId,
+    required this.environment,
+    required this.keyId,
+    required this.keyPassphrase,
+    required this.keyVersion,
+    required this.merchantId,
+    required this.merchantName,
+    required this.certPath,
+    this.connectionTimeoutMillis = 30000,
+    this.readTimeoutMillis = 30000,
+    this.showLogs = false,
   });
 
-  AdyenTerminalConfig.fromJson(dynamic json) {
-    endpoint = json['endpoint'];
-    apiKey = json['api_key'];
-    merchantId = json['merchant_id'];
-    terminalModelNo = json['terminal_model_no'];
-    terminalSerialNo = json['terminal_serial_no'];
-    terminalId = json['terminal_id'];
-    environment = json['environment'];
-    keyId = json['key_id'];
-    keyPassphrase = json['key_passphrase'];
-    merchantName = json['merchant_name'];
-    keyVersion = json['key_version'];
-    certPath = json['cert_path'];
+  final String endpoint;
+  final String? backendApiKey;
+  final String terminalModelNo;
+  final String terminalSerialNo;
+  final String terminalId;
+  final String environment;
+  final String keyId;
+  final String keyPassphrase;
+  final String keyVersion;
+  final String merchantId;
+  final String merchantName;
+  final String certPath;
+  num? connectionTimeoutMillis = 30000;
+  num? readTimeoutMillis = 30000;
+  bool showLogs = false;
+
+  AdyenTerminalConfig copyWith({
+    String? endpoint,
+    String? backendApiKey,
+    String? terminalModelNo,
+    String? terminalSerialNo,
+    String? terminalId,
+    String? environment,
+    String? keyId,
+    String? keyPassphrase,
+    String? keyVersion,
+    String? merchantId,
+    String? merchantName,
+    String? certPath,
+    num? connectionTimeoutMillis,
+    num? readTimeoutMillis,
+    bool? showLogs,
+  }) {
+    return AdyenTerminalConfig(
+      endpoint: endpoint ?? this.endpoint,
+      backendApiKey: backendApiKey ?? this.backendApiKey,
+      terminalModelNo: terminalModelNo ?? this.terminalModelNo,
+      terminalSerialNo: terminalSerialNo ?? this.terminalSerialNo,
+      terminalId: terminalId ?? this.terminalId,
+      environment: environment ?? this.environment,
+      keyId: keyId ?? this.keyId,
+      keyPassphrase: keyPassphrase ?? this.keyPassphrase,
+      keyVersion: keyVersion ?? this.keyVersion,
+      merchantId: merchantId ?? this.merchantId,
+      merchantName: merchantName ?? this.merchantName,
+      certPath: certPath ?? this.certPath,
+      connectionTimeoutMillis: connectionTimeoutMillis ?? this.connectionTimeoutMillis,
+      readTimeoutMillis: readTimeoutMillis ?? this.readTimeoutMillis,
+      showLogs: showLogs ?? this.showLogs,
+    );
   }
 
-  String? endpoint;
-  String? apiKey;
-  String? merchantId;
-  String? terminalModelNo;
-  String? terminalSerialNo;
-  String? terminalId;
-  String? environment;
-  String? keyId;
-  String? keyPassphrase;
-  String? merchantName;
-  String? keyVersion;
-  String? certPath;
-
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['endpoint'] = endpoint;
-    map['api_key'] = apiKey;
-    map['merchant_id'] = merchantId;
-    map['terminal_model_no'] = terminalModelNo;
-    map['terminal_serial_no'] = terminalSerialNo;
-    map['terminal_id'] = terminalId;
-    map['environment'] = environment;
-    map['key_id'] = keyId;
-    map['key_passphrase'] = keyPassphrase;
-    map['merchant_name'] = merchantName;
-    map['key_version'] = keyVersion;
-    map['cert_path'] = certPath;
-    return map;
+  factory AdyenTerminalConfig.fromJson(Map<String, dynamic> json){
+    return AdyenTerminalConfig(
+      endpoint: json["endpoint"] ?? "",
+      backendApiKey: json["backendApiKey"] ?? "",
+      terminalModelNo: json["terminalModelNo"] ?? "",
+      terminalSerialNo: json["terminalSerialNo"] ?? "",
+      terminalId: json["terminalId"] ?? "",
+      environment: json["environment"] ?? "",
+      keyId: json["keyId"] ?? "",
+      keyPassphrase: json["keyPassphrase"] ?? "",
+      keyVersion: json["keyVersion"] ?? "",
+      merchantId: json["merchantId"] ?? "",
+      merchantName: json["merchantName"] ?? "",
+      certPath: json["certPath"] ?? "",
+      connectionTimeoutMillis: json["connectionTimeoutMillis"] ?? 0,
+      readTimeoutMillis: json["readTimeoutMillis"] ?? 0,
+      showLogs: json["showLogs"] ?? false,
+    );
   }
+
+  Map<String, dynamic> toJson() => {
+    "endpoint": endpoint,
+    "backendApiKey": backendApiKey,
+    "terminalModelNo": terminalModelNo,
+    "terminalSerialNo": terminalSerialNo,
+    "terminalId": terminalId,
+    "environment": environment,
+    "keyId": keyId,
+    "keyPassphrase": keyPassphrase,
+    "keyVersion": keyVersion,
+    "merchantId": merchantId,
+    "merchantName": merchantName,
+    "certPath": certPath,
+    "connectionTimeoutMillis": connectionTimeoutMillis,
+    "readTimeoutMillis": readTimeoutMillis,
+    "showLogs": showLogs,
+  };
+
+  String toRawJson() => json.encode(toJson());
+
+  @override
+  toString() => toRawJson();
 
 }

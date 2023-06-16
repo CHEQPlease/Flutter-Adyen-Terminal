@@ -8,7 +8,27 @@ import android.util.Log
 import com.adyen.Client
 import com.adyen.Config
 import com.adyen.enums.Environment
-import com.adyen.model.nexo.*
+import com.adyen.model.nexo.AbortRequest
+import com.adyen.model.nexo.AdminRequest
+import com.adyen.model.nexo.AmountsReq
+import com.adyen.model.nexo.DiagnosisRequest
+import com.adyen.model.nexo.DocumentQualifierType
+import com.adyen.model.nexo.MessageCategoryType
+import com.adyen.model.nexo.MessageClassType
+import com.adyen.model.nexo.MessageHeader
+import com.adyen.model.nexo.MessageReference
+import com.adyen.model.nexo.MessageType
+import com.adyen.model.nexo.OutputContent
+import com.adyen.model.nexo.OutputFormatType
+import com.adyen.model.nexo.PaymentRequest
+import com.adyen.model.nexo.PaymentTransaction
+import com.adyen.model.nexo.PrintOutput
+import com.adyen.model.nexo.PrintRequest
+import com.adyen.model.nexo.ResponseModeType
+import com.adyen.model.nexo.ResultType
+import com.adyen.model.nexo.SaleData
+import com.adyen.model.nexo.SaleToPOIRequest
+import com.adyen.model.nexo.TransactionIdentification
 import com.adyen.model.posterminalmanagement.GetTerminalDetailsRequest
 import com.adyen.model.posterminalmanagement.GetTerminalDetailsResponse
 import com.adyen.model.terminal.SaleToAcquirerData
@@ -17,18 +37,24 @@ import com.adyen.model.terminal.security.SecurityKey
 import com.adyen.service.PosTerminalManagement
 import com.adyen.service.TerminalLocalAPI
 import com.cheq.receiptify.Receiptify
-import com.google.gson.Gson
 import com.cheqplease.adyen_terminal.data.AdyenTerminalConfig
-import com.cheqplease.adyen_terminal.receipt.ReceiptBuilder
-import com.cheqplease.adyen_terminal.receipt.data.ReceiptDTO
-import com.cheqplease.adyen_terminal_payment.TransactionFailureHandler
-import com.cheqplease.adyen_terminal_payment.TransactionSuccessHandler
+import com.cheqplease.adyen_terminal.data.ErrorCode
+import com.cheqplease.adyen_terminal.data.TransactionFailureHandler
+import com.cheqplease.adyen_terminal.data.TransactionSuccessHandler
+import com.google.gson.Gson
+import com.orhanobut.logger.AndroidLogAdapter
+import com.orhanobut.logger.Logger
+import com.orhanobut.logger.PrettyFormatStrategy
+import org.apache.hc.client5.http.ConnectTimeoutException
+import org.apache.hc.client5.http.HttpHostConnectException
+import org.apache.hc.core5.http.ConnectionRequestTimeoutException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.math.BigDecimal
-import java.util.*
+import java.util.GregorianCalendar
+import java.util.TimeZone
 import javax.xml.datatype.DatatypeFactory
 
 
@@ -36,10 +62,21 @@ object AdyenTerminalManager {
 
     private lateinit var terminalConfig: AdyenTerminalConfig
     private lateinit var context: WeakReference<Context>
+    private const val LOG_TAG = "AdyenTerminalManager"
 
     fun init(adyenTerminalConfig: AdyenTerminalConfig, context: Context) {
         terminalConfig = adyenTerminalConfig
         AdyenTerminalManager.context = WeakReference<Context>(context)
+        initLogger()
+    }
+
+    private fun initLogger() {
+        Logger.addLogAdapter(object :
+            AndroidLogAdapter(PrettyFormatStrategy.newBuilder().tag(LOG_TAG).build()) {
+            override fun isLoggable(priority: Int, tag: String?): Boolean {
+                return terminalConfig.showLogs
+            }
+        })
     }
 
     fun authorizeTransaction(
@@ -49,7 +86,7 @@ object AdyenTerminalManager {
         currency: String,
         requestAmount: BigDecimal,
         paymentSuccessHandler: TransactionSuccessHandler<String?>,
-        paymentFailureHandler: TransactionFailureHandler<String>
+        paymentFailureHandler: TransactionFailureHandler<Int, String>
     ) {
 
         val config: Config = getConfigurationData(terminalConfig)
@@ -70,35 +107,41 @@ object AdyenTerminalManager {
         }
 
         val securityKey: SecurityKey = getSecurityKey(
-            keyIdentifier = terminalConfig.key_id,
-            passphrase = terminalConfig.key_passphrase
+            keyIdentifier = terminalConfig.keyId,
+            passphrase = terminalConfig.keyPassphrase
         )
 
-        Log.d("terminalApiRequest>>", "" + Gson().toJson(terminalApiRequest))
         try {
             val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
 
             if (response != null) {
-                Log.d("terminalApiResponse>>", "" + Gson().toJson(response))
+
                 val resultJson = Gson().toJson(response)
-                if ("success".equals(
-                        response.saleToPOIResponse.paymentResponse.response.result.value(),
-                        ignoreCase = true
-                    )
-                ) {
+                val txnResult = response.saleToPOIResponse.paymentResponse.response.result
+                val isTxnSuccessful = txnResult == ResultType.SUCCESS ||txnResult  == ResultType.PARTIAL
+
+                if (isTxnSuccessful) {
                     paymentSuccessHandler.onSuccess(resultJson)
                 } else {
-                    paymentFailureHandler.onFailure(resultJson)
+                    paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE,resultJson)
                 }
             }
 
-        } catch (e: Exception) {
-            if (e.message != null) {
-                paymentFailureHandler.onFailure(e.message!!)
-            } else {
-                paymentFailureHandler.onFailure("Failed to process transaction")
-            }
         }
+
+        catch (timeoutException : ConnectTimeoutException){
+            paymentFailureHandler.onFailure(ErrorCode.CONNECTION_TIMEOUT, timeoutException.message ?: "Connection timeout")
+        }
+
+        catch (hostConnectionException : HttpHostConnectException){
+            paymentFailureHandler.onFailure(ErrorCode.DEVICE_UNREACHABLE, hostConnectionException.message ?: "Device Unreachable. Please check your internet connection")
+
+        }
+
+        catch (e: Exception) {
+            paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE,e.message!!)
+        }
+
     }
 
     fun cancelTransaction(terminalId: String, transactionId: String, txnIdToCancel: String) {
@@ -109,8 +152,8 @@ object AdyenTerminalManager {
         val terminalApiRequest = TerminalAPIRequest()
 
         val securityKey: SecurityKey = getSecurityKey(
-            keyIdentifier = terminalConfig.key_id,
-            passphrase = terminalConfig.key_passphrase
+            keyIdentifier = terminalConfig.keyId,
+            passphrase = terminalConfig.keyPassphrase
         )
 
         terminalApiRequest.apply {
@@ -146,7 +189,7 @@ object AdyenTerminalManager {
         transactionId: String,
         receiptDTOJSON: String,
         successHandler: TransactionSuccessHandler<Void>,
-        failureHandler: TransactionFailureHandler<String>
+        failureHandler: TransactionFailureHandler<Int,String>
     ) {
 
         Receiptify.init(context)
@@ -154,7 +197,8 @@ object AdyenTerminalManager {
 //        val customerReceiptBitmap = ReceiptBuilder.getInstance(context).buildReceipt(Gson().fromJson(receiptDTOJSON, ReceiptDTO::class.java))
         val encoded: ByteArray? = customerReceiptBitmap?.let { bitmapToByteArray(bitmap = it) }
         val imageBase64Encoded = encodeToString(encoded, Base64.DEFAULT)
-        val printData = """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()
+        val printData =
+            """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()
 
 
         val config: Config = getConfigurationData(terminalConfig)
@@ -189,28 +233,37 @@ object AdyenTerminalManager {
         try {
             val response = terminalLocalAPI.request(
                 terminalApiRequest, getSecurityKey(
-                    keyIdentifier = terminalConfig.key_id,
-                    passphrase = terminalConfig.key_passphrase
+                    keyIdentifier = terminalConfig.keyId,
+                    passphrase = terminalConfig.keyPassphrase
                 )
             )
-            if (response != null && "success".equals(response.saleToPOIResponse.printResponse.response.result.name, ignoreCase = true)) {
+            if (response != null && "success".equals(
+                    response.saleToPOIResponse.printResponse.response.result.name,
+                    ignoreCase = true
+                )
+            ) {
                 successHandler.onSuccess(null)
             } else {
                 val errorMsg =
                     response.saleToPOIResponse.printResponse.response.additionalResponse
-                failureHandler.onFailure(errorMsg)
+                failureHandler.onFailure(ErrorCode.FAILURE_GENERIC,errorMsg)
             }
         } catch (e: Exception) {
             if (e.message != null) {
-                failureHandler.onFailure("Printing Failed ${e.message!!}")
+                failureHandler.onFailure(ErrorCode.FAILURE_GENERIC,"Printing Failed ${e.message!!}")
             } else {
-                failureHandler.onFailure("Printing Failed")
+                failureHandler.onFailure(ErrorCode.FAILURE_GENERIC,"Printing Failed")
             }
         }
     }
 
 
-    fun getTerminalInfo(terminalIP: String, txnId: String, successHandler: TransactionSuccessHandler<String>, failureHandler: TransactionFailureHandler<String>){
+    fun getTerminalInfo(
+        terminalIP: String,
+        txnId: String,
+        successHandler: TransactionSuccessHandler<String>,
+        failureHandler: TransactionFailureHandler<Int,String>
+    ) {
 
         val config: Config = getConfigurationData(terminalConfig)
         config.apply {
@@ -221,8 +274,8 @@ object AdyenTerminalManager {
         val terminalApiRequest = TerminalAPIRequest()
 
         val securityKey: SecurityKey = getSecurityKey(
-            keyIdentifier = terminalConfig.key_id,
-            passphrase = terminalConfig.key_passphrase
+            keyIdentifier = terminalConfig.keyId,
+            passphrase = terminalConfig.keyPassphrase
         )
 
         terminalApiRequest.apply {
@@ -249,14 +302,15 @@ object AdyenTerminalManager {
             val resultJSONString = Gson().toJson(response.saleToPOIResponse)
             val terminalDetailsJSON = JSONObject()
             val saleToPoiJsonObject = JSONObject(resultJSONString)
-            terminalDetailsJSON.put("SaleToPOIResponse",saleToPoiJsonObject)
+            terminalDetailsJSON.put("SaleToPOIResponse", saleToPoiJsonObject)
 
             //Get Verbose TerminalInfo from Web Mgmt API
             try {
-                val terminalDetails = getTerminalDetails(response.saleToPOIResponse.messageHeader.poiid)
+                val terminalDetails =
+                    getTerminalDetails(response.saleToPOIResponse.messageHeader.poiid)
                 val webApiResponseJSON = Gson().toJson(terminalDetails)
                 val webApiResponseJSONObject = JSONObject(webApiResponseJSON)
-                terminalDetailsJSON.put("WebAPIResponse",webApiResponseJSONObject)
+                terminalDetailsJSON.put("WebAPIResponse", webApiResponseJSONObject)
                 Log.d("terminalMgmtAPIResponse", " : $terminalDetails")
                 successHandler.onSuccess(terminalDetailsJSON.toString())
             } catch (e: Exception) {
@@ -265,10 +319,10 @@ object AdyenTerminalManager {
             }
         } catch (e: Exception) {
             Log.d("terminalMgmtAPIResponse", " : Error occurred retrieving terminal info.")
-            if(BuildConfig.DEBUG){
+            if (BuildConfig.DEBUG) {
                 e.printStackTrace()
             }
-            failureHandler.onFailure(null)
+            failureHandler.onFailure(ErrorCode.FAILURE_GENERIC,e.message ?: "Error occurred retrieving terminal info.")
         }
 
     }
@@ -279,9 +333,10 @@ object AdyenTerminalManager {
         val terminalMgmtClient = Client(config)
         val terminalMgmtAPI = PosTerminalManagement(terminalMgmtClient)
 
-        val getTerminalDetailsRequest: GetTerminalDetailsRequest = GetTerminalDetailsRequest().apply {
-            terminal = poiid
-        }
+        val getTerminalDetailsRequest: GetTerminalDetailsRequest =
+            GetTerminalDetailsRequest().apply {
+                terminal = poiid
+            }
 
         val response = terminalMgmtAPI.getTerminalDetails(getTerminalDetailsRequest)
 
@@ -289,7 +344,7 @@ object AdyenTerminalManager {
     }
 
 
-    fun scanBarcode(transactionId: String){
+    fun scanBarcode(transactionId: String) {
 
         val jsonReq = """{
             "Session": {
@@ -305,7 +360,7 @@ object AdyenTerminalManager {
         }
         """
 
-       val jsonBase64 =  encodeToString(jsonReq.toByteArray(), Base64.DEFAULT)
+        val jsonBase64 = encodeToString(jsonReq.toByteArray(), Base64.DEFAULT)
 
         val config: Config = getConfigurationData(terminalConfig)
         val terminalLocalAPIClient = Client(config)
@@ -336,15 +391,14 @@ object AdyenTerminalManager {
 
             val response = terminalLocalAPI.request(
                 terminalApiRequest, getSecurityKey(
-                    keyIdentifier = terminalConfig.key_id,
-                    passphrase = terminalConfig.key_passphrase
+                    keyIdentifier = terminalConfig.keyId,
+                    passphrase = terminalConfig.keyPassphrase
                 )
             )
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
-
 
 
     private fun buildSalePOIRequest(
@@ -452,11 +506,11 @@ object AdyenTerminalManager {
                 ignoreCase = true
             )
         ) Environment.TEST else Environment.LIVE
-        config.merchantAccount = terminalConfig.merchant_name
+        config.merchantAccount = terminalConfig.merchantName
         val inputStream: InputStream? = context.get()?.assets?.open(terminalConfig.certPath)
         config.setTerminalCertificate(inputStream)
-        config.connectionTimeoutMillis = 300000
-        config.readTimeoutMillis = 300000
+        config.connectionTimeoutMillis = terminalConfig.connectionTimeoutMillis
+        config.readTimeoutMillis = terminalConfig.readTimeoutMillis
         config.terminalApiLocalEndpoint = terminalConfig.endpoint
         return config
     }
@@ -470,11 +524,12 @@ object AdyenTerminalManager {
                 ignoreCase = true
             )
         ) Environment.TEST else Environment.LIVE
-        config.merchantAccount = terminalConfig.merchant_name
+        config.merchantAccount = terminalConfig.merchantName
         config.connectionTimeoutMillis = 10000
         config.readTimeoutMillis = 10000
-        config.posTerminalManagementApiEndpoint = if(config.environment == Environment.TEST) Client.POS_TERMINAL_MANAGEMENT_ENDPOINT_TEST else Client.POS_TERMINAL_MANAGEMENT_ENDPOINT_LIVE
-        config.apiKey = terminalConfig.apiKey
+        config.posTerminalManagementApiEndpoint =
+            if (config.environment == Environment.TEST) Client.POS_TERMINAL_MANAGEMENT_ENDPOINT_TEST else Client.POS_TERMINAL_MANAGEMENT_ENDPOINT_LIVE
+        config.apiKey = terminalConfig.backendApiKey
         return config
     }
 
@@ -487,7 +542,7 @@ object AdyenTerminalManager {
         return securityKey
     }
 
-    private fun bitmapToByteArray(bitmap : Bitmap) : ByteArray{
+    private fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
         val stream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 10, stream)
         val byteArray: ByteArray = stream.toByteArray()

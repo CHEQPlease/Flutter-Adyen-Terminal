@@ -1,10 +1,13 @@
+import 'dart:convert';
 import 'dart:math';
 
 
+import 'package:adyen_terminal_payment_example/AdyenTerminalResponse.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_adyen_terminal/adyen_terminal_payment.dart';
 import 'package:flutter_adyen_terminal/data/AdyenTerminalConfig.dart';
+
 
 void main() {
   runApp(const MaterialApp(
@@ -94,21 +97,19 @@ class _MyAppState extends State<MyApp> {
                             
                             AdyenTerminalConfig terminalConfig =
                             AdyenTerminalConfig(
-                              apiKey: "",
-                              endpoint: "https://192.168.1.181",
-                              terminalModelNo: "S1F2",
-                              terminalSerialNo: "000158222016383",
+                              endpoint: "https://192.168.31.23",
+                              terminalModelNo: "e285p",
+                              terminalSerialNo: "805336269",
                               terminalId: "bugsoyieugrys",
-                              merchantId: null,
                               environment: "test",
                               keyId: "dhaka-pos-cc-test-id",
                               keyPassphrase: "Dh@kaCheq1!",
                               merchantName: "CHEQPOS",
                               keyVersion: "1.0",
                               certPath: "assets/cert/adyen-terminalfleet-test.cer",
+                              merchantId: '',
                             );
                             //
-
 
                             FlutterAdyen.init(terminalConfig);
 
@@ -208,30 +209,38 @@ class _MyAppState extends State<MyApp> {
                                                           
                             """
                             ;
-                            FlutterAdyen.printReceipt(_get10DigitNumber(),receiptDTOJSON, onSuccess: (String val){
-                              print("Print Sucessful");
-                            },onFailure: (String val){
-                              print("Print Failure");
-                            });
+                            // FlutterAdyen.printReceipt(_get10DigitNumber(),receiptDTOJSON, onSuccess: (String val){
+                            //   print("Print Sucessful");
+                            // },onFailure: (String val){
+                            //   print("Print Failure");
+                            // });
 
                             // String txnId = _get10DigitNumber();
                             // await FlutterAdyen.getTerminalInfo("https://192.168.1.198",txnId,onSuccess: (val){
                             //   print("Success: $val");
                             // });
 
-                            // String txnId = _get10DigitNumber();
-                            // FlutterAdyen.authorizeTransaction(
-                            //   amount: 0.99,
-                            //   transactionId: txnId,
-                            //   currency: "USD",
-                            //   onSuccess: (val) {
-                            //     print("Transaction Successful $val");
-                            //     Navigator.of(context).pop();
-                            //   },
-                            //   onFailure: (val) {
-                            //     print("Transaction Failure : $val");
-                            //     // Navigator.of(context).pop();
-                            //   });
+                            String txnId = _get10DigitNumber();
+                            FlutterAdyen.authorizeTransaction(
+                              amount: 0.99,
+                              transactionId: txnId,
+                              currency: "USD",
+                              onSuccess: (val) {
+                                print("Transaction Successful $val");
+                                try {
+                                  AdyenTerminalResponse adyenTerminalResponse = AdyenTerminalResponse.fromJson(jsonDecode(val));
+                                } catch (e,st) {
+                                  print(st);
+                                  print(e);
+                                }
+                                print("Test");
+
+                                // Navigator.of(context).pop();
+                              },
+                              onFailure: (val) {
+                                print("Transaction Failure : $val");
+                                // Navigator.of(context).pop();
+                              });
                           // _showMaterialDialog(txnId, terminalConfig);
                         }
                           ),

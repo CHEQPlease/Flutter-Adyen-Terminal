@@ -3,8 +3,8 @@ package com.cheqplease.adyen_terminal
 import android.content.Context
 import androidx.annotation.NonNull
 import com.cheqplease.adyen_terminal.data.AdyenTerminalConfig
-import com.cheqplease.adyen_terminal_payment.TransactionFailureHandler
-import com.cheqplease.adyen_terminal_payment.TransactionSuccessHandler
+import com.cheqplease.adyen_terminal.data.TransactionFailureHandler
+import com.cheqplease.adyen_terminal.data.TransactionSuccessHandler
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterAssets
@@ -26,7 +26,6 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
     private lateinit var applicationContext: Context
     private lateinit var flutterAssets: FlutterAssets
     private lateinit var channel: MethodChannel
-    private lateinit var flutterPluginBinding : FlutterPluginBinding
 
     companion object {
         lateinit var adyenTerminalConfig: AdyenTerminalConfig
@@ -48,21 +47,24 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
 
         when (call.method) {
             "init" -> {
-                val certPath = call.argument<String>("cert_path")!!
+                val certPath = call.argument<String>("certPath")?: throw IllegalArgumentException("Cert path value not found")
                 adyenTerminalConfig = AdyenTerminalConfig(
-                    endpoint = call.argument<String>("endpoint")!!,
-                    apiKey = call.argument<String>("api_key")!!,
-                    terminalModelNo = call.argument<String>("terminal_model_no")!!,
-                    terminalSerialNo = call.argument<String>("terminal_serial_no")!!,
-                    terminalId = call.argument<String>("terminal_id")!!,
-                    merchantId = call.argument<String>("merchant_id"),
-                    environment = call.argument<String>("environment")!!,
-                    key_id = call.argument<String>("key_id")!!,
-                    key_passphrase = call.argument<String>("key_passphrase")!!,
-                    merchant_name = call.argument<String>("merchant_name")!!,
-                    key_version = call.argument<String>("key_version")!!,
-                    certPath = FlutterInjector.instance().flutterLoader().getLookupKeyForAsset(certPath)
+                    endpoint = call.argument<String>("endpoint") ?: throw IllegalArgumentException("Endpoint value not found"),
+                    backendApiKey = call.argument<String>("apiKey"),
+                    terminalModelNo = call.argument<String>("terminalModelNo") ?: throw IllegalArgumentException("Terminal model number value not found"),
+                    terminalSerialNo = call.argument<String>("terminalSerialNo") ?: throw IllegalArgumentException("Terminal serial number value not found"),
+                    terminalId = call.argument<String>("terminalId") ?: throw IllegalArgumentException("Terminal ID value not found"),
+                    merchantId = call.argument<String>("merchantId"),
+                    environment = call.argument<String>("environment") ?: throw IllegalArgumentException("Environment value not found"),
+                    keyId = call.argument<String>("keyId") ?: throw IllegalArgumentException("Key ID value not found"),
+                    keyPassphrase = call.argument<String>("keyPassphrase") ?: throw IllegalArgumentException("Key passphrase value not found"),
+                    merchantName = call.argument<String>("merchantName") ?: throw IllegalArgumentException("Merchant name value not found"),
+                    keyVersion = call.argument<String>("keyVersion") ?: throw IllegalArgumentException("Key version value not found"),
+                    certPath = FlutterInjector.instance().flutterLoader().getLookupKeyForAsset(certPath),
+                    connectionTimeoutMillis = call.argument<Int>("connectionTimeoutMillis") ?: throw IllegalArgumentException("Connection timeout value not found"),
+                    readTimeoutMillis = call.argument<Int>("readTimeoutMillis") ?: throw IllegalArgumentException("Read timeout value not found")
                 )
+
                 AdyenTerminalManager.init(adyenTerminalConfig,applicationContext)
             }
             "authorize_transaction" -> {
@@ -88,8 +90,8 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                                         result.success(response)
                                     }
                                 },
-                                paymentFailureHandler = object : TransactionFailureHandler<String> {
-                                    override fun onFailure(response: String?) {
+                                paymentFailureHandler = object : TransactionFailureHandler<Int,String> {
+                                    override fun onFailure(errorCode : Int?, response: String?) {
                                         result.error("ERROR","TXN FAILED",response)
                                     }
                                 }
@@ -131,14 +133,13 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                             context = applicationContext,
                             transactionId = transactionId,
                             receiptDTOJSON = receiptDTOJSON,
-                            successHandler = object : TransactionSuccessHandler<Void>{
+                            successHandler = object : TransactionSuccessHandler<Void> {
                                 override fun onSuccess(response: Void?) {
                                     result.success(true)
                                 }
                             },
-                            failureHandler = object : TransactionFailureHandler<String>{
-
-                                override fun onFailure(response: String?) {
+                            failureHandler = object : TransactionFailureHandler<Int,String> {
+                                override fun onFailure(errorCode: Int?, response: String?) {
                                     result.error("PRINT_ERROR","Unable to print",response)
                                 }
                             }
@@ -168,13 +169,13 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                         AdyenTerminalManager.getTerminalInfo(
                             txnId = transactionId,
                             terminalIP = terminalIP,
-                            successHandler = object : TransactionSuccessHandler<String>{
+                            successHandler = object : TransactionSuccessHandler<String> {
                                 override fun onSuccess(response: String?) {
                                     result.success(response)
                                 }
                             },
-                            failureHandler = object  : TransactionFailureHandler<String>{
-                                override fun onFailure(response: String?) {
+                            failureHandler = object : TransactionFailureHandler<Int,String> {
+                                override fun onFailure(errorCode: Int?, response: String?) {
                                     result.error("ERROR", "Unable to get device info", null)
                                 }
                             }

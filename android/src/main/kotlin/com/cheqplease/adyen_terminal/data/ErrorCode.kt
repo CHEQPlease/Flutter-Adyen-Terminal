@@ -1,8 +1,9 @@
 package com.cheqplease.adyen_terminal.data
 
-object ErrorCodes {
-    const val FAILURE = 1001
-    const val TIMEOUT = 1001
-    const val UNREACHABLE = 1002
-    const val OTHERS = 1003
+object ErrorCode {
+    const val FAILURE_GENERIC = 1000
+    const val TRANSACTION_FAILURE = 1001
+    const val CONNECTION_TIMEOUT = 1002
+    const val DEVICE_UNREACHABLE = 1003
+    const val TRANSACTION_FAILURE_OTHERS = 1004
 }
