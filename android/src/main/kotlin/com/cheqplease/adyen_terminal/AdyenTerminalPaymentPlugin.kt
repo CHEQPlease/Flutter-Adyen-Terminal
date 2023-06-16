@@ -1,5 +1,6 @@
 package com.cheqplease.adyen_terminal
 
+
 import android.content.Context
 import androidx.annotation.NonNull
 import com.cheqplease.adyen_terminal.data.AdyenTerminalConfig
@@ -32,169 +33,188 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPluginBinding) {
-        onAttachedToEngine(flutterPluginBinding.applicationContext, flutterPluginBinding.binaryMessenger,flutterPluginBinding.flutterAssets)
+        onAttachedToEngine(
+            flutterPluginBinding.applicationContext,
+            flutterPluginBinding.binaryMessenger,
+            flutterPluginBinding.flutterAssets
+        )
     }
 
-    private fun onAttachedToEngine(applicationContext: Context, messenger: BinaryMessenger,flutterAssets: FlutterAssets) {
+    override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
+        channel.setMethodCallHandler(null)
+    }
+
+    private fun onAttachedToEngine(
+        applicationContext: Context,
+        messenger: BinaryMessenger,
+        flutterAssets: FlutterAssets
+    ) {
         this.applicationContext = applicationContext
         this.flutterAssets = flutterAssets
         channel = MethodChannel(messenger, "com.cheqplease.adyen_terminal/channel")
         channel.setMethodCallHandler(this)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-
         when (call.method) {
-            "init" -> {
-                val certPath = call.argument<String>("certPath")?: throw IllegalArgumentException("Cert path value not found")
-                adyenTerminalConfig = AdyenTerminalConfig(
-                    endpoint = call.argument<String>("endpoint") ?: throw IllegalArgumentException("Endpoint value not found"),
-                    backendApiKey = call.argument<String>("apiKey"),
-                    terminalModelNo = call.argument<String>("terminalModelNo") ?: throw IllegalArgumentException("Terminal model number value not found"),
-                    terminalSerialNo = call.argument<String>("terminalSerialNo") ?: throw IllegalArgumentException("Terminal serial number value not found"),
-                    terminalId = call.argument<String>("terminalId") ?: throw IllegalArgumentException("Terminal ID value not found"),
-                    merchantId = call.argument<String>("merchantId"),
-                    environment = call.argument<String>("environment") ?: throw IllegalArgumentException("Environment value not found"),
-                    keyId = call.argument<String>("keyId") ?: throw IllegalArgumentException("Key ID value not found"),
-                    keyPassphrase = call.argument<String>("keyPassphrase") ?: throw IllegalArgumentException("Key passphrase value not found"),
-                    merchantName = call.argument<String>("merchantName") ?: throw IllegalArgumentException("Merchant name value not found"),
-                    keyVersion = call.argument<String>("keyVersion") ?: throw IllegalArgumentException("Key version value not found"),
-                    certPath = FlutterInjector.instance().flutterLoader().getLookupKeyForAsset(certPath),
-                    connectionTimeoutMillis = call.argument<Int>("connectionTimeoutMillis") ?: throw IllegalArgumentException("Connection timeout value not found"),
-                    readTimeoutMillis = call.argument<Int>("readTimeoutMillis") ?: throw IllegalArgumentException("Read timeout value not found"),
-                    showLogs = call.argument<Boolean>("showLogs") ?: false
+            "init" -> handleInit(call, result)
+            "authorize_transaction" -> handleAuthorizeTransaction(call, result)
+            "cancel_transaction" -> handleCancelTransaction(call, result)
+            "print_receipt" -> handlePrintReceipt(call, result)
+            "scan_barcode" -> handleScanBarcode(call, result)
+            "get_terminal_info" -> handleGetTerminalInfo(call, result)
+            else -> result.notImplemented()
+        }
+    }
+
+    private fun handleInit(call: MethodCall, result: Result) {
+        val certPath = getArgumentOrThrow<String>(call, "certPath")
+        adyenTerminalConfig = AdyenTerminalConfig(
+            endpoint = getArgumentOrThrow(call, "endpoint"),
+            backendApiKey = call.argument<String>("apiKey"),
+            terminalModelNo = getArgumentOrThrow(call, "terminalModelNo"),
+            terminalSerialNo = getArgumentOrThrow(call, "terminalSerialNo"),
+            terminalId = getArgumentOrThrow(call, "terminalId"),
+            merchantId = call.argument<String>("merchantId"),
+            environment = getArgumentOrThrow(call, "environment"),
+            keyId = getArgumentOrThrow(call, "keyId"),
+            keyPassphrase = getArgumentOrThrow(call, "keyPassphrase"),
+            merchantName = getArgumentOrThrow(call, "merchantName"),
+            keyVersion = getArgumentOrThrow(call, "keyVersion"),
+            certPath = FlutterInjector.instance().flutterLoader().getLookupKeyForAsset(certPath),
+            connectionTimeoutMillis = getArgumentOrThrow(call, "connectionTimeoutMillis"),
+            readTimeoutMillis = getArgumentOrThrow(call, "readTimeoutMillis"),
+            showLogs = getArgumentOrThrow(call, "showLogs", false)
+        )
+
+        AdyenTerminalManager.init(adyenTerminalConfig, applicationContext)
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun handleAuthorizeTransaction(call: MethodCall, result: Result) {
+        val amount: Double = getArgumentOrThrow(call, "amount")
+        val captureType: String = getArgumentOrThrow(call, "captureType")
+        val transactionId: String = getArgumentOrThrow(call, "transactionId")
+        val currency: String = getArgumentOrThrow(call, "currency")
+
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                AdyenTerminalManager.authorizeTransaction(
+                    transactionId = transactionId,
+                    captureType = captureType,
+                    currency = currency,
+                    requestAmount = BigDecimal.valueOf(amount),
+                    terminalId = adyenTerminalConfig.terminalId,
+                    paymentSuccessHandler = object :
+                        TransactionSuccessHandler<String?> {
+                        override fun onSuccess(response: String?) {
+                            result.success(response)
+                        }
+                    },
+                    paymentFailureHandler = object : TransactionFailureHandler<Int, String> {
+                        override fun onFailure(errorCode: Int?, response: String?) {
+                            result.error("ERROR", "TXN FAILED", response)
+                        }
+                    }
+
                 )
-
-                AdyenTerminalManager.init(adyenTerminalConfig,applicationContext)
-            }
-            "authorize_transaction" -> {
-
-                val amount = call.argument<Double>("amount")
-                val captureType = call.argument<String>("captureType")
-                val transactionId = call.argument<String>("transactionId")
-                val currency = call.argument<String>("currency")
-                val reqAmount = call.argument<Double>("amount")
-
-                if (amount != null && captureType!=null && transactionId!=null && currency!=null && reqAmount!=null) {
-                    GlobalScope.launch(Dispatchers.IO) {
-                        try {
-                            AdyenTerminalManager.authorizeTransaction(
-                                transactionId = transactionId,
-                                captureType = captureType,
-                                currency = currency,
-                                requestAmount = BigDecimal.valueOf(reqAmount),
-                                terminalId = adyenTerminalConfig.terminalId,
-                                paymentSuccessHandler = object :
-                                    TransactionSuccessHandler<String?> {
-                                    override fun onSuccess(response: String?) {
-                                        result.success(response)
-                                    }
-                                },
-                                paymentFailureHandler = object : TransactionFailureHandler<Int,String> {
-                                    override fun onFailure(errorCode : Int?, response: String?) {
-                                        result.error("ERROR","TXN FAILED",response)
-                                    }
-                                }
-
-                            )
-                        } catch (e: Exception) {
-                            result.error("ERROR","TXN FAILED",e.message)
-                            println(e.stackTraceToString())
-                        }
-                    }
-                }
-            }
-            "cancel_transaction" -> {
-
-                val txnId = call.argument<String>("transactionId")
-                val cancelTxnId = call.argument<String>("cancelTxnId")
-                if (txnId!=null && cancelTxnId!=null) {
-                    GlobalScope.launch(Dispatchers.IO) {
-                        try {
-                            AdyenTerminalManager.cancelTransaction(
-                                transactionId = txnId,
-                                txnIdToCancel = cancelTxnId,
-                                terminalId = adyenTerminalConfig.terminalId
-                            )
-                        } catch (e: Exception) {
-                            println(e.stackTraceToString())
-                        }
-                    }
-                }
-            }
-            "print_receipt" -> {
-
-                val transactionId = call.argument<String>("transactionId")!!
-                val receiptDTOJSON = call.argument<String>("receiptDTOJSON")!!
-
-                GlobalScope.launch(Dispatchers.IO) {
-                    try {
-                        AdyenTerminalManager.printReceipt(
-                            context = applicationContext,
-                            transactionId = transactionId,
-                            receiptDTOJSON = receiptDTOJSON,
-                            successHandler = object : TransactionSuccessHandler<Void> {
-                                override fun onSuccess(response: Void?) {
-                                    result.success(true)
-                                }
-                            },
-                            failureHandler = object : TransactionFailureHandler<Int,String> {
-                                override fun onFailure(errorCode: Int?, response: String?) {
-                                    result.error("PRINT_ERROR","Unable to print",response)
-                                }
-                            }
-                        )
-                    } catch (e: Exception) {
-                        result.error("PRINT_ERROR","Unable to print",e.message)
-                    }
-                }
-            }
-
-            "scan_barcode" ->{
-                val transactionId = call.argument<String>("transactionId")!!
-                GlobalScope.launch(Dispatchers.IO) {
-                    try {
-                        AdyenTerminalManager.scanBarcode(transactionId)
-                    } catch (e: Exception) {
-                        result.error("PRINT_ERROR","Unable to print",e.message)
-                    }
-                }
-            }
-
-            "get_terminal_info" -> {
-                val transactionId = call.argument<String>("transactionId")!!
-                val terminalIP = call.argument<String>("terminalIP")!!
-                GlobalScope.launch(Dispatchers.IO) {
-                    try {
-                        AdyenTerminalManager.getTerminalInfo(
-                            txnId = transactionId,
-                            terminalIP = terminalIP,
-                            successHandler = object : TransactionSuccessHandler<String> {
-                                override fun onSuccess(response: String?) {
-                                    result.success(response)
-                                }
-                            },
-                            failureHandler = object : TransactionFailureHandler<Int,String> {
-                                override fun onFailure(errorCode: Int?, response: String?) {
-                                    result.error("ERROR", "Unable to get device info", null)
-                                }
-                            }
-                        )
-                    } catch (e: Exception){
-                        result.error("ERROR", "Unable to get device info", null)
-                    }
-                }
-
-            }
-
-            else -> {
-                result.notImplemented()
+            } catch (e: Exception) {
+                result.error("ERROR", "TXN FAILED", e.message)
+                println(e.stackTraceToString())
             }
         }
     }
 
-    override fun onDetachedFromEngine(@NonNull binding: FlutterPluginBinding) {
-        channel.setMethodCallHandler(null)
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun handleCancelTransaction(call: MethodCall, result: Result) {
+
+        val txnId: String = getArgumentOrThrow(call, "transactionId")
+        val cancelTxnId: String = getArgumentOrThrow(call, "cancelTxnId")
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                AdyenTerminalManager.cancelTransaction(
+                    transactionId = txnId,
+                    txnIdToCancel = cancelTxnId,
+                    terminalId = adyenTerminalConfig.terminalId
+                )
+            } catch (e: Exception) {
+                println(e.stackTraceToString())
+            }
+        }
     }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun handlePrintReceipt(call: MethodCall, result: Result) {
+        val transactionId: String = getArgumentOrThrow(call, "transactionId")
+        val receiptDTOJSON: String = getArgumentOrThrow(call, "receiptDTOJSON")
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                AdyenTerminalManager.printReceipt(
+                    context = applicationContext,
+                    transactionId = transactionId,
+                    receiptDTOJSON = receiptDTOJSON,
+                    successHandler = object : TransactionSuccessHandler<Void> {
+                        override fun onSuccess(response: Void?) {
+                            result.success(true)
+                        }
+                    },
+                    failureHandler = object : TransactionFailureHandler<Int, String> {
+                        override fun onFailure(errorCode: Int?, response: String?) {
+                            result.error("PRINT_ERROR", "Unable to print", response)
+                        }
+                    }
+                )
+            } catch (e: Exception) {
+                result.error("PRINT_ERROR", "Unable to print", e.message)
+            }
+        }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun handleScanBarcode(call: MethodCall, result: Result) {
+        val transactionId = call.argument<String>("transactionId")!!
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                AdyenTerminalManager.scanBarcode(transactionId)
+            } catch (e: Exception) {
+                result.error("PRINT_ERROR", "Unable to print", e.message)
+            }
+        }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun handleGetTerminalInfo(call: MethodCall, result: Result) {
+        val transactionId: String = getArgumentOrThrow(call, "transactionId")
+        val terminalIP: String = getArgumentOrThrow(call, "terminalIP")
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                AdyenTerminalManager.getTerminalInfo(
+                    txnId = transactionId,
+                    terminalIP = terminalIP,
+                    successHandler = object : TransactionSuccessHandler<String> {
+                        override fun onSuccess(response: String?) {
+                            result.success(response)
+                        }
+                    },
+                    failureHandler = object : TransactionFailureHandler<Int, String> {
+                        override fun onFailure(errorCode: Int?, response: String?) {
+                            result.error("ERROR", "Unable to get device info", null)
+                        }
+                    }
+                )
+            } catch (e: Exception) {
+                result.error("ERROR", "Unable to get device info", null)
+            }
+        }
+    }
+
+    private fun <T> getArgumentOrThrow(
+        call: MethodCall,
+        argumentName: String,
+        defaultValue: T? = null
+    ): T {
+        return call.argument<T>(argumentName) ?: defaultValue
+        ?: throw IllegalArgumentException("$argumentName value not found")
+    }
+
 }

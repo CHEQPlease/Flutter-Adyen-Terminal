@@ -230,6 +230,9 @@ class _MyAppState extends State<MyApp> {
                                 print("Transaction Successful $val");
                                 try {
                                   AdyenTerminalResponse adyenTerminalResponse = AdyenTerminalResponse.fromJson(jsonDecode(val));
+
+                                  print("Test");
+
                                 } catch (e,st) {
                                   print(st);
                                   print(e);
@@ -239,7 +242,8 @@ class _MyAppState extends State<MyApp> {
                                 // Navigator.of(context).pop();
                               },
                               onFailure: (val) {
-                                print("Transaction Failure : $val");
+                                AdyenTerminalResponse adyenTerminalResponse = AdyenTerminalResponse.fromJson(jsonDecode(val));
+
                                 // Navigator.of(context).pop();
                               });
                           // _showMaterialDialog(txnId, terminalConfig);
