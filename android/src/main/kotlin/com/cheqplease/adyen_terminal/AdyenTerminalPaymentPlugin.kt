@@ -62,7 +62,8 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                     keyVersion = call.argument<String>("keyVersion") ?: throw IllegalArgumentException("Key version value not found"),
                     certPath = FlutterInjector.instance().flutterLoader().getLookupKeyForAsset(certPath),
                     connectionTimeoutMillis = call.argument<Int>("connectionTimeoutMillis") ?: throw IllegalArgumentException("Connection timeout value not found"),
-                    readTimeoutMillis = call.argument<Int>("readTimeoutMillis") ?: throw IllegalArgumentException("Read timeout value not found")
+                    readTimeoutMillis = call.argument<Int>("readTimeoutMillis") ?: throw IllegalArgumentException("Read timeout value not found"),
+                    showLogs = call.argument<Boolean>("showLogs") ?: false
                 )
 
                 AdyenTerminalManager.init(adyenTerminalConfig,applicationContext)

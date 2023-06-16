@@ -97,7 +97,7 @@ class _MyAppState extends State<MyApp> {
                             
                             AdyenTerminalConfig terminalConfig =
                             AdyenTerminalConfig(
-                              endpoint: "https://192.168.31.23",
+                              endpoint: "https://192.168.31.92",
                               terminalModelNo: "e285p",
                               terminalSerialNo: "805336269",
                               terminalId: "bugsoyieugrys",
@@ -108,6 +108,7 @@ class _MyAppState extends State<MyApp> {
                               keyVersion: "1.0",
                               certPath: "assets/cert/adyen-terminalfleet-test.cer",
                               merchantId: '',
+                              showLogs: true,
                             );
                             //
 

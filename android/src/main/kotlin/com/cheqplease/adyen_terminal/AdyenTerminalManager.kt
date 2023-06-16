@@ -71,7 +71,13 @@ object AdyenTerminalManager {
 
     private fun initLogger() {
         Logger.addLogAdapter(object :
-            AndroidLogAdapter(PrettyFormatStrategy.newBuilder().tag(LOG_TAG).build()) {
+            AndroidLogAdapter(
+                PrettyFormatStrategy.newBuilder()
+                    .tag(LOG_TAG)
+                    .showThreadInfo(false)
+                    .methodCount(3)
+                    .build()
+            ) {
             override fun isLoggable(priority: Int, tag: String?): Boolean {
                 return terminalConfig.showLogs
             }
@@ -118,11 +124,11 @@ object AdyenTerminalManager {
 
                 if (isTxnSuccessful) {
                     Logger.d("ADYEN TERMINAL TRANSACTION RESPONSE")
-                    Logger.json(Gson().toJson(resultJson))
+                    Logger.json(resultJson)
                     paymentSuccessHandler.onSuccess(resultJson)
                 } else {
                     Logger.e("ADYEN TERMINAL TRANSACTION RESPONSE")
-                    Logger.json(Gson().toJson(resultJson))
+                    Logger.json(resultJson)
                     paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE, resultJson)
                 }
             }
