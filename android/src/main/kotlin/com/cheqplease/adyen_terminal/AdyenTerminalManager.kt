@@ -115,13 +115,11 @@ object AdyenTerminalManager {
 
         try {
             val response = getTerminalLocalAPI().request(terminalApiRequest, securityKey)
-            response?.let {
-                val resultJson = Gson().toJson(it)
+            if(response != null){
+                val resultJson = Gson().toJson(response)
+                val txnResult = response.saleToPOIResponse.paymentResponse.response.result
 
-                val txnResult = it.saleToPOIResponse.paymentResponse.response.result
-                val isTxnSuccessful =
-                    txnResult == ResultType.SUCCESS || txnResult == ResultType.PARTIAL
-
+                val isTxnSuccessful = txnResult == ResultType.SUCCESS || txnResult == ResultType.PARTIAL
                 if (isTxnSuccessful) {
                     Logger.d("ADYEN TERMINAL TRANSACTION RESPONSE")
                     Logger.json(resultJson)
@@ -131,6 +129,9 @@ object AdyenTerminalManager {
                     Logger.json(resultJson)
                     paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE, resultJson)
                 }
+            }else{
+                Logger.e("ADYEN TERMINAL TRANSACTION RESPONSE")
+                paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE, null)
             }
         } catch (e: Exception) {
             Logger.e("ADYEN TERMINAL TRANSACTION RESPONSE")
@@ -253,11 +254,11 @@ object AdyenTerminalManager {
                     passphrase = terminalConfig.keyPassphrase
                 )
             )
-            if (response != null && "success".equals(
-                    response.saleToPOIResponse.printResponse.response.result.name,
-                    ignoreCase = true
-                )
-            ) {
+
+            val isPrinted = response?.saleToPOIResponse?.printResponse?.response?.result == ResultType.SUCCESS
+
+            if (isPrinted) {
+                Logger.d("ADYEN TERMINAL PRINT RESPONSE", "Printing Successful")
                 successHandler.onSuccess(null)
             } else {
                 val errorMsg =
@@ -338,9 +339,6 @@ object AdyenTerminalManager {
             }
         } catch (e: Exception) {
             Log.d("terminalMgmtAPIResponse", " : Error occurred retrieving terminal info.")
-            if (BuildConfig.DEBUG) {
-                e.printStackTrace()
-            }
             failureHandler.onFailure(
                 ErrorCode.FAILURE_GENERIC,
                 e.message ?: "Error occurred retrieving terminal info."

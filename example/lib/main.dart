@@ -2,11 +2,9 @@ import 'dart:convert';
 import 'dart:math';
 
 
-import 'package:adyen_terminal_payment_example/AdyenTerminalResponse.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_adyen_terminal/adyen_terminal_payment.dart';
-import 'package:flutter_adyen_terminal/data/AdyenTerminalConfig.dart';
+import 'package:flutter_adyen_terminal/data/adyen_terminal_config.dart';
 
 
 void main() {
@@ -221,31 +219,13 @@ class _MyAppState extends State<MyApp> {
                             //   print("Success: $val");
                             // });
 
-                            String txnId = _get10DigitNumber();
-                            FlutterAdyen.authorizeTransaction(
-                              amount: 0.99,
-                              transactionId: txnId,
-                              currency: "USD",
-                              onSuccess: (val) {
-                                print("Transaction Successful $val");
-                                try {
-                                  AdyenTerminalResponse adyenTerminalResponse = AdyenTerminalResponse.fromJson(jsonDecode(val));
+                            try {
+                              var response = await FlutterAdyen.authorizeTransaction(amount: 2.99, transactionId: _get10DigitNumber(), currency: "USD");
 
-                                  print("Test");
+                            } catch (e){
+                              print("Error: $e");
+                            }
 
-                                } catch (e,st) {
-                                  print(st);
-                                  print(e);
-                                }
-                                print("Test");
-
-                                // Navigator.of(context).pop();
-                              },
-                              onFailure: (val) {
-                                AdyenTerminalResponse adyenTerminalResponse = AdyenTerminalResponse.fromJson(jsonDecode(val));
-
-                                // Navigator.of(context).pop();
-                              });
                           // _showMaterialDialog(txnId, terminalConfig);
                         }
                           ),
@@ -255,28 +235,6 @@ class _MyAppState extends State<MyApp> {
               ),
             ),
           ));
-  }
-
-  void _showMaterialDialog(String txnId,AdyenTerminalConfig terminalConfig) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Status'),
-            content: Text('Transaction In Progress'),
-            actions: <Widget>[
-              TextButton(
-                  onPressed: () {
-                    FlutterAdyen.cancelTransaction(
-                        cancelTxnId: txnId,
-                        txnId: _get10DigitNumber(),
-                        terminalId: terminalConfig.terminalId);
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Close')),
-            ],
-          );
-        });
   }
 
   String _get10DigitNumber() {

@@ -3,12 +3,17 @@
 
 
 import 'package:flutter/services.dart';
+import 'package:flutter_adyen_terminal/data/adyen_terminal_response.dart';
+import 'package:flutter_adyen_terminal/data/error_codes.dart';
 
-import 'data/AdyenTerminalConfig.dart';
+
+import 'data/adyen_terminal_config.dart';
 import 'data/enums.dart';
+import 'exceptions/txn_failure_exceptions.dart';
 
-typedef OnSuccess<T> = Function(T response);
-typedef OnFailure<T> = Function(T response);
+typedef Success<T> = Function(T succesResponse);
+typedef Failure<String,T> = Function(String errorMessage,T? failureResponse);
+typedef TimeoutOrUnreachable = Function(Function ifTimeout,Function ifUnreachable);
 
 
 class FlutterAdyen {
@@ -27,31 +32,45 @@ class FlutterAdyen {
     _channel.invokeMethod(_methodInit,_terminalConfig.toJson());
   }
 
-  static Future<void> authorizeTransaction(
-      {
-      required double amount,
-      required String transactionId,
-      required String currency, CaptureType captureType =  CaptureType.delayed,
-      OnSuccess<String>? onSuccess,
-      OnFailure<String>? onFailure,
-      }) async {
-
-    _channel.invokeMethod(_methodAuthorizeTransaction,{
-      "amount" : amount,
-      "transactionId" : transactionId,
-      "currency" : currency,
-      "captureType" : captureType.name
-    }).then((value){
-      if (onSuccess != null) {
-        onSuccess(value);
+  static Future<AdyenTerminalResponse> authorizeTransaction({
+    required double amount,
+    required String transactionId,
+    required String currency,
+    CaptureType captureType = CaptureType.delayed,
+  }) async {
+    try {
+      final value = await _channel.invokeMethod(_methodAuthorizeTransaction, {
+        "amount": amount,
+        "transactionId": transactionId,
+        "currency": currency,
+        "captureType": captureType.name,
+      });
+      return AdyenTerminalResponse.fromJson(value);
+    } on PlatformException catch (ex) {
+      final errorCode = ex.code;
+      final errorMessage = ex.message;
+      if (errorCode == ErrorCode.transactionFailure.value) {
+        throw TxnFailedOnTerminalException(
+          errorCode: errorCode,
+          errorMessage: errorMessage,
+          adyenTerminalResponse: AdyenTerminalResponse.fromJson(ex.details),
+        );
       }
-    }).catchError((value){
-      if (onFailure != null) {
-        onFailure(value.details);
+      else if (errorCode == ErrorCode.connectionTimeout.value || errorCode == ErrorCode.deviceUnreachable.value) {
+        throw FailedToCommunicateTerminalException(
+          errorCode: errorCode,
+          errorMessage: errorMessage
+        );
+      } else {
+        throw BaseException(
+          errorCode: errorCode,
+          errorMessage: errorMessage,
+        );
       }
-    });
-
+    }
   }
+
+
 
   static Future<dynamic> cancelTransaction({required txnId,required cancelTxnId, required terminalId}) async {
 
@@ -63,8 +82,8 @@ class FlutterAdyen {
     return result;
   }
 
-  static Future<void> printReceipt(String txnId,String receiptDTOJSON,{OnSuccess<String>? onSuccess,
-      OnFailure<String>? onFailure}) async {
+  static Future<void> printReceipt(String txnId,String receiptDTOJSON,{Success<String>? onSuccess,
+      Failure<String,String?>? onFailure}) async {
 
     _channel.invokeMethod(_methodPrintReceipt,{
       "receiptDTOJSON" : receiptDTOJSON,
@@ -75,7 +94,7 @@ class FlutterAdyen {
       }
     }).catchError((value){
       if (onFailure != null) {
-        onFailure(value.details);
+        onFailure(value.details,null);
       }
     });
   }
@@ -91,8 +110,8 @@ class FlutterAdyen {
     });
   }
 
-  static Future<void> getTerminalInfo(String terminalIP, String txnId,{OnSuccess<String>? onSuccess,
-    OnFailure<String>? onFailure}) async{
+  static Future<void> getTerminalInfo(String terminalIP, String txnId,{Success<String>? onSuccess,
+    Failure<String,dynamic>? onFailure}) async{
     _channel.invokeMethod(_methodGetDeviceInfo, {
       "transactionId" : txnId,
       "terminalIP" : terminalIP
@@ -102,7 +121,7 @@ class FlutterAdyen {
       }
     }).catchError((value){
       if (onFailure != null) {
-        onFailure("Unable to retrieve terminal info");
+        onFailure("Unable to retrieve terminal info",null);
       }
     });
   }

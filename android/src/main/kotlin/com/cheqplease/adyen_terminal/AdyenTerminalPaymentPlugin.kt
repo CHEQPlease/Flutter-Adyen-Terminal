@@ -4,6 +4,7 @@ package com.cheqplease.adyen_terminal
 import android.content.Context
 import androidx.annotation.NonNull
 import com.cheqplease.adyen_terminal.data.AdyenTerminalConfig
+import com.cheqplease.adyen_terminal.data.ErrorCode
 import com.cheqplease.adyen_terminal.data.TransactionFailureHandler
 import com.cheqplease.adyen_terminal.data.TransactionSuccessHandler
 import io.flutter.FlutterInjector
@@ -113,14 +114,12 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                     },
                     paymentFailureHandler = object : TransactionFailureHandler<Int, String> {
                         override fun onFailure(errorCode: Int?, response: String?) {
-                            result.error("ERROR", "TXN FAILED", response)
+                            result.error(errorCode.toString(), response, null)
                         }
                     }
-
                 )
             } catch (e: Exception) {
-                result.error("ERROR", "TXN FAILED", e.message)
-                println(e.stackTraceToString())
+                result.error(ErrorCode.UNABLE_TO_PROCESS_RESULT.toString(), e.message, e.printStackTrace())
             }
         }
     }
@@ -172,7 +171,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun handleScanBarcode(call: MethodCall, result: Result) {
-        val transactionId = call.argument<String>("transactionId")!!
+        val transactionId : String = getArgumentOrThrow(call,"transactionId")!!
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 AdyenTerminalManager.scanBarcode(transactionId)
