@@ -503,17 +503,15 @@ class Response {
   factory Response.fromJson(Map<String, dynamic> json){
 
     String? additionalResponse = json["additionalResponse"];
-    AdditionalResponse? additionalResponseObject;
+    String? additionalResponseDecoded;
     if(additionalResponse != null){
       try {
-        additionalResponse = utf8.decode(base64Decode(additionalResponse));
-      } catch (e) {
-        additionalResponse = null;
-      }
+        additionalResponseDecoded = utf8.decode(base64Decode(additionalResponse));
+      } catch (ignored) {}
     }
 
     return Response(
-      additionalResponse: additionalResponseObject,
+      additionalResponse: additionalResponseDecoded == null ? null : AdditionalResponse.fromRawJson(additionalResponseDecoded),
       errorCondition: json["errorCondition"],
       result: json["result"],
     );

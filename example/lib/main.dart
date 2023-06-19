@@ -1,13 +1,9 @@
-import 'dart:convert';
 import 'dart:math';
-
 
 import 'package:flutter/material.dart';
 import 'package:flutter_adyen_terminal/adyen_terminal_payment.dart';
 import 'package:flutter_adyen_terminal/data/adyen_terminal_config.dart';
-import 'package:flutter_adyen_terminal/data/adyen_terminal_response.dart';
 import 'package:flutter_adyen_terminal/exceptions/txn_failure_exceptions.dart';
-
 
 void main() {
   runApp(const MaterialApp(
@@ -23,8 +19,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
-
   final _formKey = GlobalKey<FormState>();
   final terminalIPController = TextEditingController();
   final terminalSerialNoController = TextEditingController();
@@ -36,87 +30,83 @@ class _MyAppState extends State<MyApp> {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-          appBar: AppBar(
-            title: const Text('Adyen Terminal Example'),
-          ),
-          body: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Adyen Terminal Example'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // Image.asset("assets/t1.png"),
 
-                  // Image.asset("assets/t1.png"),
+                TextFormField(
+                  controller: terminalIPController,
+                  decoration: const InputDecoration(
+                      hintText: 'Ex 127.0.0.1',
+                      labelText: 'Terminal IP',
+                      border: OutlineInputBorder()),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                TextFormField(
+                  controller: terminalSerialNoController,
+                  decoration: const InputDecoration(
+                      labelText: 'Serial No', border: OutlineInputBorder()),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                TextFormField(
+                  controller: terminalStoreIDController,
+                  decoration: const InputDecoration(
+                      labelText: 'Store ID', border: OutlineInputBorder()),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                TextFormField(
+                  controller: terminalStoreIDController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                      labelText: 'Amount', border: OutlineInputBorder()),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                Row(
+                  children: [
+                    ElevatedButton(
+                        child: const Text("Send Terminal Request"),
+                        onPressed: () async {
+                          AdyenTerminalConfig terminalConfig =
+                              AdyenTerminalConfig(
+                            endpoint: "https://192.168.1.68",
+                            terminalModelNo: "V400cPlus",
+                            terminalSerialNo: "401710631",
+                            terminalId: "bugsoyieugrys",
+                            environment: "test",
+                            keyId: "dhaka-pos-cc-test-id",
+                            keyPassphrase: "Dh@kaCheq1!",
+                            merchantName: "CHEQPOS",
+                            keyVersion: "1.0",
+                            certPath:
+                                "assets/cert/adyen-terminalfleet-test.cer",
+                            merchantId: '',
+                            showLogs: true,
+                          );
+                          //
 
-                  TextFormField(
-                    controller: terminalIPController,
-                    decoration: const InputDecoration(
-                        hintText: 'Ex 127.0.0.1',
-                        labelText: 'Terminal IP',
-                        border: OutlineInputBorder()),
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  TextFormField(
-                    controller: terminalSerialNoController,
-                    decoration: const InputDecoration(
-                        labelText: 'Serial No', border: OutlineInputBorder()),
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  TextFormField(
-                    controller: terminalStoreIDController,
-                    decoration: const InputDecoration(
-                        labelText: 'Store ID', border: OutlineInputBorder()),
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  TextFormField(
-                    controller: terminalStoreIDController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                        labelText: 'Amount', border: OutlineInputBorder()),
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  Row(
-                    children: [
-                      ElevatedButton(
-                          child: const Text("Send Terminal Request"),
-                          onPressed: () async {
-                            
-                            
-                            AdyenTerminalConfig terminalConfig =
-                            AdyenTerminalConfig(
-                              endpoint: "https://192.168.1.68",
-                              terminalModelNo: "V400cPlus",
-                              terminalSerialNo: "401710631",
-                              terminalId: "bugsoyieugrys",
-                              environment: "test",
-                              keyId: "dhaka-pos-cc-test-id",
-                              keyPassphrase: "Dh@kaCheq1!",
-                              merchantName: "CHEQPOS",
-                              keyVersion: "1.0",
-                              certPath: "assets/cert/adyen-terminalfleet-test.cer",
-                              merchantId: '',
-                              showLogs: true,
-                            );
-                            //
+                          FlutterAdyen.init(terminalConfig);
 
-                            FlutterAdyen.init(terminalConfig);
-
-                            /* Demo Payload for testing*/
-                            String receiptDTOJSON =
-                            """
+                          /* Demo Payload for testing*/
+                          String receiptDTOJSON = """
                            
                               {
                                 "brandName": "CHEQ Diner1",
@@ -208,35 +198,40 @@ class _MyAppState extends State<MyApp> {
                                 ]
                               }
                                                           
-                            """
-                            ;
-                            // FlutterAdyen.printReceipt(_get10DigitNumber(),receiptDTOJSON, onSuccess: (String val){
-                            //   print("Print Sucessful");
-                            // },onFailure: (String val){
-                            //   print("Print Failure");
-                            // });
+                            """;
+                          // FlutterAdyen.printReceipt(_get10DigitNumber(),receiptDTOJSON, onSuccess: (String val){
+                          //   print("Print Sucessful");
+                          // },onFailure: (String val){
+                          //   print("Print Failure");
+                          // });
 
-                            // String txnId = _get10DigitNumber();
-                            // await FlutterAdyen.getTerminalInfo("https://192.168.1.198",txnId,onSuccess: (val){
-                            //   print("Success: $val");
-                            // });
+                          // String txnId = _get10DigitNumber();
+                          // await FlutterAdyen.getTerminalInfo("https://192.168.1.198",txnId,onSuccess: (val){
+                          //   print("Success: $val");
+                          // });
 
-                            try {
-                              var response = await FlutterAdyen.authorizeTransaction(amount: 2.99, transactionId: _get10DigitNumber(), currency: "USD");
+                          try {
+                            var response =
+                                await FlutterAdyen.authorizeTransaction(
+                                    amount: 2.99,
+                                    transactionId: _get10DigitNumber(),
+                                    currency: "USD");
+                          } on TxnFailedOnTerminalException catch (e) {
 
-                            } on TxnFailedOnTerminalException catch(e){
+                            var resp = e.adyenTerminalResponse;
 
-                            }
+                            print("test");
+
+                          }
 
                           // _showMaterialDialog(txnId, terminalConfig);
-                        }
-                          ),
-                    ],
-                  )
-                ],
-              ),
+                        }),
+                  ],
+                )
+              ],
             ),
-          ));
+          ),
+        ));
   }
 
   String _get10DigitNumber() {
