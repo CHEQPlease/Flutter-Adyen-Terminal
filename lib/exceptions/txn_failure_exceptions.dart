@@ -1,17 +1,17 @@
 import '../data/adyen_terminal_response.dart';
 
 
-class BaseException implements Exception {
+class TxnFailureBaseException implements Exception {
   String? errorCode;
   String? errorMessage;
 
-  BaseException({
+  TxnFailureBaseException({
     this.errorCode,
     this.errorMessage,
   });
 }
 
-class TxnFailedOnTerminalException extends BaseException {
+class TxnFailedOnTerminalException extends TxnFailureBaseException {
   final AdyenTerminalResponse adyenTerminalResponse;
 
   TxnFailedOnTerminalException({
@@ -24,7 +24,7 @@ class TxnFailedOnTerminalException extends BaseException {
   );
 }
 
-class FailedToCommunicateTerminalException extends BaseException{
+class FailedToCommunicateTerminalException extends TxnFailureBaseException{
     FailedToCommunicateTerminalException({
       String? errorCode,
       String? errorMessage,

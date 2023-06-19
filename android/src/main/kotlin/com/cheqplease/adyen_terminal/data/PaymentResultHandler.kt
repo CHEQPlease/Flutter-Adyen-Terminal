@@ -5,5 +5,5 @@ interface TransactionSuccessHandler<T> {
 }
 
 interface TransactionFailureHandler<EC, T>{
-    fun onFailure(errorCode: EC?, response: T?)
+    fun onFailure(errorCode: ErrorCode, response: T?)
 }

@@ -113,8 +113,8 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                         }
                     },
                     paymentFailureHandler = object : TransactionFailureHandler<Int, String> {
-                        override fun onFailure(errorCode: Int?, response: String?) {
-                            result.error(errorCode.toString(), response, null)
+                        override fun onFailure(errorCode: ErrorCode, response: String?) {
+                            result.error(errorCode.name, response, null)
                         }
                     }
                 )
@@ -136,8 +136,9 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                     txnIdToCancel = cancelTxnId,
                     terminalId = adyenTerminalConfig.terminalId
                 )
+                result.success(true)
             } catch (e: Exception) {
-                println(e.stackTraceToString())
+                result.error(ErrorCode.UNABLE_TO_PROCESS_RESULT.toString(), e.message, e.printStackTrace())
             }
         }
     }
@@ -158,7 +159,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                         }
                     },
                     failureHandler = object : TransactionFailureHandler<Int, String> {
-                        override fun onFailure(errorCode: Int?, response: String?) {
+                        override fun onFailure(errorCode: ErrorCode, response: String?) {
                             result.error("PRINT_ERROR", "Unable to print", response)
                         }
                     }
@@ -196,7 +197,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                         }
                     },
                     failureHandler = object : TransactionFailureHandler<Int, String> {
-                        override fun onFailure(errorCode: Int?, response: String?) {
+                        override fun onFailure(errorCode: ErrorCode, response: String?) {
                             result.error("ERROR", "Unable to get device info", null)
                         }
                     }

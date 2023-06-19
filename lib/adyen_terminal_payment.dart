@@ -49,20 +49,20 @@ class FlutterAdyen {
     } on PlatformException catch (ex) {
       final errorCode = ex.code;
       final errorMessage = ex.message;
-      if (errorCode == ErrorCode.transactionFailure.value) {
+      if (errorCode == ErrorCode.transactionFailure.code) {
         throw TxnFailedOnTerminalException(
           errorCode: errorCode,
           errorMessage: errorMessage,
           adyenTerminalResponse: AdyenTerminalResponse.fromJson(ex.details),
         );
       }
-      else if (errorCode == ErrorCode.connectionTimeout.value || errorCode == ErrorCode.deviceUnreachable.value) {
+      else if (errorCode == ErrorCode.connectionTimeout.code || errorCode == ErrorCode.deviceUnreachable.code) {
         throw FailedToCommunicateTerminalException(
           errorCode: errorCode,
           errorMessage: errorMessage
         );
       } else {
-        throw BaseException(
+        throw TxnFailureBaseException(
           errorCode: errorCode,
           errorMessage: errorMessage,
         );
