@@ -114,7 +114,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                     },
                     paymentFailureHandler = object : TransactionFailureHandler<Int, String> {
                         override fun onFailure(errorCode: ErrorCode, response: String?) {
-                            result.error(errorCode.name, response, null)
+                            result.error(errorCode.name, "Transaction Failed", response)
                         }
                     }
                 )

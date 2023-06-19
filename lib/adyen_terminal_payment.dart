@@ -55,7 +55,7 @@ class FlutterAdyen {
         throw TxnFailedOnTerminalException(
           errorCode: errorCode,
           errorMessage: errorMessage,
-          adyenTerminalResponse: AdyenTerminalResponse.fromJson(ex.details),
+          adyenTerminalResponse: AdyenTerminalResponse.fromJson(jsonDecode(ex.details)),
         );
       }
       else if (errorCode == ErrorCode.connectionTimeout.code || errorCode == ErrorCode.deviceUnreachable.code) {

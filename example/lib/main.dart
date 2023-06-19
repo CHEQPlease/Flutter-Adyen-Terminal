@@ -5,6 +5,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_adyen_terminal/adyen_terminal_payment.dart';
 import 'package:flutter_adyen_terminal/data/adyen_terminal_config.dart';
+import 'package:flutter_adyen_terminal/data/adyen_terminal_response.dart';
+import 'package:flutter_adyen_terminal/exceptions/txn_failure_exceptions.dart';
 
 
 void main() {
@@ -95,9 +97,9 @@ class _MyAppState extends State<MyApp> {
                             
                             AdyenTerminalConfig terminalConfig =
                             AdyenTerminalConfig(
-                              endpoint: "https://192.168.31.92",
+                              endpoint: "https://192.168.1.68",
                               terminalModelNo: "e285p",
-                              terminalSerialNo: "805336269",
+                              terminalSerialNo: "401710631",
                               terminalId: "bugsoyieugrys",
                               environment: "test",
                               keyId: "dhaka-pos-cc-test-id",
@@ -222,8 +224,12 @@ class _MyAppState extends State<MyApp> {
                             try {
                               var response = await FlutterAdyen.authorizeTransaction(amount: 2.99, transactionId: _get10DigitNumber(), currency: "USD");
 
-                            } catch (e){
-                              print("Error: $e");
+                            } on TxnFailedOnTerminalException catch(e){
+
+                              var test = e.adyenTerminalResponse.saleToPoiResponse;
+
+                              print("Tst");
+
                             }
 
                           // _showMaterialDialog(txnId, terminalConfig);
