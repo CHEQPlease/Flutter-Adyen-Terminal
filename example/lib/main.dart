@@ -226,10 +226,6 @@ class _MyAppState extends State<MyApp> {
 
                             } on TxnFailedOnTerminalException catch(e){
 
-                              var test = e.adyenTerminalResponse.saleToPoiResponse;
-
-                              print("Tst");
-
                             }
 
                           // _showMaterialDialog(txnId, terminalConfig);

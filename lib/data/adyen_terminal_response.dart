@@ -500,11 +500,25 @@ class Response {
 
   String toRawJson() => json.encode(toJson());
 
-  factory Response.fromJson(Map<String, dynamic> json) => Response(
-    additionalResponse: json["additionalResponse"] == null ? null : AdditionalResponse.fromRawJson(utf8.decode(base64Decode(json["additionalResponse"]))),
-    errorCondition: json["errorCondition"],
-    result: json["result"],
-  );
+  factory Response.fromJson(Map<String, dynamic> json){
+
+    String? additionalResponse = json["additionalResponse"];
+    AdditionalResponse? additionalResponseObject;
+    if(additionalResponse != null){
+      try {
+        additionalResponse = utf8.decode(base64Decode(additionalResponse));
+      } catch (e) {
+        additionalResponse = null;
+      }
+    }
+
+    return Response(
+      additionalResponse: additionalResponseObject,
+      errorCondition: json["errorCondition"],
+      result: json["result"],
+    );
+
+  }
 
   Map<String, dynamic> toJson() => {
     "additionalResponse": additionalResponse?.toJson(),
