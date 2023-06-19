@@ -514,7 +514,7 @@ class Response {
 }
 
 class AdditionalResponse {
-  Map<String, String>? additionalData;
+  Map<String, dynamic>? additionalData;
   String? message;
   String? refusalReason;
   String? store;
@@ -527,7 +527,7 @@ class AdditionalResponse {
   });
 
   AdditionalResponse copyWith({
-    Map<String, String>? additionalData,
+    Map<String, dynamic>? additionalData,
     String? message,
     String? refusalReason,
     String? store,

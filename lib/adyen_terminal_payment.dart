@@ -2,6 +2,8 @@
 
 
 
+import 'dart:convert';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_adyen_terminal/data/adyen_terminal_response.dart';
 import 'package:flutter_adyen_terminal/data/error_codes.dart';
@@ -45,7 +47,7 @@ class FlutterAdyen {
         "currency": currency,
         "captureType": captureType.name,
       });
-      return AdyenTerminalResponse.fromJson(value);
+      return AdyenTerminalResponse.fromJson(jsonDecode(value));
     } on PlatformException catch (ex) {
       final errorCode = ex.code;
       final errorMessage = ex.message;
