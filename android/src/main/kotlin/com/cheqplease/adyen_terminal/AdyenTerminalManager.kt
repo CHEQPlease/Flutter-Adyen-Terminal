@@ -52,6 +52,7 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.math.BigDecimal
+import java.net.SocketTimeoutException
 import java.util.GregorianCalendar
 import java.util.TimeZone
 import javax.xml.datatype.DatatypeFactory
@@ -142,12 +143,17 @@ object AdyenTerminalManager {
                     e.message ?: "Connection timeout"
                 )
 
+                is SocketTimeoutException -> paymentFailureHandler.onFailure(
+                    ErrorCode.TRANSACTION_TIMEOUT,
+                    e.message ?: "Transaction timed out"
+                )
+
                 is HttpHostConnectException -> paymentFailureHandler.onFailure(
                     ErrorCode.DEVICE_UNREACHABLE,
                     e.message ?: "Device Unreachable. Please check your internet connection"
                 )
 
-                else -> paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE, e.message!!)
+                else -> paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE_OTHERS, e.message!!)
             }
         }
     }

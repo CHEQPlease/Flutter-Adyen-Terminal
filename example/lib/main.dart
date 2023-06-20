@@ -216,11 +216,7 @@ class _MyAppState extends State<MyApp> {
                                     amount: 2.99,
                                     transactionId: _get10DigitNumber(),
                                     currency: "USD");
-                          } on TxnFailedOnTerminalException catch (e) {
-
-                            var resp = e.adyenTerminalResponse;
-
-                            print("test");
+                          } catch (e) {
 
                           }
 
