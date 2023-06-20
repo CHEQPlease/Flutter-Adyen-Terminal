@@ -72,7 +72,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
         val certPath = getArgumentOrThrow<String>(call, "certPath")
         adyenTerminalConfig = AdyenTerminalConfig(
             endpoint = getArgumentOrThrow(call, "endpoint"),
-            backendApiKey = call.argument<String>("apiKey"),
+            backendApiKey = call.argument<String>("backendApiKey"),
             terminalModelNo = getArgumentOrThrow(call, "terminalModelNo"),
             terminalSerialNo = getArgumentOrThrow(call, "terminalSerialNo"),
             terminalId = getArgumentOrThrow(call, "terminalId"),
