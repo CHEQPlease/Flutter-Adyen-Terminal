@@ -24,6 +24,16 @@ class TxnFailedOnTerminalException extends TxnFailureBaseException {
   );
 }
 
+class TxnTimeoutException extends TxnFailureBaseException {
+  TxnTimeoutException({
+    String? errorCode,
+    String? errorMessage
+  }) : super(
+    errorCode: errorCode,
+    errorMessage: errorMessage,
+  );
+}
+
 class FailedToCommunicateTerminalException extends TxnFailureBaseException{
     FailedToCommunicateTerminalException({
       String? errorCode,
@@ -32,4 +42,18 @@ class FailedToCommunicateTerminalException extends TxnFailureBaseException{
       errorCode: errorCode,
       errorMessage: errorMessage,
     );
+}
+
+
+class FailedToCancelTransaction extends TxnFailureBaseException {
+  final AdyenTerminalResponse adyenTerminalResponse;
+
+  FailedToCancelTransaction({
+    String? errorCode,
+    String? errorMessage,
+    required this.adyenTerminalResponse,
+  }) : super(
+    errorCode: errorCode,
+    errorMessage: errorMessage,
+  );
 }

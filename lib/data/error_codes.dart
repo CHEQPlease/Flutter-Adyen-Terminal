@@ -1,6 +1,7 @@
 enum ErrorCode {
   failureGeneric('FAILURE_GENERIC'),
   transactionFailure("TRANSACTION_FAILURE"),
+  transactionTimeout("TRANSACTION_TIMEOUT"),
   unableToProcessResult("UNABLE_TO_PROCESS_RESULT"),
   connectionTimeout("CONNECTION_TIMEOUT"),
   deviceUnreachable("DEVICE_UNREACHABLE"),

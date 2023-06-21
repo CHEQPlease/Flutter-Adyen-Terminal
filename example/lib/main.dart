@@ -210,15 +210,22 @@ class _MyAppState extends State<MyApp> {
                           //   print("Success: $val");
                           // });
 
+
+                          String txnId = _get10DigitNumber();
+                          Future.delayed(const Duration(seconds: 1),(){
+                            FlutterAdyen.cancelTransaction(txnId: _get10DigitNumber(), cancelTxnId: txnId, terminalId: "23423");
+                          });
+
                           try {
                             var response =
                                 await FlutterAdyen.authorizeTransaction(
                                     amount: 2.99,
-                                    transactionId: _get10DigitNumber(),
+                                    transactionId: txnId,
                                     currency: "USD");
                           } catch (e) {
 
                           }
+
 
                           // _showMaterialDialog(txnId, terminalConfig);
                         }),

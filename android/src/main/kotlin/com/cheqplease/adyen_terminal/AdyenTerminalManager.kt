@@ -63,6 +63,7 @@ object AdyenTerminalManager {
     private lateinit var terminalConfig: AdyenTerminalConfig
     private lateinit var context: WeakReference<Context>
     private const val LOG_TAG = "FLUTTER_ADYEN"
+    private var loggerInitiated = false
 
     fun init(adyenTerminalConfig: AdyenTerminalConfig, context: Context) {
         terminalConfig = adyenTerminalConfig
@@ -71,18 +72,21 @@ object AdyenTerminalManager {
     }
 
     private fun initLogger() {
-        Logger.addLogAdapter(object :
-            AndroidLogAdapter(
-                PrettyFormatStrategy.newBuilder()
-                    .tag(LOG_TAG)
-                    .showThreadInfo(false)
-                    .methodCount(3)
-                    .build()
-            ) {
-            override fun isLoggable(priority: Int, tag: String?): Boolean {
-                return terminalConfig.showLogs
-            }
-        })
+        if (!loggerInitiated) {
+            Logger.addLogAdapter(object :
+                AndroidLogAdapter(
+                    PrettyFormatStrategy.newBuilder()
+                        .tag(LOG_TAG)
+                        .showThreadInfo(false)
+                        .methodCount(3)
+                        .build()
+                ) {
+                override fun isLoggable(priority: Int, tag: String?): Boolean {
+                    return terminalConfig.showLogs
+                }
+            })
+            loggerInitiated = true
+        }
     }
 
     fun authorizeTransaction(

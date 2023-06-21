@@ -1,25 +1,21 @@
-
-
-
-
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_adyen_terminal/data/adyen_terminal_response.dart';
 import 'package:flutter_adyen_terminal/data/error_codes.dart';
 
-
 import 'data/adyen_terminal_config.dart';
 import 'data/enums.dart';
 import 'exceptions/txn_failure_exceptions.dart';
 
 typedef Success<T> = Function(T succesResponse);
-typedef Failure<String,T> = Function(String errorMessage,T? failureResponse);
-typedef TimeoutOrUnreachable = Function(Function ifTimeout,Function ifUnreachable);
-
+typedef Failure<String, T> = Function(String errorMessage, T? failureResponse);
+typedef TimeoutOrUnreachable = Function(
+    Function ifTimeout, Function ifUnreachable);
 
 class FlutterAdyen {
-  static const MethodChannel _channel = MethodChannel('com.cheqplease.adyen_terminal/channel');
+  static const MethodChannel _channel =
+      MethodChannel('com.cheqplease.adyen_terminal/channel');
   static const String _methodInit = "init";
   static const String _methodAuthorizeTransaction = "authorize_transaction";
   static const String _methodCancelTransaction = "cancel_transaction";
@@ -29,9 +25,9 @@ class FlutterAdyen {
 
   static late AdyenTerminalConfig _terminalConfig;
 
-  static void init(AdyenTerminalConfig terminalConfig){
+  static void init(AdyenTerminalConfig terminalConfig) {
     _terminalConfig = terminalConfig;
-    _channel.invokeMethod(_methodInit,_terminalConfig.toJson());
+    _channel.invokeMethod(_methodInit, _terminalConfig.toJson());
   }
 
   static Future<AdyenTerminalResponse> authorizeTransaction({
@@ -55,14 +51,16 @@ class FlutterAdyen {
         throw TxnFailedOnTerminalException(
           errorCode: errorCode,
           errorMessage: errorMessage,
-          adyenTerminalResponse: AdyenTerminalResponse.fromJson(jsonDecode(ex.details)),
+          adyenTerminalResponse:
+              AdyenTerminalResponse.fromJson(jsonDecode(ex.details)),
         );
-      }
-      else if (errorCode == ErrorCode.connectionTimeout.code || errorCode == ErrorCode.deviceUnreachable.code) {
+      } else if (errorCode == ErrorCode.transactionTimeout.code) {
+        throw TxnTimeoutException(
+            errorCode: errorCode, errorMessage: errorMessage);
+      } else if (errorCode == ErrorCode.connectionTimeout.code ||
+          errorCode == ErrorCode.deviceUnreachable.code) {
         throw FailedToCommunicateTerminalException(
-          errorCode: errorCode,
-          errorMessage: errorMessage
-        );
+            errorCode: errorCode, errorMessage: errorMessage);
       } else {
         throw TxnFailureBaseException(
           errorCode: errorCode,
@@ -72,60 +70,55 @@ class FlutterAdyen {
     }
   }
 
-
-
-  static Future<dynamic> cancelTransaction({required txnId,required cancelTxnId, required terminalId}) async {
-
-    var result = await _channel.invokeMethod(_methodCancelTransaction,{
-      "transactionId" : txnId,
-      "cancelTxnId" : cancelTxnId
-    });
-
-    return result;
+  static Future<void> cancelTransaction(
+      {required txnId, required cancelTxnId, required terminalId}) async {
+    try {
+      await _channel.invokeMethod(_methodCancelTransaction,
+          {"transactionId": txnId, "cancelTxnId": cancelTxnId});
+    } catch (e) {
+      throw TxnFailureBaseException(
+        errorCode: ErrorCode.transactionFailure.code,
+        errorMessage: "Unable to cancel transaction",
+      );
+    }
   }
 
-  static Future<void> printReceipt(String txnId,String receiptDTOJSON,{Success<String>? onSuccess,
-      Failure<String,String?>? onFailure}) async {
-
-    _channel.invokeMethod(_methodPrintReceipt,{
-      "receiptDTOJSON" : receiptDTOJSON,
-      "transactionId" : txnId
-    }).then((value){
+  static Future<void> printReceipt(String txnId, String receiptDTOJSON,
+      {Success<String>? onSuccess, Failure<String, String?>? onFailure}) async {
+    _channel.invokeMethod(_methodPrintReceipt, {
+      "receiptDTOJSON": receiptDTOJSON,
+      "transactionId": txnId
+    }).then((value) {
       if (onSuccess != null) {
         onSuccess("Print Successful");
       }
-    }).catchError((value){
+    }).catchError((value) {
       if (onFailure != null) {
-        onFailure(value.details,null);
+        onFailure(value.details, null);
       }
     });
   }
 
   static Future<void> scanBarcode(String txnId) async {
-
-    _channel.invokeMethod(_methodScanBarcode,{
-      "transactionId" : txnId
-    }).then((value){
+    _channel.invokeMethod(_methodScanBarcode, {"transactionId": txnId}).then(
+        (value) {
       /* TODO: Parse the barcode */
-    }).catchError((value){
+    }).catchError((value) {
       /* TODO: Parse the barcode */
     });
   }
 
-  static Future<void> getTerminalInfo(String terminalIP, String txnId,{Success<String>? onSuccess,
-    Failure<String,dynamic>? onFailure}) async{
-    _channel.invokeMethod(_methodGetDeviceInfo, {
-      "transactionId" : txnId,
-      "terminalIP" : terminalIP
-    }).then((value){
+  static Future<void> getTerminalInfo(String terminalIP, String txnId,
+      {Success<String>? onSuccess, Failure<String, dynamic>? onFailure}) async {
+    _channel.invokeMethod(_methodGetDeviceInfo,
+        {"transactionId": txnId, "terminalIP": terminalIP}).then((value) {
       if (onSuccess != null) {
         onSuccess(value);
       }
-    }).catchError((value){
+    }).catchError((value) {
       if (onFailure != null) {
-        onFailure("Unable to retrieve terminal info",null);
+        onFailure("Unable to retrieve terminal info", null);
       }
     });
   }
-
 }
