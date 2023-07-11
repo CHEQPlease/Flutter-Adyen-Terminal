@@ -20,6 +20,8 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.math.BigDecimal
 
 
@@ -119,7 +121,10 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                     }
                 )
             } catch (e: Exception) {
-                result.error(ErrorCode.UNABLE_TO_PROCESS_RESULT.toString(), e.message, e.printStackTrace())
+                val stackTrace = StringWriter().apply {
+                    e.printStackTrace(PrintWriter(this))
+                }.toString()
+                result.error(ErrorCode.UNABLE_TO_PROCESS_RESULT.toString(), e.message, stackTrace)
             }
         }
     }
@@ -138,7 +143,10 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                 )
                 result.success(true)
             } catch (e: Exception) {
-                result.error(ErrorCode.UNABLE_TO_PROCESS_RESULT.toString(), e.message, e.printStackTrace())
+                val stackTrace = StringWriter().apply {
+                    e.printStackTrace(PrintWriter(this))
+                }.toString()
+                result.error(ErrorCode.UNABLE_TO_PROCESS_RESULT.toString(), e.message, stackTrace)
             }
         }
     }
