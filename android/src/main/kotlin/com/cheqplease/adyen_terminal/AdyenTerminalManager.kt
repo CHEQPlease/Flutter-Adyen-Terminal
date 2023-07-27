@@ -218,46 +218,45 @@ object AdyenTerminalManager {
         successHandler: TransactionSuccessHandler<Void>,
         failureHandler: TransactionFailureHandler<Int, String>
     ) {
+        try {
 
-        Receiptify.init(context)
-        val customerReceiptBitmap = Receiptify.buildReceipt(receiptDTOJSON)
-//        val customerReceiptBitmap = ReceiptBuilder.getInstance(context).buildReceipt(Gson().fromJson(receiptDTOJSON, ReceiptDTO::class.java))
-        val encoded: ByteArray? = customerReceiptBitmap?.let { bitmapToByteArray(bitmap = it) }
-        val imageBase64Encoded = encodeToString(encoded, Base64.DEFAULT)
-        val printData =
-            """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()
+            Receiptify.init(context)
+            val customerReceiptBitmap = Receiptify.buildReceipt(receiptDTOJSON)
+            val encoded: ByteArray? = customerReceiptBitmap?.let { bitmapToByteArray(bitmap = it) }
+            val imageBase64Encoded = encodeToString(encoded, Base64.DEFAULT)
+            val printData =
+                """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()
 
 
-        val config: Config = getConfigurationData(terminalConfig)
-        val terminalLocalAPIClient = Client(config)
-        val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient)
-        val terminalApiRequest = TerminalAPIRequest()
+            val config: Config = getConfigurationData(terminalConfig)
+            val terminalLocalAPIClient = Client(config)
+            val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient)
+            val terminalApiRequest = TerminalAPIRequest()
 
-        val saleToPOIRequest = SaleToPOIRequest().apply {
-            messageHeader = MessageHeader().apply {
-                protocolVersion = "3.0"
-                messageClass = MessageClassType.DEVICE
-                messageCategory = MessageCategoryType.PRINT
-                messageType = MessageType.REQUEST
-                serviceID = transactionId
-                saleID = terminalConfig.terminalId
-                poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}"
-                printRequest = PrintRequest().apply {
-                    printOutput = PrintOutput().apply {
-                        documentQualifier = DocumentQualifierType.DOCUMENT
-                        responseMode = ResponseModeType.PRINT_END
-                        outputContent = OutputContent().apply {
-                            outputFormat = OutputFormatType.XHTML
-                            outputXHTML = printData.encodeToByteArray()
+            val saleToPOIRequest = SaleToPOIRequest().apply {
+                messageHeader = MessageHeader().apply {
+                    protocolVersion = "3.0"
+                    messageClass = MessageClassType.DEVICE
+                    messageCategory = MessageCategoryType.PRINT
+                    messageType = MessageType.REQUEST
+                    serviceID = transactionId
+                    saleID = terminalConfig.terminalId
+                    poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}"
+                    printRequest = PrintRequest().apply {
+                        printOutput = PrintOutput().apply {
+                            documentQualifier = DocumentQualifierType.DOCUMENT
+                            responseMode = ResponseModeType.PRINT_END
+                            outputContent = OutputContent().apply {
+                                outputFormat = OutputFormatType.XHTML
+                                outputXHTML = printData.encodeToByteArray()
+                            }
                         }
                     }
                 }
             }
-        }
 
-        terminalApiRequest.saleToPOIRequest = saleToPOIRequest
+            terminalApiRequest.saleToPOIRequest = saleToPOIRequest
 
-        try {
             val response = terminalLocalAPI.request(
                 terminalApiRequest, getSecurityKey(
                     keyIdentifier = terminalConfig.keyId,
@@ -275,6 +274,7 @@ object AdyenTerminalManager {
                     response.saleToPOIResponse.printResponse.response.additionalResponse
                 failureHandler.onFailure(ErrorCode.FAILURE_GENERIC, errorMsg)
             }
+
         } catch (e: Exception) {
             if (e.message != null) {
                 failureHandler.onFailure(

@@ -84,7 +84,7 @@ class FlutterAdyen {
   }
 
   static Future<void> printReceipt(String txnId, String receiptDTOJSON,
-      {Success<String>? onSuccess, Failure<String, String?>? onFailure}) async {
+      {Success<String>? onSuccess, Failure<String?, String?>? onFailure}) async {
     _channel.invokeMethod(_methodPrintReceipt, {
       "receiptDTOJSON": receiptDTOJSON,
       "transactionId": txnId
@@ -93,8 +93,8 @@ class FlutterAdyen {
         onSuccess("Print Successful");
       }
     }).catchError((value) {
-      if (onFailure != null) {
-        onFailure(value.details, null);
+      if (onFailure != null ) {
+        onFailure("Unable to print", null);
       }
     });
   }
