@@ -95,6 +95,7 @@ object AdyenTerminalManager {
         captureType: String,
         currency: String,
         requestAmount: BigDecimal,
+        additionalData: HashMap<String, Any>,
         paymentSuccessHandler: TransactionSuccessHandler<String?>,
         paymentFailureHandler: TransactionFailureHandler<Int, String>
     ) {
@@ -106,7 +107,8 @@ object AdyenTerminalManager {
                 messageCategory = MessageCategoryType.PAYMENT,
                 currency = currency,
                 requestAmount = requestAmount,
-                captureType = captureType
+                captureType = captureType,
+                additionalData = additionalData
             )
         }
 
@@ -438,7 +440,8 @@ object AdyenTerminalManager {
         poiid: String,
         currency: String,
         requestAmount: BigDecimal,
-        captureType: String
+        captureType: String,
+        additionalData: HashMap<String, Any>
     ): SaleToPOIRequest {
 
         return SaleToPOIRequest().apply {
@@ -452,7 +455,8 @@ object AdyenTerminalManager {
                 currency = currency,
                 requestAmount = requestAmount,
                 transactionId = transactionId,
-                captureType = captureType
+                captureType = captureType,
+                additionalData = additionalData
             )
         }
 
@@ -462,10 +466,11 @@ object AdyenTerminalManager {
         currency: String,
         requestAmount: BigDecimal,
         transactionId: String,
-        captureType: String
+        captureType: String,
+        additionalData: HashMap<String, Any>?
     ): PaymentRequest {
         return PaymentRequest().apply {
-            saleData = buildSaleData(transactionId = transactionId, captureType = captureType)
+            saleData = buildSaleData(transactionId = transactionId, captureType = captureType, additionalMetaData = additionalData)
             paymentTransaction = buildPaymentTransaction(
                 currency = currency,
                 requestAmount = requestAmount
@@ -485,13 +490,14 @@ object AdyenTerminalManager {
         }
     }
 
-    private fun buildSaleData(transactionId: String, captureType: String): SaleData {
+    private fun buildSaleData(transactionId: String, captureType: String, additionalMetaData: HashMap<String, Any>?): SaleData {
 
         val authType = if ("immediate".equals(
                 captureType,
                 ignoreCase = true
             )
         ) mapOf("authorisationType" to "FinalAuth") else mapOf("authorisationType" to "PreAuth")
+
 
         return SaleData().apply {
             saleTransactionID = TransactionIdentification().apply {
@@ -503,6 +509,7 @@ object AdyenTerminalManager {
             saleToAcquirerData = SaleToAcquirerData().apply {
                 additionalData = authType
                 tenderOption = "ReceiptHandler"
+                shopperStatement = if((additionalMetaData != null) && additionalMetaData.containsKey("shopperStatement")) additionalMetaData["shopperStatement"] as String else ""
             }
         }
 

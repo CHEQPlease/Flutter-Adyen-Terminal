@@ -99,6 +99,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
         val captureType: String = getArgumentOrThrow(call, "captureType")
         val transactionId: String = getArgumentOrThrow(call, "transactionId")
         val currency: String = getArgumentOrThrow(call, "currency")
+        val additionalData: HashMap<String,Any> = getArgumentOrThrow(call, "additionalData", defaultValue = HashMap())
 
         GlobalScope.launch(Dispatchers.IO) {
             try {
@@ -114,6 +115,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                             result.success(response)
                         }
                     },
+                    additionalData = additionalData,
                     paymentFailureHandler = object : TransactionFailureHandler<Int, String> {
                         override fun onFailure(errorCode: ErrorCode, response: String?) {
                             result.error(errorCode.name, "Transaction Failed", response)

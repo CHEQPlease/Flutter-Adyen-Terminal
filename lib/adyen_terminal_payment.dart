@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
@@ -34,6 +35,7 @@ class FlutterAdyen {
     required double amount,
     required String transactionId,
     required String currency,
+    HashMap<String, dynamic>? additionalData,
     CaptureType captureType = CaptureType.delayed,
   }) async {
     try {
@@ -42,6 +44,7 @@ class FlutterAdyen {
         "transactionId": transactionId,
         "currency": currency,
         "captureType": captureType.name,
+        "additionalData": additionalData
       });
       return AdyenTerminalResponse.fromJson(jsonDecode(value));
     } on PlatformException catch (ex) {
