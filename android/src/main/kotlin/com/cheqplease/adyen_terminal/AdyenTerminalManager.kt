@@ -206,7 +206,7 @@ object AdyenTerminalManager {
             val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
             val signatureData = response.saleToPOIResponse.inputResponse.inputResult.response
 
-            if(signatureData.result == ResultType.SUCCESS){
+            if(signatureData.result == ResultType.SUCCESS && signatureData.additionalResponse != null){
                 val encodedText = signatureData.additionalResponse
                 val decodedText = Utils.decodeUrlEncodedString(encodedText)
                 val responseData = Utils.getResponseDataValue(decodedText)

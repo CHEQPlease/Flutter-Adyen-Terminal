@@ -127,7 +127,7 @@ class FlutterAdyen {
     });
   }
 
-  static void getSignature(String transactionId, Success<Map<String,dynamic>>? onSuccess, Function? onFailure) async {
+  static void getSignature(String transactionId, {Success<Map<String,dynamic>>? onSuccess, Function()? onFailure}) async {
     _channel.invokeMethod(_methodGetSignature, {"transactionId": transactionId}).then((value) {
       if (onSuccess != null) {
         String result = value;
@@ -136,7 +136,7 @@ class FlutterAdyen {
       }
     }).catchError((value) {
       if (onFailure != null) {
-        onFailure("Unable to retrieve signature", null);
+        onFailure();
       }
     });
   }

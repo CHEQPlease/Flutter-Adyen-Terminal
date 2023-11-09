@@ -230,10 +230,11 @@ class _MyAppState extends State<MyApp> {
                           //
                           // }
 
-                          FlutterAdyen.getSignature(txnId, (successResponse){
-                            print("Success: $successResponse");
-
-                          }, (errorMessage, failureResponse) => null);
+                          FlutterAdyen.getSignature(txnId, onSuccess: (val) {
+                            print("Success: $val");
+                          }, onFailure: () {
+                            print("Failure:");
+                          });
 
                           // _showMaterialDialog(txnId, terminalConfig);
                         }),
