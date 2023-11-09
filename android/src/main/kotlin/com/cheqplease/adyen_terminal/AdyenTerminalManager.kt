@@ -2,17 +2,25 @@ package com.cheqplease.adyen_terminal
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.os.Build
 import android.util.Base64
 import android.util.Base64.encodeToString
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.adyen.Client
 import com.adyen.Config
 import com.adyen.enums.Environment
 import com.adyen.model.nexo.AbortRequest
 import com.adyen.model.nexo.AdminRequest
 import com.adyen.model.nexo.AmountsReq
+import com.adyen.model.nexo.DeviceType
 import com.adyen.model.nexo.DiagnosisRequest
+import com.adyen.model.nexo.DisplayOutput
 import com.adyen.model.nexo.DocumentQualifierType
+import com.adyen.model.nexo.InfoQualifyType
+import com.adyen.model.nexo.InputCommandType
+import com.adyen.model.nexo.InputData
+import com.adyen.model.nexo.InputRequest
 import com.adyen.model.nexo.MessageCategoryType
 import com.adyen.model.nexo.MessageClassType
 import com.adyen.model.nexo.MessageHeader
@@ -20,8 +28,10 @@ import com.adyen.model.nexo.MessageReference
 import com.adyen.model.nexo.MessageType
 import com.adyen.model.nexo.OutputContent
 import com.adyen.model.nexo.OutputFormatType
+import com.adyen.model.nexo.OutputText
 import com.adyen.model.nexo.PaymentRequest
 import com.adyen.model.nexo.PaymentTransaction
+import com.adyen.model.nexo.PredefinedContent
 import com.adyen.model.nexo.PrintOutput
 import com.adyen.model.nexo.PrintRequest
 import com.adyen.model.nexo.ResponseModeType
@@ -39,6 +49,7 @@ import com.adyen.service.TerminalLocalAPI
 import com.cheq.receiptify.Receiptify
 import com.cheqplease.adyen_terminal.data.AdyenTerminalConfig
 import com.cheqplease.adyen_terminal.data.ErrorCode
+import com.cheqplease.adyen_terminal.data.SignatureHandler
 import com.cheqplease.adyen_terminal.data.TransactionFailureHandler
 import com.cheqplease.adyen_terminal.data.TransactionSuccessHandler
 import com.google.gson.Gson
@@ -52,7 +63,10 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.net.SocketTimeoutException
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.util.GregorianCalendar
 import java.util.TimeZone
 import javax.xml.datatype.DatatypeFactory
@@ -161,6 +175,51 @@ object AdyenTerminalManager {
 
                 else -> paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE_OTHERS, e.message!!)
             }
+        }
+    }
+
+
+    fun  getSignature(transactionId: String, signatureHandler: SignatureHandler?){
+
+        val terminalApiRequest = TerminalAPIRequest().apply {
+            saleToPOIRequest = SaleToPOIRequest().apply {
+                messageHeader = MessageHeader().apply {
+                    messageClass = MessageClassType.DEVICE
+                    messageCategory = MessageCategoryType.INPUT
+                    messageType = MessageType.REQUEST
+                    serviceID = transactionId
+                    saleID = terminalConfig.terminalId
+                    protocolVersion = "3.0"
+                    poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}"
+                }
+                inputRequest = buildInputRequest()
+            }
+        }
+
+        val terminalLocalAPI = getTerminalLocalAPI()
+        val securityKey = getSecurityKey(
+            keyIdentifier = terminalConfig.keyId,
+            passphrase = terminalConfig.keyPassphrase
+        )
+
+        try {
+            val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
+            val signatureData = response.saleToPOIResponse.inputResponse.inputResult.response
+
+            if(signatureData.result == ResultType.SUCCESS){
+                val encodedText = signatureData.additionalResponse
+                val decodedText = Utils.decodeUrlEncodedString(encodedText)
+                val responseData = Utils.getResponseDataValue(decodedText)
+
+                signatureHandler?.onSignatureReceived(signature = responseData)
+            }else{
+                signatureHandler?.onSignatureRejected()
+            }
+        } catch (e: Exception) {
+            if(BuildConfig.DEBUG){
+                e.printStackTrace()
+            }
+            signatureHandler?.onSignatureRejected()
         }
     }
 
@@ -401,7 +460,6 @@ object AdyenTerminalManager {
 
         val saleToPOIRequest = SaleToPOIRequest().apply {
             messageHeader = MessageHeader().apply {
-
                 protocolVersion = "3.0"
                 messageClass = MessageClassType.SERVICE
                 messageCategory = MessageCategoryType.ADMIN
@@ -421,7 +479,7 @@ object AdyenTerminalManager {
 
         try {
 
-            val response = terminalLocalAPI.request(
+            terminalLocalAPI.request(
                 terminalApiRequest, getSecurityKey(
                     keyIdentifier = terminalConfig.keyId,
                     passphrase = terminalConfig.keyPassphrase
@@ -458,8 +516,39 @@ object AdyenTerminalManager {
                 captureType = captureType,
                 additionalData = additionalData
             )
+
+            inputRequest = buildInputRequest()
         }
 
+    }
+
+    private fun buildInputRequest(): InputRequest? {
+        return InputRequest().apply {
+            displayOutput = DisplayOutput().apply {
+                device = DeviceType.CUSTOMER_DISPLAY
+                infoQualify = InfoQualifyType.DISPLAY
+                outputContent = OutputContent().apply {
+                    outputFormat = OutputFormatType.TEXT
+                    predefinedContent = PredefinedContent().apply {
+                        referenceID = "GetSignature"
+                    }
+                    outputText.add(OutputText().apply {
+                        text = "Please sign"
+                    })
+
+                    outputText.add(OutputText().apply {
+                        text = ""
+                    })
+                }
+
+                inputData = InputData().apply {
+                    device = DeviceType.CUSTOMER_INPUT
+                    infoQualify = InfoQualifyType.INPUT
+                    inputCommand = InputCommandType.GET_CONFIRMATION
+                    maxInputTime = BigInteger.valueOf(30)
+                }
+            }
+        }
     }
 
     private fun buildPaymentRequest(

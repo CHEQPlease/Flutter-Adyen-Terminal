@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_adyen_terminal/data/adyen_terminal_response.dart';
 import 'package:flutter_adyen_terminal/data/error_codes.dart';
+import 'package:flutter_adyen_terminal/utils.dart';
 
 import 'data/adyen_terminal_config.dart';
 import 'data/enums.dart';
@@ -23,6 +24,7 @@ class FlutterAdyen {
   static const String _methodPrintReceipt = "print_receipt";
   static const String _methodScanBarcode = "scan_barcode";
   static const String _methodGetDeviceInfo = "get_terminal_info";
+  static const String _methodGetSignature = "get_signature";
 
   static late AdyenTerminalConfig _terminalConfig;
 
@@ -121,6 +123,20 @@ class FlutterAdyen {
     }).catchError((value) {
       if (onFailure != null) {
         onFailure("Unable to retrieve terminal info", null);
+      }
+    });
+  }
+
+  static void getSignature(String transactionId, Success<Map<String,dynamic>>? onSuccess, Function? onFailure) async {
+    _channel.invokeMethod(_methodGetSignature, {"transactionId": transactionId}).then((value) {
+      if (onSuccess != null) {
+        String result = value;
+        Map<String, dynamic> data = convertStringToHashMap(result);
+        onSuccess(data);
+      }
+    }).catchError((value) {
+      if (onFailure != null) {
+        onFailure("Unable to retrieve signature", null);
       }
     });
   }

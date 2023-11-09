@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.annotation.NonNull
 import com.cheqplease.adyen_terminal.data.AdyenTerminalConfig
 import com.cheqplease.adyen_terminal.data.ErrorCode
+import com.cheqplease.adyen_terminal.data.SignatureHandler
 import com.cheqplease.adyen_terminal.data.TransactionFailureHandler
 import com.cheqplease.adyen_terminal.data.TransactionSuccessHandler
 import io.flutter.FlutterInjector
@@ -66,6 +67,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
             "print_receipt" -> handlePrintReceipt(call, result)
             "scan_barcode" -> handleScanBarcode(call, result)
             "get_terminal_info" -> handleGetTerminalInfo(call, result)
+            "get_signature" -> handleSignature(call, result)
             else -> result.notImplemented()
         }
     }
@@ -217,6 +219,30 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
             }
         }
     }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun handleSignature(call: MethodCall, result: Result) {
+        val transactionId: String = getArgumentOrThrow(call, "transactionId")
+
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                AdyenTerminalManager.getSignature(transactionId, object : SignatureHandler {
+                    override fun onSignatureReceived(signature: String) {
+                        result.success(signature)
+                    }
+
+                    override fun onSignatureRejected() {
+                        result.error("ERROR", "Signature Rejected", null)
+                    }
+                })
+            } catch (e: Exception) {
+                var eerr = e
+                result.error("ERROR", "Signature Rejected", null)
+            }
+        }
+
+    }
+
 
     private fun <T> getArgumentOrThrow(
         call: MethodCall,

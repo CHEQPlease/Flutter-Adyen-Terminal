@@ -88,7 +88,7 @@ class _MyAppState extends State<MyApp> {
                         onPressed: () async {
                           AdyenTerminalConfig terminalConfig =
                               AdyenTerminalConfig(
-                            endpoint: "https://192.168.31.92",
+                            endpoint: "https://192.168.68.103",
                             terminalModelNo: "e285p",
                             terminalSerialNo: "805336269",
                             terminalId: "bugsoyieugrys",
@@ -206,31 +206,34 @@ class _MyAppState extends State<MyApp> {
                           //   print("Print Failure");
                           // });
 
-                          // String txnId = _get10DigitNumber();
+                          String txnId = _get10DigitNumber();
                           // await FlutterAdyen.getTerminalInfo("https://192.168.1.198",txnId,onSuccess: (val){
                           //   print("Success: $val");
                           // });
 
-
-                          String txnId = _get10DigitNumber();
+                          // String txnId = _get10DigitNumber();
                           // Future.delayed(const Duration(seconds: 1),(){
                           //   FlutterAdyen.cancelTransaction(txnId: _get10DigitNumber(), cancelTxnId: txnId, terminalId: "23423");
                           // });
 
-                          try {
-                            var additionalData = HashMap<String,dynamic>()..putIfAbsent("shopperStatement", () => "CheqPlease");
-                            var response =
-                                await FlutterAdyen.authorizeTransaction(
-                                    amount: 2.99,
-                                    transactionId: txnId,
-                                    currency: "USD",
-                                    additionalData: additionalData,
-                                );
-                            var x = "423";
-                          } catch (e) {
+                          // try {
+                          //   var additionalData = HashMap<String,dynamic>()..putIfAbsent("shopperStatement", () => "CheqPlease");
+                          //   var response =
+                          //       await FlutterAdyen.authorizeTransaction(
+                          //           amount: 2.99,
+                          //           transactionId: txnId,
+                          //           currency: "USD",
+                          //           additionalData: additionalData,
+                          //       );
+                          //   var x = "423";
+                          // } catch (e) {
+                          //
+                          // }
 
-                          }
+                          FlutterAdyen.getSignature(txnId, (successResponse){
+                            print("Success: $successResponse");
 
+                          }, (errorMessage, failureResponse) => null);
 
                           // _showMaterialDialog(txnId, terminalConfig);
                         }),
@@ -248,6 +251,8 @@ class _MyAppState extends State<MyApp> {
     for (int i = 0; i < 10; i++) {
       number = number + random.nextInt(9).toString();
     }
+
+
 
     return number;
   }
