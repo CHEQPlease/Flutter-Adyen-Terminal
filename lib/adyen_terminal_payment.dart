@@ -25,6 +25,7 @@ class FlutterAdyen {
   static const String _methodScanBarcode = "scan_barcode";
   static const String _methodGetDeviceInfo = "get_terminal_info";
   static const String _methodGetSignature = "get_signature";
+  static const String _methodTokenizeCard = "tokenize_card";
 
   static late AdyenTerminalConfig _terminalConfig;
 
@@ -139,5 +140,9 @@ class FlutterAdyen {
         onFailure();
       }
     });
+  }
+
+  static void tokenizeCard(String transactionId){
+    _channel.invokeMethod(_methodTokenizeCard,{"transactionId": transactionId});
   }
 }

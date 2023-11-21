@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_adyen_terminal/adyen_terminal_payment.dart';
 import 'package:flutter_adyen_terminal/data/adyen_terminal_config.dart';
-import 'package:flutter_adyen_terminal/exceptions/txn_failure_exceptions.dart';
 
 void main() {
   runApp(const MaterialApp(
@@ -88,7 +87,7 @@ class _MyAppState extends State<MyApp> {
                         onPressed: () async {
                           AdyenTerminalConfig terminalConfig =
                               AdyenTerminalConfig(
-                            endpoint: "https://192.168.68.103",
+                            endpoint: "https://192.168.68.105",
                             terminalModelNo: "e285p",
                             terminalSerialNo: "805336269",
                             terminalId: "bugsoyieugrys",
@@ -230,11 +229,15 @@ class _MyAppState extends State<MyApp> {
                           //
                           // }
 
-                          FlutterAdyen.getSignature(txnId, onSuccess: (val) {
-                            print("Success: $val");
-                          }, onFailure: () {
-                            print("Failure:");
-                          });
+                          // FlutterAdyen.getSignature(txnId, onSuccess: (val) {
+                          //   print("Success: $val");
+                          // }, onFailure: () {
+                          //   print("Failure:");
+                          // });
+
+
+                          FlutterAdyen.tokenizeCard(_get10DigitNumber());
+
 
                           // _showMaterialDialog(txnId, terminalConfig);
                         }),

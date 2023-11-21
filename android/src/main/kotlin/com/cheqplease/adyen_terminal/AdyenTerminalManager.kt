@@ -38,6 +38,7 @@ import com.adyen.model.nexo.ResponseModeType
 import com.adyen.model.nexo.ResultType
 import com.adyen.model.nexo.SaleData
 import com.adyen.model.nexo.SaleToPOIRequest
+import com.adyen.model.nexo.TokenRequestedType
 import com.adyen.model.nexo.TransactionIdentification
 import com.adyen.model.posterminalmanagement.GetTerminalDetailsRequest
 import com.adyen.model.posterminalmanagement.GetTerminalDetailsResponse
@@ -176,6 +177,66 @@ object AdyenTerminalManager {
                 else -> paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE_OTHERS, e.message!!)
             }
         }
+    }
+
+    fun tokenizeCard(transactionId: String){
+
+        val terminalApiRequest = TerminalAPIRequest().apply {
+            saleToPOIRequest = SaleToPOIRequest().apply {
+
+                messageHeader = MessageHeader().apply {
+                    protocolVersion = "3.0"
+                    messageClass = MessageClassType.SERVICE
+                    messageCategory = MessageCategoryType.PAYMENT
+                    messageType = MessageType.REQUEST
+                    serviceID = transactionId
+                    saleID = terminalConfig.terminalId
+                    poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}"
+                }
+
+                paymentRequest = PaymentRequest().apply {
+                    saleData = SaleData().apply {
+                        saleTransactionID = TransactionIdentification().apply {
+                            transactionID = transactionId
+                            timeStamp = DatatypeFactory.newInstance()
+                                .newXMLGregorianCalendar(GregorianCalendar(TimeZone.getTimeZone("GMT+6")))
+                        }
+
+                        saleToAcquirerData = SaleToAcquirerData().apply {
+                            recurringContract = "RECURRING"
+                            shopperEmail = "test@cheq.io"
+                            shopperReference = "ARandomShopperReference"
+                        }
+                        tokenRequestedType = TokenRequestedType.CUSTOMER
+                    }
+
+                    paymentTransaction = PaymentTransaction().apply {
+                        amountsReq = AmountsReq().apply {
+                            currency = "USD"
+                            requestedAmount = BigDecimal(5.0)
+                        }
+                    }
+                }
+            }
+        }
+
+        val terminalLocalAPI = getTerminalLocalAPI()
+        val securityKey = getSecurityKey(
+            keyIdentifier = terminalConfig.keyId,
+            passphrase = terminalConfig.keyPassphrase
+        )
+
+        try {
+            val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
+
+            var token = ""
+        } catch (e: Exception) {
+            if(BuildConfig.DEBUG){
+                e.printStackTrace()
+            }
+        }
+
+
     }
 
 
