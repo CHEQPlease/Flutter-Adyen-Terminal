@@ -2,14 +2,13 @@ package com.cheqplease.adyen_terminal
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.os.Build
 import android.util.Base64
 import android.util.Base64.encodeToString
 import android.util.Log
-import androidx.annotation.RequiresApi
 import com.adyen.Client
 import com.adyen.Config
 import com.adyen.enums.Environment
+import com.adyen.httpclient.TerminalLocalAPIHostnameVerifier
 import com.adyen.model.nexo.AbortRequest
 import com.adyen.model.nexo.AdminRequest
 import com.adyen.model.nexo.AmountsReq
@@ -45,7 +44,7 @@ import com.adyen.model.posterminalmanagement.GetTerminalDetailsResponse
 import com.adyen.model.terminal.SaleToAcquirerData
 import com.adyen.model.terminal.TerminalAPIRequest
 import com.adyen.model.terminal.security.SecurityKey
-import com.adyen.service.PosTerminalManagement
+import com.adyen.service.PosTerminalManagementApi
 import com.adyen.service.TerminalLocalAPI
 import com.cheq.receiptify.Receiptify
 import com.cheqplease.adyen_terminal.data.AdyenTerminalConfig
@@ -66,10 +65,13 @@ import java.lang.ref.WeakReference
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.net.SocketTimeoutException
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
+import java.security.KeyStore
+import java.security.SecureRandom
+import java.security.cert.CertificateFactory
 import java.util.GregorianCalendar
 import java.util.TimeZone
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManagerFactory
 import javax.xml.datatype.DatatypeFactory
 
 
@@ -130,13 +132,9 @@ object AdyenTerminalManager {
         Logger.d("ADYEN TERMINAL TRANSACTION REQUEST")
         Logger.json(Gson().toJson(terminalApiRequest))
 
-        val securityKey: SecurityKey = getSecurityKey(
-            keyIdentifier = terminalConfig.keyId,
-            passphrase = terminalConfig.keyPassphrase
-        )
 
         try {
-            val response = getTerminalLocalAPI().request(terminalApiRequest, securityKey)
+            val response = getTerminalLocalAPI().request(terminalApiRequest)
             if(response != null){
                 val resultJson = Gson().toJson(response)
                 val txnResult = response.saleToPOIResponse.paymentResponse.response.result
@@ -203,7 +201,7 @@ object AdyenTerminalManager {
                         }
 
                         saleToAcquirerData = SaleToAcquirerData().apply {
-                            recurringContract = "RECURRING"
+                            recurringProcessingModel = SaleToAcquirerData.RecurringProcessingModelEnum.UNSCHEDULED_CARD_ON_FILE
                             shopperEmail = "test@cheq.io"
                             shopperReference = "ARandomShopperReference"
                         }
@@ -213,7 +211,7 @@ object AdyenTerminalManager {
                     paymentTransaction = PaymentTransaction().apply {
                         amountsReq = AmountsReq().apply {
                             currency = "USD"
-                            requestedAmount = BigDecimal(5.0)
+                            requestedAmount = BigDecimal(2.0)
                         }
                     }
                 }
@@ -221,13 +219,8 @@ object AdyenTerminalManager {
         }
 
         val terminalLocalAPI = getTerminalLocalAPI()
-        val securityKey = getSecurityKey(
-            keyIdentifier = terminalConfig.keyId,
-            passphrase = terminalConfig.keyPassphrase
-        )
-
         try {
-            val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
+            val response = terminalLocalAPI.request(terminalApiRequest)
 
             var token = ""
         } catch (e: Exception) {
@@ -258,13 +251,9 @@ object AdyenTerminalManager {
         }
 
         val terminalLocalAPI = getTerminalLocalAPI()
-        val securityKey = getSecurityKey(
-            keyIdentifier = terminalConfig.keyId,
-            passphrase = terminalConfig.keyPassphrase
-        )
 
         try {
-            val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
+            val response = terminalLocalAPI.request(terminalApiRequest)
             val signatureData = response.saleToPOIResponse.inputResponse.inputResult.response
 
             if(signatureData.result == ResultType.SUCCESS && signatureData.additionalResponse != null){
@@ -287,7 +276,7 @@ object AdyenTerminalManager {
     private fun getTerminalLocalAPI(): TerminalLocalAPI {
         val config: Config = getConfigurationData(terminalConfig)
         val terminalLocalAPIClient = Client(config)
-        return TerminalLocalAPI(terminalLocalAPIClient)
+        return TerminalLocalAPI(terminalLocalAPIClient, getSecurityKey())
     }
 
 
@@ -295,13 +284,8 @@ object AdyenTerminalManager {
 
         val config: Config = getConfigurationData(terminalConfig)
         val terminalLocalAPIClient = Client(config)
-        val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient)
+        val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient, getSecurityKey())
         val terminalApiRequest = TerminalAPIRequest()
-
-        val securityKey: SecurityKey = getSecurityKey(
-            keyIdentifier = terminalConfig.keyId,
-            passphrase = terminalConfig.keyPassphrase
-        )
 
         terminalApiRequest.apply {
             saleToPOIRequest = SaleToPOIRequest().apply {
@@ -327,7 +311,7 @@ object AdyenTerminalManager {
 
         Logger.d("ADYEN TERMINAL CANCEL REQUEST")
         Logger.json(Gson().toJson(terminalApiRequest))
-        val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
+        val response = terminalLocalAPI.request(terminalApiRequest)
         Logger.d("ADYEN TERMINAL CANCEL RESPONSE")
         Logger.json(Gson().toJson(response))
     }
@@ -352,7 +336,7 @@ object AdyenTerminalManager {
 
             val config: Config = getConfigurationData(terminalConfig)
             val terminalLocalAPIClient = Client(config)
-            val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient)
+            val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient, getSecurityKey())
             val terminalApiRequest = TerminalAPIRequest()
 
             val saleToPOIRequest = SaleToPOIRequest().apply {
@@ -379,12 +363,7 @@ object AdyenTerminalManager {
 
             terminalApiRequest.saleToPOIRequest = saleToPOIRequest
 
-            val response = terminalLocalAPI.request(
-                terminalApiRequest, getSecurityKey(
-                    keyIdentifier = terminalConfig.keyId,
-                    passphrase = terminalConfig.keyPassphrase
-                )
-            )
+            val response = terminalLocalAPI.request(terminalApiRequest)
 
             val isPrinted = response?.saleToPOIResponse?.printResponse?.response?.result == ResultType.SUCCESS
 
@@ -422,13 +401,9 @@ object AdyenTerminalManager {
             terminalApiLocalEndpoint = terminalIP
         }
         val terminalLocalAPIClient = Client(config)
-        val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient)
+        val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient, getSecurityKey())
         val terminalApiRequest = TerminalAPIRequest()
 
-        val securityKey: SecurityKey = getSecurityKey(
-            keyIdentifier = terminalConfig.keyId,
-            passphrase = terminalConfig.keyPassphrase
-        )
 
         terminalApiRequest.apply {
             saleToPOIRequest = SaleToPOIRequest().apply {
@@ -450,7 +425,7 @@ object AdyenTerminalManager {
         try {
             Log.d("terminalApiRequest>>", "" + Gson().toJson(terminalApiRequest))
             // Terminal poiid retrieval successful
-            val response = terminalLocalAPI.request(terminalApiRequest, securityKey)
+            val response = terminalLocalAPI.request(terminalApiRequest)
             val resultJSONString = Gson().toJson(response.saleToPOIResponse)
             val terminalDetailsJSON = JSONObject()
             val saleToPoiJsonObject = JSONObject(resultJSONString)
@@ -483,7 +458,7 @@ object AdyenTerminalManager {
     private fun getTerminalDetails(poiid: String): GetTerminalDetailsResponse {
         val config: Config = getConfigurationDataForMgmtAPI(terminalConfig)
         val terminalMgmtClient = Client(config)
-        val terminalMgmtAPI = PosTerminalManagement(terminalMgmtClient)
+        val terminalMgmtAPI = PosTerminalManagementApi(terminalMgmtClient)
 
         val getTerminalDetailsRequest: GetTerminalDetailsRequest =
             GetTerminalDetailsRequest().apply {
@@ -516,7 +491,7 @@ object AdyenTerminalManager {
 
         val config: Config = getConfigurationData(terminalConfig)
         val terminalLocalAPIClient = Client(config)
-        val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient)
+        val terminalLocalAPI = TerminalLocalAPI(terminalLocalAPIClient, getSecurityKey())
         val terminalApiRequest = TerminalAPIRequest()
 
         val saleToPOIRequest = SaleToPOIRequest().apply {
@@ -541,10 +516,7 @@ object AdyenTerminalManager {
         try {
 
             terminalLocalAPI.request(
-                terminalApiRequest, getSecurityKey(
-                    keyIdentifier = terminalConfig.keyId,
-                    passphrase = terminalConfig.keyPassphrase
-                )
+                terminalApiRequest
             )
         } catch (e: Exception) {
             e.printStackTrace()
@@ -687,18 +659,35 @@ object AdyenTerminalManager {
     private fun getConfigurationData(
         terminalConfig: AdyenTerminalConfig
     ): Config {
+
+
+        val certificateFactory = CertificateFactory.getInstance("X.509")
+        val inputStream: InputStream? = context.get()?.assets?.open(terminalConfig.certPath)
+
+        val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
+        keyStore.load(null, null)
+        keyStore.setCertificateEntry("adyenRootCertificate", certificateFactory.generateCertificate(inputStream))
+
+        val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+        trustManagerFactory.init(keyStore)
+
+
+        val sslContext = SSLContext.getInstance("SSL")
+        sslContext.init(null, trustManagerFactory.trustManagers, SecureRandom())
+
+
         val config = Config()
-        config.environment = if ("test".equals(
+        config.environment = if ("live".equals(
                 terminalConfig.environment,
                 ignoreCase = true
             )
-        ) Environment.TEST else Environment.LIVE
-        config.merchantAccount = terminalConfig.merchantName
-        val inputStream: InputStream? = context.get()?.assets?.open(terminalConfig.certPath)
-        config.setTerminalCertificate(inputStream)
+        ) Environment.LIVE else Environment.TEST
+        config.sslContext = sslContext
         config.connectionTimeoutMillis = terminalConfig.connectionTimeoutMillis
         config.readTimeoutMillis = terminalConfig.readTimeoutMillis
         config.terminalApiLocalEndpoint = terminalConfig.endpoint
+        config.hostnameVerifier = TerminalLocalAPIHostnameVerifier(config.environment)
+
         return config
     }
 
@@ -711,20 +700,20 @@ object AdyenTerminalManager {
                 ignoreCase = true
             )
         ) Environment.TEST else Environment.LIVE
-        config.merchantAccount = terminalConfig.merchantName
+//        config. = terminalConfig.merchantName
         config.connectionTimeoutMillis = 10000
         config.readTimeoutMillis = 10000
-        config.posTerminalManagementApiEndpoint =
-            if (config.environment == Environment.TEST) Client.POS_TERMINAL_MANAGEMENT_ENDPOINT_TEST else Client.POS_TERMINAL_MANAGEMENT_ENDPOINT_LIVE
+        config.terminalApiLocalEndpoint =
+            if (config.environment == Environment.TEST) Client.TERMINAL_API_ENDPOINT_TEST else Client.TERMINAL_API_ENDPOINT_LIVE
         config.apiKey = terminalConfig.backendApiKey
         return config
     }
 
-    private fun getSecurityKey(keyIdentifier: String, passphrase: String): SecurityKey {
+    private fun getSecurityKey(): SecurityKey {
         val securityKey = SecurityKey()
         securityKey.adyenCryptoVersion = 1
-        securityKey.keyIdentifier = keyIdentifier
-        securityKey.passphrase = passphrase
+        securityKey.keyIdentifier = terminalConfig.keyId
+        securityKey.passphrase = terminalConfig.keyPassphrase
         securityKey.keyVersion = 1
         return securityKey
     }
@@ -736,4 +725,6 @@ object AdyenTerminalManager {
         bitmap.recycle()
         return byteArray
     }
+
+
 }
