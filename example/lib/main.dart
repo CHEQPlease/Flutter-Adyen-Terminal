@@ -87,7 +87,7 @@ class _MyAppState extends State<MyApp> {
                         onPressed: () async {
                           AdyenTerminalConfig terminalConfig =
                               AdyenTerminalConfig(
-                            endpoint: "https://192.168.68.103",
+                            endpoint: "https://192.168.68.102",
                             terminalModelNo: "e285p",
                             terminalSerialNo: "805336269",
                             terminalId: "bugsoyieugrys",
