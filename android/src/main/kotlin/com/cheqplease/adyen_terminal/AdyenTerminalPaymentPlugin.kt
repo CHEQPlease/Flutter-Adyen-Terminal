@@ -68,6 +68,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
             "scan_barcode" -> handleScanBarcode(call, result)
             "get_terminal_info" -> handleGetTerminalInfo(call, result)
             "get_signature" -> handleSignature(call, result)
+            "tokenize_card" -> handleCardTokenization(call, result)
             else -> result.notImplemented()
         }
     }
@@ -131,6 +132,46 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                 result.error(ErrorCode.UNABLE_TO_PROCESS_RESULT.toString(), e.message, stackTrace)
             }
         }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun handleCardTokenization(call: MethodCall, result: Result){
+
+        val transactionId: String = getArgumentOrThrow(call, "transactionId")
+        val amount: Double = getArgumentOrThrow(call, "amount")
+        val currency: String = getArgumentOrThrow(call, "currency")
+        val shopperEmail: String = getArgumentOrThrow(call, "shopperEmail")
+        val shopperReference: String = getArgumentOrThrow(call, "shopperReference")
+
+
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                AdyenTerminalManager.tokenizeCard(
+                    transactionId = transactionId,
+                    requestedAmount = amount,
+                    currency = currency,
+                    shopperEmail = shopperEmail,
+                    shopperReference = shopperReference,
+                    successHandler = object :
+                        TransactionSuccessHandler<String> {
+                        override fun onSuccess(response: String?) {
+                            result.success(response)
+                        }
+                    },
+                    failureHandler = object : TransactionFailureHandler<Int, String> {
+                        override fun onFailure(errorCode: ErrorCode, response: String?) {
+                            result.error(errorCode.name, "Transaction Failed", response)
+                        }
+                    }
+                )
+            } catch (e: Exception) {
+                val stackTrace = StringWriter().apply {
+                    e.printStackTrace(PrintWriter(this))
+                }.toString()
+                result.error(ErrorCode.UNABLE_TO_PROCESS_RESULT.toString(), e.message, stackTrace)
+            }
+        }
+
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -236,7 +277,6 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                     }
                 })
             } catch (e: Exception) {
-                var eerr = e
                 result.error("ERROR", "Signature Rejected", null)
             }
         }

@@ -25,6 +25,7 @@ class FlutterAdyen {
   static const String _methodScanBarcode = "scan_barcode";
   static const String _methodGetDeviceInfo = "get_terminal_info";
   static const String _methodGetSignature = "get_signature";
+  static const String _methodTokenizeCard = "tokenize_card";
 
   static late AdyenTerminalConfig _terminalConfig;
 
@@ -139,5 +140,27 @@ class FlutterAdyen {
         onFailure();
       }
     });
+  }
+
+  static Future<AdyenTerminalResponse> tokenizeCard({required String transactionId,required String currency, required double amount,required String shopperReference,String shopperEmail=""}) async {
+    try {
+      String result = await _channel.invokeMethod(_methodTokenizeCard,
+          {
+            "transactionId": transactionId,
+            "amount": amount,
+            "currency": currency,
+            "shopperReference": shopperReference,
+            "shopperEmail": shopperEmail
+          });
+
+      var adyenTerminalResponse = AdyenTerminalResponse.fromJson(jsonDecode(result));
+
+      return adyenTerminalResponse;
+    } catch (e) {
+      throw TxnFailureBaseException(
+        errorCode: ErrorCode.tokenizationFailure.code,
+        errorMessage: e.toString(),
+      );
+    }
   }
 }
