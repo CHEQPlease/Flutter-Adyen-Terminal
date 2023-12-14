@@ -142,7 +142,7 @@ class FlutterAdyen {
     });
   }
 
-  static Future<String> tokenizeCard({required String transactionId,required String currency, required double amount,required String shopperReference,String shopperEmail=""}) async {
+  static Future<AdyenTerminalResponse> tokenizeCard({required String transactionId,required String currency, required double amount,required String shopperReference,String shopperEmail=""}) async {
     try {
       String result = await _channel.invokeMethod(_methodTokenizeCard,
           {
@@ -155,11 +155,11 @@ class FlutterAdyen {
 
       var adyenTerminalResponse = AdyenTerminalResponse.fromJson(jsonDecode(result));
 
-      return result;
+      return adyenTerminalResponse;
     } catch (e) {
       throw TxnFailureBaseException(
-        errorCode: ErrorCode.transactionFailure.code,
-        errorMessage: "Unable to tokenize card",
+        errorCode: ErrorCode.tokenizationFailure.code,
+        errorMessage: e.toString(),
       );
     }
   }

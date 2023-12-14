@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_adyen_terminal/adyen_terminal_payment.dart';
 import 'package:flutter_adyen_terminal/data/adyen_terminal_config.dart';
+import 'package:flutter_adyen_terminal/data/adyen_terminal_response.dart';
 
 void main() {
   runApp(const MaterialApp(
@@ -237,8 +238,8 @@ class _MyAppState extends State<MyApp> {
 
 
                           try {
-                            var resultJSON = await FlutterAdyen.tokenizeCard(transactionId: _get10DigitNumber(), currency: "USD", amount: 10.0, shopperReference: "XYZ");
-                            print(resultJSON);
+                            AdyenTerminalResponse response = await FlutterAdyen.tokenizeCard(transactionId: _get10DigitNumber(), currency: "USD", amount: 10.0, shopperReference: "XYZ");
+                            print(response);
                           } catch (e) {
                             print(e);
                           }
