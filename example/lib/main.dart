@@ -87,7 +87,7 @@ class _MyAppState extends State<MyApp> {
                         onPressed: () async {
                           AdyenTerminalConfig terminalConfig =
                               AdyenTerminalConfig(
-                            endpoint: "https://192.168.68.102",
+                            endpoint: "https://192.168.68.103",
                             terminalModelNo: "e285p",
                             terminalSerialNo: "805336269",
                             terminalId: "bugsoyieugrys",
@@ -236,7 +236,12 @@ class _MyAppState extends State<MyApp> {
                           // });
 
 
-                          FlutterAdyen.tokenizeCard(_get10DigitNumber());
+                          try {
+                            var resultJSON = await FlutterAdyen.tokenizeCard(transactionId: _get10DigitNumber(), currency: "USD", amount: 10.0, shopperReference: "XYZ");
+                            print(resultJSON);
+                          } catch (e) {
+                            print(e);
+                          }
 
 
                           // _showMaterialDialog(txnId, terminalConfig);

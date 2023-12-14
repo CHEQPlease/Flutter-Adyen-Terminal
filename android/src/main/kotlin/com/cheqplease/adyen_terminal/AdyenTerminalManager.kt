@@ -177,7 +177,10 @@ object AdyenTerminalManager {
         }
     }
 
-    fun tokenizeCard(transactionId: String){
+    fun tokenizeCard(
+        transactionId: String,
+        requestedAmount: Double, currency: String, shopperEmail: String, shopperReference: String, successHandler: TransactionSuccessHandler<String>, failureHandler: TransactionFailureHandler<Int, String>) {
+
 
         val terminalApiRequest = TerminalAPIRequest().apply {
             saleToPOIRequest = SaleToPOIRequest().apply {
@@ -197,21 +200,22 @@ object AdyenTerminalManager {
                         saleTransactionID = TransactionIdentification().apply {
                             transactionID = transactionId
                             timeStamp = DatatypeFactory.newInstance()
-                                .newXMLGregorianCalendar(GregorianCalendar(TimeZone.getTimeZone("GMT+6")))
+                                .newXMLGregorianCalendar(GregorianCalendar(TimeZone.getDefault()))
                         }
 
                         saleToAcquirerData = SaleToAcquirerData().apply {
-                            recurringProcessingModel = SaleToAcquirerData.RecurringProcessingModelEnum.UNSCHEDULED_CARD_ON_FILE
-                            shopperEmail = "test@cheq.io"
-                            shopperReference = "ARandomShopperReference"
+                            recurringProcessingModel =
+                                SaleToAcquirerData.RecurringProcessingModelEnum.UNSCHEDULED_CARD_ON_FILE
+                            this.shopperEmail = shopperEmail
+                            this.shopperReference = shopperReference
                         }
                         tokenRequestedType = TokenRequestedType.CUSTOMER
                     }
 
                     paymentTransaction = PaymentTransaction().apply {
                         amountsReq = AmountsReq().apply {
-                            currency = "USD"
-                            requestedAmount = BigDecimal(2.0)
+                            this.currency = currency
+                            this.requestedAmount = BigDecimal(requestedAmount)
                         }
                     }
                 }
@@ -219,17 +223,52 @@ object AdyenTerminalManager {
         }
 
         val terminalLocalAPI = getTerminalLocalAPI()
+
         try {
             val response = terminalLocalAPI.request(terminalApiRequest)
+            if (response != null) {
+                val resultJson = Gson().toJson(response)
+                val txnResult = response.saleToPOIResponse.paymentResponse.response.result
 
-            var token = ""
+                val isTxnSuccessful =
+                    txnResult == ResultType.SUCCESS || txnResult == ResultType.PARTIAL
+                if (isTxnSuccessful) {
+                    Logger.d("ADYEN TERMINAL TRANSACTION RESPONSE")
+                    Logger.json(resultJson)
+                    successHandler.onSuccess(resultJson)
+                } else {
+                    Logger.e("ADYEN TERMINAL TRANSACTION RESPONSE")
+                    Logger.json(resultJson)
+                    failureHandler.onFailure(ErrorCode.FAILED_TO_TOKENIZE, resultJson)
+                }
+            } else {
+                Logger.e("ADYEN TERMINAL TRANSACTION RESPONSE")
+                failureHandler.onFailure(ErrorCode.FAILED_TO_TOKENIZE, null)
+            }
         } catch (e: Exception) {
-            if(BuildConfig.DEBUG){
-                e.printStackTrace()
+            if (BuildConfig.DEBUG) {
+                Logger.e("ADYEN TERMINAL TRANSACTION RESPONSE")
+                Logger.e(e.message ?: "Unknown Error")
+                when (e) {
+                    is ConnectTimeoutException -> failureHandler.onFailure(
+                        ErrorCode.CONNECTION_TIMEOUT,
+                        e.message ?: "Connection timeout"
+                    )
+
+                    is SocketTimeoutException -> failureHandler.onFailure(
+                        ErrorCode.TRANSACTION_TIMEOUT,
+                        e.message ?: "Transaction timed out"
+                    )
+
+                    is HttpHostConnectException -> failureHandler.onFailure(
+                        ErrorCode.DEVICE_UNREACHABLE,
+                        e.message ?: "Device Unreachable. Please check your internet connection"
+                    )
+
+                    else -> failureHandler.onFailure(ErrorCode.FAILED_TO_TOKENIZE, e.message!!)
+                }
             }
         }
-
-
     }
 
 
@@ -332,7 +371,6 @@ object AdyenTerminalManager {
             val imageBase64Encoded = encodeToString(encoded, Base64.DEFAULT)
             val printData =
                 """<?xml version="1.0" encoding="UTF-8"?><img src="data:image/png;base64, $imageBase64Encoded"/>""".trimIndent()
-
 
             val config: Config = getConfigurationData(terminalConfig)
             val terminalLocalAPIClient = Client(config)
@@ -465,9 +503,7 @@ object AdyenTerminalManager {
                 terminal = poiid
             }
 
-        val response = terminalMgmtAPI.getTerminalDetails(getTerminalDetailsRequest)
-
-        return response
+        return terminalMgmtAPI.getTerminalDetails(getTerminalDetailsRequest)
     }
 
 
@@ -625,7 +661,7 @@ object AdyenTerminalManager {
             saleTransactionID = TransactionIdentification().apply {
                 transactionID = transactionId
                 timeStamp = DatatypeFactory.newInstance()
-                    .newXMLGregorianCalendar(GregorianCalendar(TimeZone.getTimeZone("GMT+6")))
+                    .newXMLGregorianCalendar(GregorianCalendar(TimeZone.getDefault()))
             }
 
             saleToAcquirerData = SaleToAcquirerData().apply {

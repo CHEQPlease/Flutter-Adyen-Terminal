@@ -142,7 +142,25 @@ class FlutterAdyen {
     });
   }
 
-  static void tokenizeCard(String transactionId){
-    _channel.invokeMethod(_methodTokenizeCard,{"transactionId": transactionId});
+  static Future<String> tokenizeCard({required String transactionId,required String currency, required double amount,required String shopperReference,String shopperEmail=""}) async {
+    try {
+      String result = await _channel.invokeMethod(_methodTokenizeCard,
+          {
+            "transactionId": transactionId,
+            "amount": amount,
+            "currency": currency,
+            "shopperReference": shopperReference,
+            "shopperEmail": shopperEmail
+          });
+
+      var adyenTerminalResponse = AdyenTerminalResponse.fromJson(jsonDecode(result));
+
+      return result;
+    } catch (e) {
+      throw TxnFailureBaseException(
+        errorCode: ErrorCode.transactionFailure.code,
+        errorMessage: "Unable to tokenize card",
+      );
+    }
   }
 }

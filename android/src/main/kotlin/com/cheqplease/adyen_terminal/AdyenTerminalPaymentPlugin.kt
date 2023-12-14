@@ -138,15 +138,32 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
     private fun handleCardTokenization(call: MethodCall, result: Result){
 
         val transactionId: String = getArgumentOrThrow(call, "transactionId")
+        val amount: Double = getArgumentOrThrow(call, "amount")
+        val currency: String = getArgumentOrThrow(call, "currency")
+        val shopperEmail: String = getArgumentOrThrow(call, "shopperEmail")
+        val shopperReference: String = getArgumentOrThrow(call, "shopperReference")
 
 
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 AdyenTerminalManager.tokenizeCard(
-                    transactionId = transactionId
+                    transactionId = transactionId,
+                    requestedAmount = amount,
+                    currency = currency,
+                    shopperEmail = shopperEmail,
+                    shopperReference = shopperReference,
+                    successHandler = object :
+                        TransactionSuccessHandler<String> {
+                        override fun onSuccess(response: String?) {
+                            result.success(response)
+                        }
+                    },
+                    failureHandler = object : TransactionFailureHandler<Int, String> {
+                        override fun onFailure(errorCode: ErrorCode, response: String?) {
+                            result.error(errorCode.name, "Transaction Failed", response)
+                        }
+                    }
                 )
-
-                result.success(true)
             } catch (e: Exception) {
                 val stackTrace = StringWriter().apply {
                     e.printStackTrace(PrintWriter(this))
@@ -260,7 +277,6 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                     }
                 })
             } catch (e: Exception) {
-                var eerr = e
                 result.error("ERROR", "Signature Rejected", null)
             }
         }
