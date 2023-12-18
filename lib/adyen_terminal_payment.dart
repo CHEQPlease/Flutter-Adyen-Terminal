@@ -128,18 +128,17 @@ class FlutterAdyen {
     });
   }
 
-  static void getSignature(String transactionId, {Success<Map<String,dynamic>>? onSuccess, Function()? onFailure}) async {
-    _channel.invokeMethod(_methodGetSignature, {"transactionId": transactionId}).then((value) {
-      if (onSuccess != null) {
-        String result = value;
-        Map<String, dynamic> data = convertStringToHashMap(result);
-        onSuccess(data);
-      }
-    }).catchError((value) {
-      if (onFailure != null) {
-        onFailure();
-      }
-    });
+  static Future<Map<String,dynamic>> getSignature(String transactionId) async {
+    try {
+      final String result = await _channel.invokeMethod(_methodGetSignature, {"transactionId": transactionId});
+      Map<String, dynamic> data = convertStringToHashMap(result);
+      return data;
+    } catch (e) {
+      throw TxnFailureBaseException(
+        errorCode: ErrorCode.customerSignatureCollectionFailure.code,
+        errorMessage: "Unable to collect customer signature",
+      );
+    }
   }
 
   static Future<AdyenTerminalResponse> tokenizeCard({required String transactionId,required String currency, required double amount,required String shopperReference,String shopperEmail=""}) async {
