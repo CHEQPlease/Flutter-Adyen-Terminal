@@ -2,7 +2,7 @@ enum ErrorCode {
   failureGeneric('FAILURE_GENERIC'),
   transactionFailure("TRANSACTION_FAILURE"),
   customerSignatureCollectionFailure("UNABLE_TO_GET_SIGNATURE"),
-  tokenizationFailure("TOKENIZATION_FAILURE"),
+  tokenizationFailure("FAILED_TO_TOKENIZE"),
   transactionTimeout("TRANSACTION_TIMEOUT"),
   unableToProcessResult("UNABLE_TO_PROCESS_RESULT"),
   connectionTimeout("CONNECTION_TIMEOUT"),

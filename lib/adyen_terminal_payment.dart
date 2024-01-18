@@ -155,11 +155,36 @@ class FlutterAdyen {
       var adyenTerminalResponse = AdyenTerminalResponse.fromJson(jsonDecode(result));
 
       return adyenTerminalResponse;
-    } catch (e) {
-      throw TxnFailureBaseException(
-        errorCode: ErrorCode.tokenizationFailure.code,
-        errorMessage: e.toString(),
-      );
+    } on PlatformException catch (ex) {
+      final errorCode = ex.code;
+      final errorMessage = ex.message;
+      if (errorCode == ErrorCode.tokenizationFailure.code) {
+        throw TxnFailedOnTokenizedException(
+          errorCode: errorCode,
+          errorMessage: errorMessage,
+          adyenTerminalResponse:
+              AdyenTerminalResponse.fromJson(jsonDecode(ex.details)),
+        );
+      } else if (errorCode == ErrorCode.transactionFailure.code) {
+        throw TxnFailedOnTerminalException(
+          errorCode: errorCode,
+          errorMessage: errorMessage,
+          adyenTerminalResponse:
+              AdyenTerminalResponse.fromJson(jsonDecode(ex.details)),
+        );
+      } else if (errorCode == ErrorCode.transactionTimeout.code) {
+        throw TxnTimeoutException(
+            errorCode: errorCode, errorMessage: errorMessage);
+      } else if (errorCode == ErrorCode.connectionTimeout.code ||
+          errorCode == ErrorCode.deviceUnreachable.code) {
+        throw FailedToCommunicateTerminalException(
+            errorCode: errorCode, errorMessage: errorMessage);
+      } else {
+        throw TxnFailureBaseException(
+          errorCode: errorCode,
+          errorMessage: errorMessage,
+        );
+      }
     }
   }
 }

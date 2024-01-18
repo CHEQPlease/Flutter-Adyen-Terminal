@@ -24,6 +24,19 @@ class TxnFailedOnTerminalException extends TxnFailureBaseException {
   );
 }
 
+class TxnFailedOnTokenizedException extends TxnFailureBaseException {
+  final AdyenTerminalResponse adyenTerminalResponse;
+
+  TxnFailedOnTokenizedException({
+    String? errorCode,
+    String? errorMessage,
+    required this.adyenTerminalResponse,
+  }) : super(
+    errorCode: errorCode,
+    errorMessage: errorMessage,
+  );
+}
+
 class TxnTimeoutException extends TxnFailureBaseException {
   TxnTimeoutException({
     String? errorCode,

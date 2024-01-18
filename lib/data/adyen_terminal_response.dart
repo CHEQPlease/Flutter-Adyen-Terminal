@@ -14,17 +14,21 @@ class AdyenTerminalResponse {
         saleToPoiResponse: saleToPoiResponse ?? this.saleToPoiResponse,
       );
 
-  factory AdyenTerminalResponse.fromRawJson(String str) => AdyenTerminalResponse.fromJson(json.decode(str));
+  factory AdyenTerminalResponse.fromRawJson(String str) =>
+      AdyenTerminalResponse.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory AdyenTerminalResponse.fromJson(Map<String, dynamic> json) => AdyenTerminalResponse(
-    saleToPoiResponse: json["SaleToPOIResponse"] == null ? null : SaleToPoiResponse.fromJson(json["SaleToPOIResponse"]),
-  );
+  factory AdyenTerminalResponse.fromJson(Map<String, dynamic> json) =>
+      AdyenTerminalResponse(
+        saleToPoiResponse: json["SaleToPOIResponse"] == null
+            ? null
+            : SaleToPoiResponse.fromJson(json["SaleToPOIResponse"]),
+      );
 
   Map<String, dynamic> toJson() => {
-    "SaleToPOIResponse": saleToPoiResponse?.toJson(),
-  };
+        "SaleToPOIResponse": saleToPoiResponse?.toJson(),
+      };
 }
 
 class SaleToPoiResponse {
@@ -45,19 +49,25 @@ class SaleToPoiResponse {
         paymentResponse: paymentResponse ?? this.paymentResponse,
       );
 
-  factory SaleToPoiResponse.fromRawJson(String str) => SaleToPoiResponse.fromJson(json.decode(str));
+  factory SaleToPoiResponse.fromRawJson(String str) =>
+      SaleToPoiResponse.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory SaleToPoiResponse.fromJson(Map<String, dynamic> json) => SaleToPoiResponse(
-    messageHeader: json["messageHeader"] == null ? null : MessageHeader.fromJson(json["messageHeader"]),
-    paymentResponse: json["paymentResponse"] == null ? null : PaymentResponse.fromJson(json["paymentResponse"]),
-  );
+  factory SaleToPoiResponse.fromJson(Map<String, dynamic> json) =>
+      SaleToPoiResponse(
+        messageHeader: json["messageHeader"] == null
+            ? null
+            : MessageHeader.fromJson(json["messageHeader"]),
+        paymentResponse: json["paymentResponse"] == null
+            ? null
+            : PaymentResponse.fromJson(json["paymentResponse"]),
+      );
 
   Map<String, dynamic> toJson() => {
-    "messageHeader": messageHeader?.toJson(),
-    "paymentResponse": paymentResponse?.toJson(),
-  };
+        "messageHeader": messageHeader?.toJson(),
+        "paymentResponse": paymentResponse?.toJson(),
+      };
 }
 
 class MessageHeader {
@@ -98,29 +108,30 @@ class MessageHeader {
         serviceId: serviceId ?? this.serviceId,
       );
 
-  factory MessageHeader.fromRawJson(String str) => MessageHeader.fromJson(json.decode(str));
+  factory MessageHeader.fromRawJson(String str) =>
+      MessageHeader.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
   factory MessageHeader.fromJson(Map<String, dynamic> json) => MessageHeader(
-    messageCategory: json["messageCategory"],
-    messageClass: json["messageClass"],
-    messageType: json["messageType"],
-    poiid: json["poiid"],
-    protocolVersion: json["protocolVersion"],
-    saleId: json["saleID"],
-    serviceId: json["serviceID"],
-  );
+        messageCategory: json["messageCategory"],
+        messageClass: json["messageClass"],
+        messageType: json["messageType"],
+        poiid: json["poiid"],
+        protocolVersion: json["protocolVersion"],
+        saleId: json["saleID"],
+        serviceId: json["serviceID"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "messageCategory": messageCategory,
-    "messageClass": messageClass,
-    "messageType": messageType,
-    "poiid": poiid,
-    "protocolVersion": protocolVersion,
-    "saleID": saleId,
-    "serviceID": serviceId,
-  };
+        "messageCategory": messageCategory,
+        "messageClass": messageClass,
+        "messageType": messageType,
+        "poiid": poiid,
+        "protocolVersion": protocolVersion,
+        "saleID": saleId,
+        "serviceID": serviceId,
+      };
 }
 
 class PaymentResponse {
@@ -149,23 +160,32 @@ class PaymentResponse {
         saleData: saleData ?? this.saleData,
       );
 
-  factory PaymentResponse.fromRawJson(String str) => PaymentResponse.fromJson(json.decode(str));
+  factory PaymentResponse.fromRawJson(String str) =>
+      PaymentResponse.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory PaymentResponse.fromJson(Map<String, dynamic> json) => PaymentResponse(
-    paymentResult: json["paymentResult"] == null ? null : PaymentResult.fromJson(json["paymentResult"]),
-    poiData: json["poiData"] == null ? null : PoiData.fromJson(json["poiData"]),
-    response: json["response"] == null ? null : Response.fromJson(json["response"]),
-    saleData: json["saleData"] == null ? null : SaleData.fromJson(json["saleData"]),
-  );
+  factory PaymentResponse.fromJson(Map<String, dynamic> json) =>
+      PaymentResponse(
+        paymentResult: json["paymentResult"] == null
+            ? null
+            : PaymentResult.fromJson(json["paymentResult"]),
+        poiData:
+            json["poiData"] == null ? null : PoiData.fromJson(json["poiData"]),
+        response: json["response"] == null
+            ? null
+            : Response.fromJson(json["response"]),
+        saleData: json["saleData"] == null
+            ? null
+            : SaleData.fromJson(json["saleData"]),
+      );
 
   Map<String, dynamic> toJson() => {
-    "paymentResult": paymentResult?.toJson(),
-    "poiData": poiData?.toJson(),
-    "response": response?.toJson(),
-    "saleData": saleData?.toJson(),
-  };
+        "paymentResult": paymentResult?.toJson(),
+        "poiData": poiData?.toJson(),
+        "response": response?.toJson(),
+        "saleData": saleData?.toJson(),
+      };
 }
 
 class PaymentResult {
@@ -191,26 +211,34 @@ class PaymentResult {
         amountsResp: amountsResp ?? this.amountsResp,
         onlineFlag: onlineFlag ?? this.onlineFlag,
         paymentAcquirerData: paymentAcquirerData ?? this.paymentAcquirerData,
-        paymentInstrumentData: paymentInstrumentData ?? this.paymentInstrumentData,
+        paymentInstrumentData:
+            paymentInstrumentData ?? this.paymentInstrumentData,
       );
 
-  factory PaymentResult.fromRawJson(String str) => PaymentResult.fromJson(json.decode(str));
+  factory PaymentResult.fromRawJson(String str) =>
+      PaymentResult.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
   factory PaymentResult.fromJson(Map<String, dynamic> json) => PaymentResult(
-    amountsResp: json["amountsResp"] == null ? null : AmountsResp.fromJson(json["amountsResp"]),
-    onlineFlag: json["onlineFlag"],
-    paymentAcquirerData: json["paymentAcquirerData"] == null ? null : PaymentAcquirerData.fromJson(json["paymentAcquirerData"]),
-    paymentInstrumentData: json["paymentInstrumentData"] == null ? null : PaymentInstrumentData.fromJson(json["paymentInstrumentData"]),
-  );
+        amountsResp: json["amountsResp"] == null
+            ? null
+            : AmountsResp.fromJson(json["amountsResp"]),
+        onlineFlag: json["onlineFlag"],
+        paymentAcquirerData: json["paymentAcquirerData"] == null
+            ? null
+            : PaymentAcquirerData.fromJson(json["paymentAcquirerData"]),
+        paymentInstrumentData: json["paymentInstrumentData"] == null
+            ? null
+            : PaymentInstrumentData.fromJson(json["paymentInstrumentData"]),
+      );
 
   Map<String, dynamic> toJson() => {
-    "amountsResp": amountsResp?.toJson(),
-    "onlineFlag": onlineFlag,
-    "paymentAcquirerData": paymentAcquirerData?.toJson(),
-    "paymentInstrumentData": paymentInstrumentData?.toJson(),
-  };
+        "amountsResp": amountsResp?.toJson(),
+        "onlineFlag": onlineFlag,
+        "paymentAcquirerData": paymentAcquirerData?.toJson(),
+        "paymentInstrumentData": paymentInstrumentData?.toJson(),
+      };
 }
 
 class AmountsResp {
@@ -231,19 +259,20 @@ class AmountsResp {
         currency: currency ?? this.currency,
       );
 
-  factory AmountsResp.fromRawJson(String str) => AmountsResp.fromJson(json.decode(str));
+  factory AmountsResp.fromRawJson(String str) =>
+      AmountsResp.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
   factory AmountsResp.fromJson(Map<String, dynamic> json) => AmountsResp(
-    authorizedAmount: json["authorizedAmount"]?.toDouble(),
-    currency: json["currency"],
-  );
+        authorizedAmount: json["authorizedAmount"]?.toDouble(),
+        currency: json["currency"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "authorizedAmount": authorizedAmount,
-    "currency": currency,
-  };
+        "authorizedAmount": authorizedAmount,
+        "currency": currency,
+      };
 }
 
 class PaymentAcquirerData {
@@ -267,28 +296,33 @@ class PaymentAcquirerData {
   }) =>
       PaymentAcquirerData(
         acquirerPoiid: acquirerPoiid ?? this.acquirerPoiid,
-        acquirerTransactionId: acquirerTransactionId ?? this.acquirerTransactionId,
+        acquirerTransactionId:
+            acquirerTransactionId ?? this.acquirerTransactionId,
         approvalCode: approvalCode ?? this.approvalCode,
         merchantId: merchantId ?? this.merchantId,
       );
 
-  factory PaymentAcquirerData.fromRawJson(String str) => PaymentAcquirerData.fromJson(json.decode(str));
+  factory PaymentAcquirerData.fromRawJson(String str) =>
+      PaymentAcquirerData.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory PaymentAcquirerData.fromJson(Map<String, dynamic> json) => PaymentAcquirerData(
-    acquirerPoiid: json["acquirerPOIID"],
-    acquirerTransactionId: json["acquirerTransactionID"] == null ? null : TransactionId.fromJson(json["acquirerTransactionID"]),
-    approvalCode: json["approvalCode"],
-    merchantId: json["merchantID"],
-  );
+  factory PaymentAcquirerData.fromJson(Map<String, dynamic> json) =>
+      PaymentAcquirerData(
+        acquirerPoiid: json["acquirerPOIID"],
+        acquirerTransactionId: json["acquirerTransactionID"] == null
+            ? null
+            : TransactionId.fromJson(json["acquirerTransactionID"]),
+        approvalCode: json["approvalCode"],
+        merchantId: json["merchantID"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "acquirerPOIID": acquirerPoiid,
-    "acquirerTransactionID": acquirerTransactionId?.toJson(),
-    "approvalCode": approvalCode,
-    "merchantID": merchantId,
-  };
+        "acquirerPOIID": acquirerPoiid,
+        "acquirerTransactionID": acquirerTransactionId?.toJson(),
+        "approvalCode": approvalCode,
+        "merchantID": merchantId,
+      };
 }
 
 class TransactionId {
@@ -309,19 +343,22 @@ class TransactionId {
         transactionId: transactionId ?? this.transactionId,
       );
 
-  factory TransactionId.fromRawJson(String str) => TransactionId.fromJson(json.decode(str));
+  factory TransactionId.fromRawJson(String str) =>
+      TransactionId.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
   factory TransactionId.fromJson(Map<String, dynamic> json) => TransactionId(
-    timeStamp: Map.from(json["timeStamp"]!).map((k, v) => MapEntry<String, double>(k, v?.toDouble())),
-    transactionId: json["transactionID"],
-  );
+        timeStamp: Map.from(json["timeStamp"]!)
+            .map((k, v) => MapEntry<String, double>(k, v?.toDouble())),
+        transactionId: json["transactionID"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "timeStamp": Map.from(timeStamp!).map((k, v) => MapEntry<String, dynamic>(k, v)),
-    "transactionID": transactionId,
-  };
+        "timeStamp":
+            Map.from(timeStamp!).map((k, v) => MapEntry<String, dynamic>(k, v)),
+        "transactionID": transactionId,
+      };
 }
 
 class PaymentInstrumentData {
@@ -339,22 +376,27 @@ class PaymentInstrumentData {
   }) =>
       PaymentInstrumentData(
         cardData: cardData ?? this.cardData,
-        paymentInstrumentType: paymentInstrumentType ?? this.paymentInstrumentType,
+        paymentInstrumentType:
+            paymentInstrumentType ?? this.paymentInstrumentType,
       );
 
-  factory PaymentInstrumentData.fromRawJson(String str) => PaymentInstrumentData.fromJson(json.decode(str));
+  factory PaymentInstrumentData.fromRawJson(String str) =>
+      PaymentInstrumentData.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory PaymentInstrumentData.fromJson(Map<String, dynamic> json) => PaymentInstrumentData(
-    cardData: json["cardData"] == null ? null : CardData.fromJson(json["cardData"]),
-    paymentInstrumentType: json["paymentInstrumentType"],
-  );
+  factory PaymentInstrumentData.fromJson(Map<String, dynamic> json) =>
+      PaymentInstrumentData(
+        cardData: json["cardData"] == null
+            ? null
+            : CardData.fromJson(json["cardData"]),
+        paymentInstrumentType: json["paymentInstrumentType"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "cardData": cardData?.toJson(),
-    "paymentInstrumentType": paymentInstrumentType,
-  };
+        "cardData": cardData?.toJson(),
+        "paymentInstrumentType": paymentInstrumentType,
+      };
 }
 
 class CardData {
@@ -387,25 +429,32 @@ class CardData {
         sensitiveCardData: sensitiveCardData ?? this.sensitiveCardData,
       );
 
-  factory CardData.fromRawJson(String str) => CardData.fromJson(json.decode(str));
+  factory CardData.fromRawJson(String str) =>
+      CardData.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
   factory CardData.fromJson(Map<String, dynamic> json) => CardData(
-    cardCountryCode: json["cardCountryCode"],
-    entryMode: json["entryMode"] == null ? [] : List<String>.from(json["entryMode"]!.map((x) => x)),
-    maskedPan: json["maskedPAN"],
-    paymentBrand: json["paymentBrand"],
-    sensitiveCardData: json["sensitiveCardData"] == null ? null : SensitiveCardData.fromJson(json["sensitiveCardData"]),
-  );
+        cardCountryCode: json["cardCountryCode"],
+        entryMode: json["entryMode"] == null
+            ? []
+            : List<String>.from(json["entryMode"]!.map((x) => x)),
+        maskedPan: json["maskedPAN"],
+        paymentBrand: json["paymentBrand"],
+        sensitiveCardData: json["sensitiveCardData"] == null
+            ? null
+            : SensitiveCardData.fromJson(json["sensitiveCardData"]),
+      );
 
   Map<String, dynamic> toJson() => {
-    "cardCountryCode": cardCountryCode,
-    "entryMode": entryMode == null ? [] : List<dynamic>.from(entryMode!.map((x) => x)),
-    "maskedPAN": maskedPan,
-    "paymentBrand": paymentBrand,
-    "sensitiveCardData": sensitiveCardData?.toJson(),
-  };
+        "cardCountryCode": cardCountryCode,
+        "entryMode": entryMode == null
+            ? []
+            : List<dynamic>.from(entryMode!.map((x) => x)),
+        "maskedPAN": maskedPan,
+        "paymentBrand": paymentBrand,
+        "sensitiveCardData": sensitiveCardData?.toJson(),
+      };
 }
 
 class SensitiveCardData {
@@ -426,19 +475,21 @@ class SensitiveCardData {
         expiryDate: expiryDate ?? this.expiryDate,
       );
 
-  factory SensitiveCardData.fromRawJson(String str) => SensitiveCardData.fromJson(json.decode(str));
+  factory SensitiveCardData.fromRawJson(String str) =>
+      SensitiveCardData.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory SensitiveCardData.fromJson(Map<String, dynamic> json) => SensitiveCardData(
-    cardSeqNumb: json["cardSeqNumb"],
-    expiryDate: json["expiryDate"],
-  );
+  factory SensitiveCardData.fromJson(Map<String, dynamic> json) =>
+      SensitiveCardData(
+        cardSeqNumb: json["cardSeqNumb"],
+        expiryDate: json["expiryDate"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "cardSeqNumb": cardSeqNumb,
-    "expiryDate": expiryDate,
-  };
+        "cardSeqNumb": cardSeqNumb,
+        "expiryDate": expiryDate,
+      };
 }
 
 class PoiData {
@@ -464,14 +515,16 @@ class PoiData {
   String toRawJson() => json.encode(toJson());
 
   factory PoiData.fromJson(Map<String, dynamic> json) => PoiData(
-    poiReconciliationId: json["poiReconciliationID"],
-    poiTransactionId: json["poiTransactionID"] == null ? null : TransactionId.fromJson(json["poiTransactionID"]),
-  );
+        poiReconciliationId: json["poiReconciliationID"],
+        poiTransactionId: json["poiTransactionID"] == null
+            ? null
+            : TransactionId.fromJson(json["poiTransactionID"]),
+      );
 
   Map<String, dynamic> toJson() => {
-    "poiReconciliationID": poiReconciliationId,
-    "poiTransactionID": poiTransactionId?.toJson(),
-  };
+        "poiReconciliationID": poiReconciliationId,
+        "poiTransactionID": poiTransactionId?.toJson(),
+      };
 }
 
 class Response {
@@ -496,33 +549,37 @@ class Response {
         result: result ?? this.result,
       );
 
-  factory Response.fromRawJson(String str) => Response.fromJson(json.decode(str));
+  factory Response.fromRawJson(String str) =>
+      Response.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory Response.fromJson(Map<String, dynamic> json){
-
+  factory Response.fromJson(Map<String, dynamic> json) {
     String? additionalResponse = json["additionalResponse"];
     String? additionalResponseDecoded;
-    if(additionalResponse != null){
+    if (additionalResponse != null) {
       try {
-        additionalResponseDecoded = utf8.decode(base64Decode(additionalResponse));
-      } catch (ignored) {}
+        additionalResponseDecoded =
+            utf8.decode(base64Decode(additionalResponse));
+      } catch (ignored) {
+        additionalResponseDecoded = null;
+      }
     }
 
     return Response(
-      additionalResponse: additionalResponseDecoded == null ? null : AdditionalResponse.fromRawJson(additionalResponseDecoded),
+      additionalResponse: additionalResponseDecoded == null
+          ? null
+          : AdditionalResponse.fromRawJson(additionalResponseDecoded),
       errorCondition: json["errorCondition"],
       result: json["result"],
     );
-
   }
 
   Map<String, dynamic> toJson() => {
-    "additionalResponse": additionalResponse?.toJson(),
-    "errorCondition": errorCondition,
-    "result": result,
-  };
+        "additionalResponse": additionalResponse?.toJson(),
+        "errorCondition": errorCondition,
+        "result": result,
+      };
 }
 
 class AdditionalResponse {
@@ -551,23 +608,40 @@ class AdditionalResponse {
         store: store ?? this.store,
       );
 
-  factory AdditionalResponse.fromRawJson(String str) => AdditionalResponse.fromJson(json.decode(str));
+  factory AdditionalResponse.fromRawJson(String str) =>
+      AdditionalResponse.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory AdditionalResponse.fromJson(Map<String, dynamic> json) => AdditionalResponse(
-    additionalData: Map.from(json["additionalData"]!).map((k, v) => MapEntry<String, String>(k, v)),
-    message: json["message"],
-    refusalReason: json["refusalReason"],
-    store: json["store"],
-  );
+  factory AdditionalResponse.fromJson(Map<String, dynamic> json) =>
+      AdditionalResponse(
+        additionalData: json.containsKey("additionalData")
+            ? Map.from(json["additionalData"]!)
+                .map((k, v) => MapEntry<String, String>(k, v))
+            : null,
+        message: json["message"],
+        refusalReason:
+            json.containsKey("refusalReason") ? json["refusalReason"] : null,
+        store: json["store"],
+      );
 
-  Map<String, dynamic> toJson() => {
-    "additionalData": Map.from(additionalData!).map((k, v) => MapEntry<String, dynamic>(k, v)),
-    "message": message,
-    "refusalReason": refusalReason,
-    "store": store,
-  };
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> jsonMap = {
+      "message": message,
+      "store": store,
+    };
+
+    if (additionalData != null && additionalData!.isNotEmpty) {
+      jsonMap["additionalData"] = Map.from(additionalData!)
+          .map((k, v) => MapEntry<String, dynamic>(k, v));
+    }
+
+    if (refusalReason != null) {
+      jsonMap["refusalReason"] = refusalReason;
+    }
+
+    return jsonMap;
+  }
 }
 
 class SaleData {
@@ -588,17 +662,20 @@ class SaleData {
         saleTransactionId: saleTransactionId ?? this.saleTransactionId,
       );
 
-  factory SaleData.fromRawJson(String str) => SaleData.fromJson(json.decode(str));
+  factory SaleData.fromRawJson(String str) =>
+      SaleData.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
   factory SaleData.fromJson(Map<String, dynamic> json) => SaleData(
-    saleToAcquirerData: json["saleToAcquirerData"],
-    saleTransactionId: json["saleTransactionID"] == null ? null : TransactionId.fromJson(json["saleTransactionID"]),
-  );
+        saleToAcquirerData: json["saleToAcquirerData"],
+        saleTransactionId: json["saleTransactionID"] == null
+            ? null
+            : TransactionId.fromJson(json["saleTransactionID"]),
+      );
 
   Map<String, dynamic> toJson() => {
-    "saleToAcquirerData": saleToAcquirerData,
-    "saleTransactionID": saleTransactionId?.toJson(),
-  };
+        "saleToAcquirerData": saleToAcquirerData,
+        "saleTransactionID": saleTransactionId?.toJson(),
+      };
 }
