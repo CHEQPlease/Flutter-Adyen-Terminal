@@ -225,6 +225,10 @@ object AdyenTerminalManager {
         val terminalLocalAPI = getTerminalLocalAPI()
 
         try {
+
+            Logger.d("ADYEN TERMINAL TRANSACTION REQUEST")
+            Logger.json(Gson().toJson(terminalApiRequest))
+
             val response = terminalLocalAPI.request(terminalApiRequest)
             if (response != null) {
                 val resultJson = Gson().toJson(response)
