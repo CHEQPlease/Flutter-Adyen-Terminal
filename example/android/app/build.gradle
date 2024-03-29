@@ -49,8 +49,8 @@ android {
         applicationId "com.cheqplease.adyen_terminal_example"
         minSdkVersion 21
         targetSdkVersion flutter.targetSdkVersion
-        versionCode 5
-        versionName "1.4"
+        versionCode 8
+        versionName "1.8"
         multiDexEnabled true
     }
 
