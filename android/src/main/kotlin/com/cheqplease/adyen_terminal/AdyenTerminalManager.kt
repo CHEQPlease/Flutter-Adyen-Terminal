@@ -16,6 +16,7 @@ import com.adyen.model.nexo.DeviceType
 import com.adyen.model.nexo.DiagnosisRequest
 import com.adyen.model.nexo.DisplayOutput
 import com.adyen.model.nexo.DocumentQualifierType
+import com.adyen.model.nexo.ForceEntryModeType
 import com.adyen.model.nexo.InfoQualifyType
 import com.adyen.model.nexo.InputCommandType
 import com.adyen.model.nexo.InputData
@@ -38,6 +39,7 @@ import com.adyen.model.nexo.ResultType
 import com.adyen.model.nexo.SaleData
 import com.adyen.model.nexo.SaleToPOIRequest
 import com.adyen.model.nexo.TokenRequestedType
+import com.adyen.model.nexo.TransactionConditions
 import com.adyen.model.nexo.TransactionIdentification
 import com.adyen.model.posterminalmanagement.GetTerminalDetailsRequest
 import com.adyen.model.posterminalmanagement.GetTerminalDetailsResponse
@@ -113,8 +115,9 @@ object AdyenTerminalManager {
         currency: String,
         requestAmount: BigDecimal,
         additionalData: HashMap<String, Any>,
+        forcedEntryModes: List<String> = emptyList(),
         paymentSuccessHandler: TransactionSuccessHandler<String?>,
-        paymentFailureHandler: TransactionFailureHandler<Int, String>
+        paymentFailureHandler: TransactionFailureHandler<Int, String>,
     ) {
         val terminalApiRequest = TerminalAPIRequest().apply {
             saleToPOIRequest = buildSalePOIRequest(
@@ -125,7 +128,8 @@ object AdyenTerminalManager {
                 currency = currency,
                 requestAmount = requestAmount,
                 captureType = captureType,
-                additionalData = additionalData
+                additionalData = additionalData,
+                forcedEntryModes = forcedEntryModes
             )
         }
 
@@ -135,11 +139,12 @@ object AdyenTerminalManager {
 
         try {
             val response = getTerminalLocalAPI().request(terminalApiRequest)
-            if(response != null){
+            if (response != null) {
                 val resultJson = Gson().toJson(response)
                 val txnResult = response.saleToPOIResponse.paymentResponse.response.result
 
-                val isTxnSuccessful = txnResult == ResultType.SUCCESS || txnResult == ResultType.PARTIAL
+                val isTxnSuccessful =
+                    txnResult == ResultType.SUCCESS || txnResult == ResultType.PARTIAL
                 if (isTxnSuccessful) {
                     Logger.d("ADYEN TERMINAL TRANSACTION RESPONSE")
                     Logger.json(resultJson)
@@ -149,7 +154,7 @@ object AdyenTerminalManager {
                     Logger.json(resultJson)
                     paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE, resultJson)
                 }
-            }else{
+            } else {
                 Logger.e("ADYEN TERMINAL TRANSACTION RESPONSE")
                 paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE, null)
             }
@@ -172,14 +177,23 @@ object AdyenTerminalManager {
                     e.message ?: "Device Unreachable. Please check your internet connection"
                 )
 
-                else -> paymentFailureHandler.onFailure(ErrorCode.TRANSACTION_FAILURE_OTHERS, e.message!!)
+                else -> paymentFailureHandler.onFailure(
+                    ErrorCode.TRANSACTION_FAILURE_OTHERS,
+                    e.message!!
+                )
             }
         }
     }
 
     fun tokenizeCard(
         transactionId: String,
-        requestedAmount: Double, currency: String, shopperEmail: String, shopperReference: String, successHandler: TransactionSuccessHandler<String>, failureHandler: TransactionFailureHandler<Int, String>) {
+        requestedAmount: Double,
+        currency: String,
+        shopperEmail: String,
+        shopperReference: String,
+        successHandler: TransactionSuccessHandler<String>,
+        failureHandler: TransactionFailureHandler<Int, String>
+    ) {
 
 
         val terminalApiRequest = TerminalAPIRequest().apply {
@@ -276,7 +290,7 @@ object AdyenTerminalManager {
     }
 
 
-    fun  getSignature(transactionId: String, signatureHandler: SignatureHandler?){
+    fun getSignature(transactionId: String, signatureHandler: SignatureHandler?) {
 
         val terminalApiRequest = TerminalAPIRequest().apply {
             saleToPOIRequest = SaleToPOIRequest().apply {
@@ -299,17 +313,17 @@ object AdyenTerminalManager {
             val response = terminalLocalAPI.request(terminalApiRequest)
             val signatureData = response.saleToPOIResponse.inputResponse.inputResult.response
 
-            if(signatureData.result == ResultType.SUCCESS && signatureData.additionalResponse != null){
+            if (signatureData.result == ResultType.SUCCESS && signatureData.additionalResponse != null) {
                 val encodedText = signatureData.additionalResponse
                 val decodedText = Utils.decodeUrlEncodedString(encodedText)
                 val responseData = Utils.getResponseDataValue(decodedText)
 
                 signatureHandler?.onSignatureReceived(signature = responseData)
-            }else{
+            } else {
                 signatureHandler?.onSignatureRejected()
             }
         } catch (e: Exception) {
-            if(BuildConfig.DEBUG){
+            if (BuildConfig.DEBUG) {
                 e.printStackTrace()
             }
             signatureHandler?.onSignatureRejected()
@@ -407,7 +421,8 @@ object AdyenTerminalManager {
 
             val response = terminalLocalAPI.request(terminalApiRequest)
 
-            val isPrinted = response?.saleToPOIResponse?.printResponse?.response?.result == ResultType.SUCCESS
+            val isPrinted =
+                response?.saleToPOIResponse?.printResponse?.response?.result == ResultType.SUCCESS
 
             if (isPrinted) {
                 Logger.d("ADYEN TERMINAL PRINT RESPONSE", "Printing Successful")
@@ -572,7 +587,8 @@ object AdyenTerminalManager {
         currency: String,
         requestAmount: BigDecimal,
         captureType: String,
-        additionalData: HashMap<String, Any>
+        additionalData: HashMap<String, Any>,
+        forcedEntryModes: List<String> = emptyList()
     ): SaleToPOIRequest {
 
         return SaleToPOIRequest().apply {
@@ -587,7 +603,8 @@ object AdyenTerminalManager {
                 requestAmount = requestAmount,
                 transactionId = transactionId,
                 captureType = captureType,
-                additionalData = additionalData
+                additionalData = additionalData,
+                forcedEntryModes = forcedEntryModes
             )
 
             inputRequest = buildInputRequest()
@@ -629,30 +646,51 @@ object AdyenTerminalManager {
         requestAmount: BigDecimal,
         transactionId: String,
         captureType: String,
-        additionalData: HashMap<String, Any>?
+        additionalData: HashMap<String, Any>?,
+        forcedEntryModes: List<String> = emptyList()
     ): PaymentRequest {
         return PaymentRequest().apply {
-            saleData = buildSaleData(transactionId = transactionId, captureType = captureType, additionalMetaData = additionalData)
+            saleData = buildSaleData(
+                transactionId = transactionId,
+                captureType = captureType,
+                additionalMetaData = additionalData
+            )
             paymentTransaction = buildPaymentTransaction(
                 currency = currency,
-                requestAmount = requestAmount
+                requestAmount = requestAmount,
+                forcedEntryModes = forcedEntryModes
             )
+
         }
     }
 
     private fun buildPaymentTransaction(
         currency: String,
-        requestAmount: BigDecimal
+        requestAmount: BigDecimal,
+        forcedEntryModes: List<String> = emptyList()
     ): PaymentTransaction {
+
+        val forcedEntryModesEnumList = forcedEntryModes.map {
+            ForceEntryModeType.fromValue(it)
+        }
+
         return PaymentTransaction().apply {
             amountsReq = AmountsReq().apply {
                 this.currency = currency
                 this.requestedAmount = requestAmount
             }
+
+            transactionConditions = TransactionConditions().apply {
+                forceEntryMode.addAll(forcedEntryModesEnumList)
+            }
         }
     }
 
-    private fun buildSaleData(transactionId: String, captureType: String, additionalMetaData: HashMap<String, Any>?): SaleData {
+    private fun buildSaleData(
+        transactionId: String,
+        captureType: String,
+        additionalMetaData: HashMap<String, Any>?
+    ): SaleData {
 
         val authType = if ("immediate".equals(
                 captureType,
@@ -671,7 +709,8 @@ object AdyenTerminalManager {
             saleToAcquirerData = SaleToAcquirerData().apply {
                 additionalData = authType
                 tenderOption = "ReceiptHandler"
-                shopperStatement = if((additionalMetaData != null) && additionalMetaData.containsKey("shopperStatement")) additionalMetaData["shopperStatement"] as String else ""
+                shopperStatement =
+                    if ((additionalMetaData != null) && additionalMetaData.containsKey("shopperStatement")) additionalMetaData["shopperStatement"] as String else ""
             }
         }
 
@@ -706,9 +745,13 @@ object AdyenTerminalManager {
 
         val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
         keyStore.load(null, null)
-        keyStore.setCertificateEntry("adyenRootCertificate", certificateFactory.generateCertificate(inputStream))
+        keyStore.setCertificateEntry(
+            "adyenRootCertificate",
+            certificateFactory.generateCertificate(inputStream)
+        )
 
-        val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+        val trustManagerFactory =
+            TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
         trustManagerFactory.init(keyStore)
 
 

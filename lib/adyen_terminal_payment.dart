@@ -40,6 +40,7 @@ class FlutterAdyen {
     required String currency,
     HashMap<String, dynamic>? additionalData,
     CaptureType captureType = CaptureType.delayed,
+    List<ForceEntryModeType> forcedEntryModes = const [],
   }) async {
     try {
       final value = await _channel.invokeMethod(_methodAuthorizeTransaction, {
@@ -47,7 +48,8 @@ class FlutterAdyen {
         "transactionId": transactionId,
         "currency": currency,
         "captureType": captureType.name,
-        "additionalData": additionalData
+        "additionalData": additionalData,
+        "forcedEntryModes": forcedEntryModes.map((e) => e.value).toList(),
       });
       return AdyenTerminalResponse.fromJson(jsonDecode(value));
     } on PlatformException catch (ex) {

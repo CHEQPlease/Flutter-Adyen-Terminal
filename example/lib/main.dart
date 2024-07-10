@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_adyen_terminal/adyen_terminal_payment.dart';
 import 'package:flutter_adyen_terminal/data/adyen_terminal_config.dart';
 import 'package:flutter_adyen_terminal/data/adyen_terminal_response.dart';
+import 'package:flutter_adyen_terminal/data/enums.dart';
 
 void main() {
   runApp(const MaterialApp(
@@ -238,7 +239,7 @@ class _MyAppState extends State<MyApp> {
 
 
                           try {
-                            AdyenTerminalResponse response = await FlutterAdyen.tokenizeCard(transactionId: _get10DigitNumber(), currency: "USD", amount: 10.0, shopperReference: "XYZ");
+                            AdyenTerminalResponse response = await FlutterAdyen.authorizeTransaction(transactionId: _get10DigitNumber(), currency: "USD", amount: 10.0, forcedEntryModes: [ForceEntryModeType.keyed]);
                             print(response);
                           } catch (e) {
                             print(e);

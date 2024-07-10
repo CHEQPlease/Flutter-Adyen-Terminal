@@ -103,6 +103,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
         val transactionId: String = getArgumentOrThrow(call, "transactionId")
         val currency: String = getArgumentOrThrow(call, "currency")
         val additionalData: HashMap<String,Any> = getArgumentOrThrow(call, "additionalData", defaultValue = HashMap())
+        val forcedEntryModes: List<String> = getArgumentOrThrow(call, "forcedEntryModes", defaultValue = emptyList())
 
         GlobalScope.launch(Dispatchers.IO) {
             try {
@@ -119,6 +120,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                         }
                     },
                     additionalData = additionalData,
+                    forcedEntryModes = forcedEntryModes,
                     paymentFailureHandler = object : TransactionFailureHandler<Int, String> {
                         override fun onFailure(errorCode: ErrorCode, response: String?) {
                             result.error(errorCode.name, "Transaction Failed", response)
