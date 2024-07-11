@@ -144,6 +144,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
         val currency: String = getArgumentOrThrow(call, "currency")
         val shopperEmail: String = getArgumentOrThrow(call, "shopperEmail")
         val shopperReference: String = getArgumentOrThrow(call, "shopperReference")
+        val forcedEntryModes: List<String> = getArgumentOrThrow(call, "forcedEntryModes", defaultValue = emptyList())
 
 
         GlobalScope.launch(Dispatchers.IO) {
@@ -154,6 +155,7 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
                     currency = currency,
                     shopperEmail = shopperEmail,
                     shopperReference = shopperReference,
+                    forcedEntryModes = forcedEntryModes,
                     successHandler = object :
                         TransactionSuccessHandler<String> {
                         override fun onSuccess(response: String?) {

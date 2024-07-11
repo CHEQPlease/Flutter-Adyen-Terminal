@@ -191,6 +191,7 @@ object AdyenTerminalManager {
         currency: String,
         shopperEmail: String,
         shopperReference: String,
+        forcedEntryModes: List<String> = emptyList(),
         successHandler: TransactionSuccessHandler<String>,
         failureHandler: TransactionFailureHandler<Int, String>
     ) {
@@ -226,10 +227,18 @@ object AdyenTerminalManager {
                         tokenRequestedType = TokenRequestedType.CUSTOMER
                     }
 
+                    val forcedEntryModesEnumList = forcedEntryModes.map {
+                        ForceEntryModeType.fromValue(it)
+                    }
+
                     paymentTransaction = PaymentTransaction().apply {
                         amountsReq = AmountsReq().apply {
                             this.currency = currency
                             this.requestedAmount = BigDecimal(requestedAmount)
+                        }
+
+                        transactionConditions = TransactionConditions().apply {
+                            forceEntryMode.addAll(forcedEntryModesEnumList)
                         }
                     }
                 }

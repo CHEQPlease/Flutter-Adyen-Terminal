@@ -92,7 +92,8 @@ class FlutterAdyen {
   }
 
   static Future<void> printReceipt(String txnId, String receiptDTOJSON,
-      {Success<String>? onSuccess, Failure<String?, String?>? onFailure}) async {
+      {Success<String>? onSuccess,
+      Failure<String?, String?>? onFailure}) async {
     _channel.invokeMethod(_methodPrintReceipt, {
       "receiptDTOJSON": receiptDTOJSON,
       "transactionId": txnId
@@ -101,7 +102,7 @@ class FlutterAdyen {
         onSuccess("Print Successful");
       }
     }).catchError((value) {
-      if (onFailure != null ) {
+      if (onFailure != null) {
         onFailure("Unable to print", null);
       }
     });
@@ -130,9 +131,10 @@ class FlutterAdyen {
     });
   }
 
-  static Future<Map<String,dynamic>> getSignature(String transactionId) async {
+  static Future<Map<String, dynamic>> getSignature(String transactionId) async {
     try {
-      final String result = await _channel.invokeMethod(_methodGetSignature, {"transactionId": transactionId});
+      final String result = await _channel
+          .invokeMethod(_methodGetSignature, {"transactionId": transactionId});
       Map<String, dynamic> data = convertStringToHashMap(result);
       return data;
     } catch (e) {
@@ -143,18 +145,25 @@ class FlutterAdyen {
     }
   }
 
-  static Future<AdyenTerminalResponse> tokenizeCard({required String transactionId,required String currency, required double amount,required String shopperReference,String shopperEmail=""}) async {
+  static Future<AdyenTerminalResponse> tokenizeCard(
+      {required String transactionId,
+      required String currency,
+      required double amount,
+      required String shopperReference,
+      String shopperEmail = "",
+      List<ForceEntryModeType> forcedEntryModes = const []}) async {
     try {
-      String result = await _channel.invokeMethod(_methodTokenizeCard,
-          {
-            "transactionId": transactionId,
-            "amount": amount,
-            "currency": currency,
-            "shopperReference": shopperReference,
-            "shopperEmail": shopperEmail
-          });
+      String result = await _channel.invokeMethod(_methodTokenizeCard, {
+        "transactionId": transactionId,
+        "amount": amount,
+        "currency": currency,
+        "shopperReference": shopperReference,
+        "shopperEmail": shopperEmail,
+        "forcedEntryModes": forcedEntryModes.map((e) => e.value).toList(),
+      });
 
-      var adyenTerminalResponse = AdyenTerminalResponse.fromJson(jsonDecode(result));
+      var adyenTerminalResponse =
+          AdyenTerminalResponse.fromJson(jsonDecode(result));
 
       return adyenTerminalResponse;
     } on PlatformException catch (ex) {
