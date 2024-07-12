@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter_adyen_terminal/data/enums.dart';
+
 class AdyenTerminalConfig {
   AdyenTerminalConfig({
     required this.endpoint,
@@ -17,6 +19,7 @@ class AdyenTerminalConfig {
     this.connectionTimeoutMillis = 30000,
     this.readTimeoutMillis = 30000,
     this.showLogs = false,
+    this.communicationMode = CommunicationMode.local,
   });
 
   final String endpoint;
@@ -34,6 +37,7 @@ class AdyenTerminalConfig {
   num? connectionTimeoutMillis = 30000;
   num? readTimeoutMillis = 30000;
   bool showLogs = false;
+  CommunicationMode communicationMode = CommunicationMode.local;
 
   AdyenTerminalConfig copyWith({
     String? endpoint,
@@ -51,6 +55,7 @@ class AdyenTerminalConfig {
     num? connectionTimeoutMillis,
     num? readTimeoutMillis,
     bool? showLogs,
+    CommunicationMode? communicationMode,
   }) {
     return AdyenTerminalConfig(
       endpoint: endpoint ?? this.endpoint,
@@ -68,6 +73,7 @@ class AdyenTerminalConfig {
       connectionTimeoutMillis: connectionTimeoutMillis ?? this.connectionTimeoutMillis,
       readTimeoutMillis: readTimeoutMillis ?? this.readTimeoutMillis,
       showLogs: showLogs ?? this.showLogs,
+      communicationMode: communicationMode ?? this.communicationMode,
     );
   }
 
@@ -88,6 +94,8 @@ class AdyenTerminalConfig {
       connectionTimeoutMillis: json["connectionTimeoutMillis"] ?? 0,
       readTimeoutMillis: json["readTimeoutMillis"] ?? 0,
       showLogs: json["showLogs"] ?? false,
+      communicationMode: CommunicationMode.values.firstWhere((element) => element.name == json["communicationMode"], orElse: () => CommunicationMode.local),
+
     );
   }
 
@@ -107,6 +115,7 @@ class AdyenTerminalConfig {
     "connectionTimeoutMillis": connectionTimeoutMillis,
     "readTimeoutMillis": readTimeoutMillis,
     "showLogs": showLogs,
+    "communicationMode": communicationMode.name,
   };
 
   String toRawJson() => json.encode(toJson());

@@ -15,5 +15,6 @@ data class AdyenTerminalConfig(
     val certPath: String,
     val connectionTimeoutMillis: Int,
     val readTimeoutMillis: Int,
-    val showLogs: Boolean = false
+    val showLogs: Boolean = false,
+    val communicationMode: CommunicationMode = CommunicationMode.LOCAL
 )

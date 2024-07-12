@@ -4,6 +4,7 @@ package com.cheqplease.adyen_terminal
 import android.content.Context
 import androidx.annotation.NonNull
 import com.cheqplease.adyen_terminal.data.AdyenTerminalConfig
+import com.cheqplease.adyen_terminal.data.CommunicationMode
 import com.cheqplease.adyen_terminal.data.ErrorCode
 import com.cheqplease.adyen_terminal.data.SignatureHandler
 import com.cheqplease.adyen_terminal.data.TransactionFailureHandler
@@ -90,7 +91,8 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
             certPath = FlutterInjector.instance().flutterLoader().getLookupKeyForAsset(certPath),
             connectionTimeoutMillis = getArgumentOrThrow(call, "connectionTimeoutMillis"),
             readTimeoutMillis = getArgumentOrThrow(call, "readTimeoutMillis"),
-            showLogs = getArgumentOrThrow(call, "showLogs", false)
+            showLogs = getArgumentOrThrow(call, "showLogs", false),
+            communicationMode = CommunicationMode.fromValue(getArgumentOrThrow(call, "communicationMode", defaultValue = CommunicationMode.LOCAL.name))
         )
 
         AdyenTerminalManager.init(adyenTerminalConfig, applicationContext)
@@ -145,7 +147,6 @@ class AdyenTerminalPaymentPlugin : FlutterPlugin, MethodCallHandler {
         val shopperEmail: String = getArgumentOrThrow(call, "shopperEmail")
         val shopperReference: String = getArgumentOrThrow(call, "shopperReference")
         val forcedEntryModes: List<String> = getArgumentOrThrow(call, "forcedEntryModes", defaultValue = emptyList())
-
 
         GlobalScope.launch(Dispatchers.IO) {
             try {

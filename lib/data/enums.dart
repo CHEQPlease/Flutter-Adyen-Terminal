@@ -30,3 +30,9 @@ enum ForceEntryModeType {
     );
   }
 }
+
+enum CommunicationMode {
+  local,
+  cloud
+
+}

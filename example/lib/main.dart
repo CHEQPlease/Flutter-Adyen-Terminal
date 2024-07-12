@@ -89,19 +89,20 @@ class _MyAppState extends State<MyApp> {
                         onPressed: () async {
                           AdyenTerminalConfig terminalConfig =
                               AdyenTerminalConfig(
-                            endpoint: "https://192.168.68.103",
+                            endpoint: "https://192.168.68.104",
                             terminalModelNo: "e285p",
-                            terminalSerialNo: "805336269",
+                            terminalSerialNo: "805336184",
                             terminalId: "bugsoyieugrys",
                             environment: "test",
                             keyId: "dhaka-pos-cc-test-id",
                             keyPassphrase: "Dh@kaCheq1!",
                             merchantName: "CHEQPOS",
                             keyVersion: "1.0",
-                            certPath:
-                                "assets/cert/adyen-terminalfleet-test.cer",
+                            certPath: "assets/cert/adyen-terminalfleet-test.cer",
                             merchantId: '',
                             showLogs: true,
+                            communicationMode: CommunicationMode.local,
+                            backendApiKey: "AQEshmfxLIvMaBdHw0m/n3Q5qf3VZY5fDoZYUURG1qV/UKZUoDNbJ11sNSfmQuMQwV1bDb7kfNy1WIxIIkxgBw==-N4UNCKOXcPSSSpcXvH6lP3txJiPdlSPLISEaCw7aoF8=-=+,[d^2R][G,)cmN",
                           );
                           //
 
