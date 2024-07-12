@@ -65,7 +65,6 @@ import org.apache.hc.client5.http.ConnectTimeoutException
 import org.apache.hc.client5.http.HttpHostConnectException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
-import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -96,14 +95,10 @@ object AdyenTerminalManager {
 
     private fun initLogger() {
         if (!loggerInitiated) {
-            Logger.addLogAdapter(object :
-                AndroidLogAdapter(
-                    PrettyFormatStrategy.newBuilder()
-                        .tag(LOG_TAG)
-                        .showThreadInfo(false)
-                        .methodCount(3)
-                        .build()
-                ) {
+            Logger.addLogAdapter(object : AndroidLogAdapter(
+                PrettyFormatStrategy.newBuilder().tag(LOG_TAG).showThreadInfo(false).methodCount(3)
+                    .build()
+            ) {
                 override fun isLoggable(priority: Int, tag: String?): Boolean {
                     return terminalConfig.showLogs
                 }
@@ -167,13 +162,11 @@ object AdyenTerminalManager {
             Logger.e(e.message ?: "Unknown Error")
             when (e) {
                 is ConnectTimeoutException -> paymentFailureHandler.onFailure(
-                    ErrorCode.CONNECTION_TIMEOUT,
-                    e.message ?: "Connection timeout"
+                    ErrorCode.CONNECTION_TIMEOUT, e.message ?: "Connection timeout"
                 )
 
                 is SocketTimeoutException -> paymentFailureHandler.onFailure(
-                    ErrorCode.TRANSACTION_TIMEOUT,
-                    e.message ?: "Transaction timed out"
+                    ErrorCode.TRANSACTION_TIMEOUT, e.message ?: "Transaction timed out"
                 )
 
                 is HttpHostConnectException -> paymentFailureHandler.onFailure(
@@ -182,8 +175,7 @@ object AdyenTerminalManager {
                 )
 
                 else -> paymentFailureHandler.onFailure(
-                    ErrorCode.TRANSACTION_FAILURE_OTHERS,
-                    e.message!!
+                    ErrorCode.TRANSACTION_FAILURE_OTHERS, e.message!!
                 )
             }
         }
@@ -196,6 +188,7 @@ object AdyenTerminalManager {
                 val terminalLocalAPI = getTerminalLocalAPI()
                 terminalLocalAPI.request(terminalApiRequest)
             }
+
             CommunicationMode.CLOUD -> {
                 val terminalCloudAPI = getTerminalCloudAPI()
                 terminalCloudAPI.sync(terminalApiRequest)
@@ -290,27 +283,23 @@ object AdyenTerminalManager {
                 failureHandler.onFailure(ErrorCode.FAILED_TO_TOKENIZE, null)
             }
         } catch (e: Exception) {
-            if (BuildConfig.DEBUG) {
-                Logger.e("ADYEN TERMINAL TRANSACTION RESPONSE")
-                Logger.e(e.message ?: "Unknown Error")
-                when (e) {
-                    is ConnectTimeoutException -> failureHandler.onFailure(
-                        ErrorCode.CONNECTION_TIMEOUT,
-                        e.message ?: "Connection timeout"
-                    )
+            Logger.e("ADYEN TERMINAL TRANSACTION RESPONSE")
+            Logger.e(e.message ?: "Unknown Error")
+            when (e) {
+                is ConnectTimeoutException -> failureHandler.onFailure(
+                    ErrorCode.CONNECTION_TIMEOUT, e.message ?: "Connection timeout"
+                )
 
-                    is SocketTimeoutException -> failureHandler.onFailure(
-                        ErrorCode.TRANSACTION_TIMEOUT,
-                        e.message ?: "Transaction timed out"
-                    )
+                is SocketTimeoutException -> failureHandler.onFailure(
+                    ErrorCode.TRANSACTION_TIMEOUT, e.message ?: "Transaction timed out"
+                )
 
-                    is HttpHostConnectException -> failureHandler.onFailure(
-                        ErrorCode.DEVICE_UNREACHABLE,
-                        e.message ?: "Device Unreachable. Please check your internet connection"
-                    )
+                is HttpHostConnectException -> failureHandler.onFailure(
+                    ErrorCode.DEVICE_UNREACHABLE,
+                    e.message ?: "Device Unreachable. Please check your internet connection"
+                )
 
-                    else -> failureHandler.onFailure(ErrorCode.FAILED_TO_TOKENIZE, e.message!!)
-                }
+                else -> failureHandler.onFailure(ErrorCode.FAILED_TO_TOKENIZE, e.message!!)
             }
         }
     }
@@ -462,8 +451,7 @@ object AdyenTerminalManager {
         } catch (e: Exception) {
             if (e.message != null) {
                 failureHandler.onFailure(
-                    ErrorCode.FAILURE_GENERIC,
-                    "Printing Failed ${e.message!!}"
+                    ErrorCode.FAILURE_GENERIC, "Printing Failed ${e.message!!}"
                 )
             } else {
                 failureHandler.onFailure(ErrorCode.FAILURE_GENERIC, "Printing Failed")
@@ -527,8 +515,7 @@ object AdyenTerminalManager {
         } catch (e: Exception) {
             Log.d("terminalMgmtAPIResponse", " : Error occurred retrieving terminal info.")
             failureHandler.onFailure(
-                ErrorCode.FAILURE_GENERIC,
-                e.message ?: "Error occurred retrieving terminal info."
+                ErrorCode.FAILURE_GENERIC, e.message ?: "Error occurred retrieving terminal info."
             )
         }
 
@@ -629,7 +616,7 @@ object AdyenTerminalManager {
 
     }
 
-    private fun buildInputRequest(): InputRequest? {
+    private fun buildInputRequest(): InputRequest {
         return InputRequest().apply {
             displayOutput = DisplayOutput().apply {
                 device = DeviceType.CUSTOMER_DISPLAY
@@ -682,9 +669,7 @@ object AdyenTerminalManager {
     }
 
     private fun buildPaymentTransaction(
-        currency: String,
-        requestAmount: BigDecimal,
-        forcedEntryModes: List<String> = emptyList()
+        currency: String, requestAmount: BigDecimal, forcedEntryModes: List<String> = emptyList()
     ): PaymentTransaction {
 
         val forcedEntryModesEnumList = forcedEntryModes.map {
@@ -704,14 +689,11 @@ object AdyenTerminalManager {
     }
 
     private fun buildSaleData(
-        transactionId: String,
-        captureType: String,
-        additionalMetaData: HashMap<String, Any>?
+        transactionId: String, captureType: String, additionalMetaData: HashMap<String, Any>?
     ): SaleData {
 
         val authType = if ("immediate".equals(
-                captureType,
-                ignoreCase = true
+                captureType, ignoreCase = true
             )
         ) mapOf("authorisationType" to "FinalAuth") else mapOf("authorisationType" to "PreAuth")
 
@@ -734,10 +716,7 @@ object AdyenTerminalManager {
     }
 
     private fun buildMessageHeader(
-        saleID: String,
-        serviceID: String,
-        messageCategory: MessageCategoryType,
-        poiid: String
+        saleID: String, serviceID: String, messageCategory: MessageCategoryType, poiid: String
     ): MessageHeader {
         return MessageHeader().apply {
             this.messageClass = MessageClassType.SERVICE
@@ -782,9 +761,10 @@ object AdyenTerminalManager {
             setCertificateEntry("adyenRootCertificate", loadCertificate(certPath))
         }
 
-        val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm()).apply {
-            init(keyStore)
-        }
+        val trustManagerFactory =
+            TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm()).apply {
+                init(keyStore)
+            }
 
         return SSLContext.getInstance("SSL").apply {
             init(null, trustManagerFactory.trustManagers, SecureRandom())
@@ -814,8 +794,7 @@ object AdyenTerminalManager {
     ): Config {
         val config = Config()
         config.environment = if ("test".equals(
-                terminalConfig.environment,
-                ignoreCase = true
+                terminalConfig.environment, ignoreCase = true
             )
         ) Environment.TEST else Environment.LIVE
 //        config. = terminalConfig.merchantName
