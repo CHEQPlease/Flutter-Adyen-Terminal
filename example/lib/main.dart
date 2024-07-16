@@ -89,7 +89,7 @@ class _MyAppState extends State<MyApp> {
                         onPressed: () async {
                           AdyenTerminalConfig terminalConfig =
                               AdyenTerminalConfig(
-                            endpoint: "https://192.168.68.104",
+                            endpoint: "https://192.168.1.118",
                             terminalModelNo: "e285p",
                             terminalSerialNo: "805336184",
                             terminalId: "bugsoyieugrys",
@@ -101,7 +101,9 @@ class _MyAppState extends State<MyApp> {
                             certPath: "assets/cert/adyen-terminalfleet-test.cer",
                             merchantId: '',
                             showLogs: true,
-                            communicationMode: CommunicationMode.cloud,
+                            readTimeoutMillis: 120000,
+                            connectionTimeoutMillis: 120000,
+                            communicationMode: CommunicationMode.local,
                             backendApiKey: "AQEshmfxLIvMaBdHw0m/n3Q5qf3VZY5fDoZYUURG1qV/UKZUoDNbJ11sNSfmQuMQwV1bDb7kfNy1WIxIIkxgBw==-N4UNCKOXcPSSSpcXvH6lP3txJiPdlSPLISEaCw7aoF8=-=+,[d^2R][G,)cmN",
                           );
                           //
@@ -239,13 +241,21 @@ class _MyAppState extends State<MyApp> {
                           // });
 
 
-                          try {
-                            AdyenTerminalResponse response = await FlutterAdyen.authorizeTransaction(transactionId: _get10DigitNumber(), currency: "USD", amount: 10.0, forcedEntryModes: [ForceEntryModeType.keyed]);
-                            print(response);
-                          } catch (e) {
+                          // try {
+                          //   AdyenTerminalResponse response = await FlutterAdyen.authorizeTransaction(transactionId: _get10DigitNumber(),currency: "USD",amount: 10.0, forcedEntryModes: [ForceEntryModeType.keyed],);
+                          //   print(response);
+                          // } catch (e) {
+                          //   print(e);
+                          // }
+
+                          try{
+                            var response = await FlutterAdyen.getTerminalInfo("192.168.1.118", _get10DigitNumber(), onSuccess: (val){
+                              var x = val;
+                              var f = "a";
+                            });
+                          }catch(e){
                             print(e);
                           }
-
 
                           // _showMaterialDialog(txnId, terminalConfig);
                         }),
