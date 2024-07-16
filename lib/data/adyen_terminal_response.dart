@@ -193,12 +193,14 @@ class PaymentResult {
   bool? onlineFlag;
   PaymentAcquirerData? paymentAcquirerData;
   PaymentInstrumentData? paymentInstrumentData;
+  CapturedSignature? capturedSignature;
 
   PaymentResult({
     this.amountsResp,
     this.onlineFlag,
     this.paymentAcquirerData,
     this.paymentInstrumentData,
+    this.capturedSignature,
   });
 
   PaymentResult copyWith({
@@ -206,6 +208,8 @@ class PaymentResult {
     bool? onlineFlag,
     PaymentAcquirerData? paymentAcquirerData,
     PaymentInstrumentData? paymentInstrumentData,
+    CapturedSignature? capturedSignature,
+
   }) =>
       PaymentResult(
         amountsResp: amountsResp ?? this.amountsResp,
@@ -213,6 +217,7 @@ class PaymentResult {
         paymentAcquirerData: paymentAcquirerData ?? this.paymentAcquirerData,
         paymentInstrumentData:
             paymentInstrumentData ?? this.paymentInstrumentData,
+        capturedSignature: capturedSignature ?? this.capturedSignature,
       );
 
   factory PaymentResult.fromRawJson(String str) =>
@@ -231,6 +236,9 @@ class PaymentResult {
         paymentInstrumentData: json["paymentInstrumentData"] == null
             ? null
             : PaymentInstrumentData.fromJson(json["paymentInstrumentData"]),
+        capturedSignature: json["capturedSignature"] == null
+            ? null
+            : CapturedSignature.fromJson(json["capturedSignature"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -238,8 +246,76 @@ class PaymentResult {
         "onlineFlag": onlineFlag,
         "paymentAcquirerData": paymentAcquirerData?.toJson(),
         "paymentInstrumentData": paymentInstrumentData?.toJson(),
+        "capturedSignature": capturedSignature?.toJson(),
       };
 }
+
+class CapturedSignature {
+  final SignaturePoint areaSize;
+  final List<SignaturePoint> signaturePoint;
+
+  CapturedSignature({
+    required this.areaSize,
+    required this.signaturePoint,
+  });
+
+  CapturedSignature copyWith({
+    SignaturePoint? areaSize,
+    List<SignaturePoint>? signaturePoint,
+  }) =>
+      CapturedSignature(
+        areaSize: areaSize ?? this.areaSize,
+        signaturePoint: signaturePoint ?? this.signaturePoint,
+      );
+
+  factory CapturedSignature.fromRawJson(String str) => CapturedSignature.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory CapturedSignature.fromJson(Map<String, dynamic> json) => CapturedSignature(
+    areaSize: SignaturePoint.fromJson(json["areaSize"]),
+    signaturePoint: List<SignaturePoint>.from(json["signaturePoint"].map((x) => SignaturePoint.fromJson(x))),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "areaSize": areaSize.toJson(),
+    "signaturePoint": List<dynamic>.from(signaturePoint.map((x) => x.toJson())),
+  };
+}
+
+class SignaturePoint {
+  final String x;
+  final String y;
+
+  SignaturePoint({
+    required this.x,
+    required this.y,
+  });
+
+  SignaturePoint copyWith({
+    String? x,
+    String? y,
+  }) =>
+      SignaturePoint(
+        x: x ?? this.x,
+        y: y ?? this.y,
+      );
+
+  factory SignaturePoint.fromRawJson(String str) => SignaturePoint.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory SignaturePoint.fromJson(Map<String, dynamic> json) => SignaturePoint(
+    x: json["x"],
+    y: json["y"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "x": x,
+    "y": y,
+  };
+}
+
 
 class AmountsResp {
   double? authorizedAmount;
@@ -324,6 +400,8 @@ class PaymentAcquirerData {
         "merchantID": merchantId,
       };
 }
+
+
 
 class TransactionId {
   Map<String, double>? timeStamp;
