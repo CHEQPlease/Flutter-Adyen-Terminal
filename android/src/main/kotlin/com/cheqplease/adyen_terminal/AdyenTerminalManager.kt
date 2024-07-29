@@ -181,16 +181,17 @@ object AdyenTerminalManager {
         }
     }
 
-    private fun sendTerminalRequest(terminalApiRequest: TerminalAPIRequest): TerminalAPIResponse? {
+    private fun sendTerminalRequest(terminalApiRequest: TerminalAPIRequest, config: Config = getConfigurationData(
+        terminalConfig)): TerminalAPIResponse? {
         val communicationMode = terminalConfig.communicationMode
         return when (communicationMode) {
             CommunicationMode.LOCAL -> {
-                val terminalLocalAPI = getTerminalLocalAPI()
+                val terminalLocalAPI = getTerminalLocalAPI(config)
                 terminalLocalAPI.request(terminalApiRequest)
             }
 
             CommunicationMode.CLOUD -> {
-                val terminalCloudAPI = getTerminalCloudAPI()
+                val terminalCloudAPI = getTerminalCloudAPI(config)
                 terminalCloudAPI.sync(terminalApiRequest)
             }
         }
@@ -344,14 +345,12 @@ object AdyenTerminalManager {
         }
     }
 
-    private fun getTerminalCloudAPI(): TerminalCloudAPI {
-        val config: Config = getConfigurationData(terminalConfig)
+    private fun getTerminalCloudAPI(config: Config): TerminalCloudAPI {
         val terminalLocalAPIClient = Client(config)
         return TerminalCloudAPI(terminalLocalAPIClient)
     }
 
-    private fun getTerminalLocalAPI(): TerminalLocalAPI {
-        val config: Config = getConfigurationData(terminalConfig)
+    private fun getTerminalLocalAPI(config: Config): TerminalLocalAPI {
         val terminalLocalAPIClient = Client(config)
         return TerminalLocalAPI(terminalLocalAPIClient, getSecurityKey())
     }
@@ -493,7 +492,7 @@ object AdyenTerminalManager {
         try {
             Log.d("terminalApiRequest>>", "" + Gson().toJson(terminalApiRequest))
             // Terminal poiid retrieval successful
-            val response = sendTerminalRequest(terminalApiRequest)
+            val response = sendTerminalRequest(terminalApiRequest, config)
             val resultJSONString = Gson().toJson(response?.saleToPOIResponse)
             val terminalDetailsJSON = JSONObject()
             val saleToPoiJsonObject = JSONObject(resultJSONString)
