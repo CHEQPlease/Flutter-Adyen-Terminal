@@ -3,7 +3,7 @@
     package="com.cheqplease.adyen_terminal_example">
     <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="adyen_terminal_payment_example"
+        android:label="Adyen Terminal Demo"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         tools:replace="android:label"

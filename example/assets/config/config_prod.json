@@ -1,0 +1,19 @@
+{
+  "endpoint": "https://your-prod-terminal-endpoint",
+  "backendApiKey": "",
+  "terminalModelNo": "e285p",
+  "terminalSerialNo": "",
+  "terminalId": "",
+  "environment": "live",
+  "keyId": "",
+  "keyPassphrase": "",
+  "keyVersion": "1.0",
+  "merchantId": "",
+  "merchantName": "YourMerchant",
+  "certPath": "assets/cert/adyen-terminalfleet-test.cer",
+  "connectionTimeoutMillis": 30000,
+  "readTimeoutMillis": 30000,
+  "showLogs": false,
+  "communicationMode": "cloud"
+}
+

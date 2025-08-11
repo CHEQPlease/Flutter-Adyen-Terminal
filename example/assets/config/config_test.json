@@ -1,0 +1,19 @@
+{
+  "endpoint": "https://192.168.1.118",
+  "backendApiKey": "",
+  "terminalModelNo": "e285p",
+  "terminalSerialNo": "",
+  "terminalId": "",
+  "environment": "test",
+  "keyId": "",
+  "keyPassphrase": "",
+  "keyVersion": "1.0",
+  "merchantId": "",
+  "merchantName": "CHEQPOS",
+  "certPath": "assets/cert/adyen-terminalfleet-test.cer",
+  "connectionTimeoutMillis": 120000,
+  "readTimeoutMillis": 120000,
+  "showLogs": true,
+  "communicationMode": "local"
+}
+
