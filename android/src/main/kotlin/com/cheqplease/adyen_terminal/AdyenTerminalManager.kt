@@ -491,26 +491,13 @@ object AdyenTerminalManager {
 
         try {
             Log.d("terminalApiRequest>>", "" + Gson().toJson(terminalApiRequest))
-            // Terminal poiid retrieval successful
             val response = sendTerminalRequest(terminalApiRequest, config)
             val resultJSONString = Gson().toJson(response?.saleToPOIResponse)
             val terminalDetailsJSON = JSONObject()
             val saleToPoiJsonObject = JSONObject(resultJSONString)
             terminalDetailsJSON.put("SaleToPOIResponse", saleToPoiJsonObject)
 
-            //Get Verbose TerminalInfo from Web Mgmt API
-            try {
-                val terminalDetails =
-                    response?.saleToPOIResponse?.messageHeader?.poiid?.let { getTerminalDetails(it) }
-                val webApiResponseJSON = Gson().toJson(terminalDetails)
-                val webApiResponseJSONObject = JSONObject(webApiResponseJSON)
-                terminalDetailsJSON.put("WebAPIResponse", webApiResponseJSONObject)
-                Log.d("terminalMgmtAPIResponse", " : $terminalDetails")
-                successHandler.onSuccess(terminalDetailsJSON.toString())
-            } catch (e: Exception) {
-                Log.d("terminalMgmtAPIResponse", " : Failed to get WebApiResponse")
-                successHandler.onSuccess(terminalDetailsJSON.toString())
-            }
+            successHandler.onSuccess(terminalDetailsJSON.toString())
         } catch (e: Exception) {
             Log.d("terminalMgmtAPIResponse", " : Error occurred retrieving terminal info.")
             failureHandler.onFailure(

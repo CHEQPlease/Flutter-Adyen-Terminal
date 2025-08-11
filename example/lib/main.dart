@@ -89,13 +89,13 @@ class _MyAppState extends State<MyApp> {
                         onPressed: () async {
                           AdyenTerminalConfig terminalConfig =
                               AdyenTerminalConfig(
-                            endpoint: "https://192.168.1.118",
-                            terminalModelNo: "e285p",
-                            terminalSerialNo: "805336184",
+                            endpoint: "https://192.168.1.214",
+                            terminalModelNo: "S1F2",
+                            terminalSerialNo: "000158224302017",
                             terminalId: "bugsoyieugrys",
                             environment: "test",
                             keyId: "dhaka-pos-cc-test-id",
-                            keyPassphrase: "Dh@kaCheq1!",
+                            keyPassphrase: "DhakaCheq12@",
                             merchantName: "CHEQPOS",
                             keyVersion: "1.0",
                             certPath: "assets/cert/adyen-terminalfleet-test.cer",
@@ -249,10 +249,12 @@ class _MyAppState extends State<MyApp> {
                           // }
 
                           try{
-                            var response = await FlutterAdyen.getTerminalInfo("192.168.1.118", _get10DigitNumber(), onSuccess: (val){
+                            var response = await FlutterAdyen.getTerminalInfo("https://192.168.1.214", _get10DigitNumber(), onSuccess: (val){
                               var x = val;
                               var f = "a";
                             });
+
+                            print("hello");
                           }catch(e){
                             print(e);
                           }
