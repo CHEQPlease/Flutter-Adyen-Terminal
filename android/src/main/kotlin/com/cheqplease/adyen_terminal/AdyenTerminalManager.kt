@@ -47,7 +47,6 @@ import com.adyen.model.terminal.SaleToAcquirerData
 import com.adyen.model.terminal.TerminalAPIRequest
 import com.adyen.model.terminal.TerminalAPIResponse
 import com.adyen.model.terminal.security.SecurityKey
-import com.adyen.service.PosTerminalManagementApi
 import com.adyen.service.TerminalCloudAPI
 import com.adyen.service.TerminalLocalAPI
 import com.cheq.receiptify.Receiptify
@@ -505,20 +504,6 @@ object AdyenTerminalManager {
             )
         }
 
-    }
-
-
-    private fun getTerminalDetails(poiid: String): GetTerminalDetailsResponse {
-        val config: Config = getConfigurationDataForMgmtAPI(terminalConfig)
-        val terminalMgmtClient = Client(config)
-        val terminalMgmtAPI = PosTerminalManagementApi(terminalMgmtClient)
-
-        val getTerminalDetailsRequest: GetTerminalDetailsRequest =
-            GetTerminalDetailsRequest().apply {
-                terminal = poiid
-            }
-
-        return terminalMgmtAPI.getTerminalDetails(getTerminalDetailsRequest)
     }
 
 
