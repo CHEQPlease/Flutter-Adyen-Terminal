@@ -41,8 +41,6 @@ import com.adyen.model.nexo.SaleToPOIRequest
 import com.adyen.model.nexo.TokenRequestedType
 import com.adyen.model.nexo.TransactionConditions
 import com.adyen.model.nexo.TransactionIdentification
-import com.adyen.model.posterminalmanagement.GetTerminalDetailsRequest
-import com.adyen.model.posterminalmanagement.GetTerminalDetailsResponse
 import com.adyen.model.terminal.SaleToAcquirerData
 import com.adyen.model.terminal.TerminalAPIRequest
 import com.adyen.model.terminal.TerminalAPIResponse
