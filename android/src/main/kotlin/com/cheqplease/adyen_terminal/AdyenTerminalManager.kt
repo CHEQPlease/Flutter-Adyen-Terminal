@@ -178,10 +178,12 @@ object AdyenTerminalManager {
         }
     }
 
-    private fun sendTerminalRequest(terminalApiRequest: TerminalAPIRequest, config: Config = getConfigurationData(
-        terminalConfig)): TerminalAPIResponse? {
-        val communicationMode = terminalConfig.communicationMode
-        return when (communicationMode) {
+c    private fun sendTerminalRequest(
+        terminalApiRequest: TerminalAPIRequest, config: Config = getConfigurationData(
+            terminalConfig
+        )
+    ): TerminalAPIResponse? {
+        return when (terminalConfig.communicationMode) {
             CommunicationMode.LOCAL -> {
                 val terminalLocalAPI = getTerminalLocalAPI(config)
                 terminalLocalAPI.request(terminalApiRequest)
@@ -462,46 +464,97 @@ object AdyenTerminalManager {
         successHandler: TransactionSuccessHandler<String>,
         failureHandler: TransactionFailureHandler<Int, String>
     ) {
+        try {
+            val config = createTerminalConfig(terminalIP)
+            val terminalApiRequest = createDiagnosisRequest(txnId)
+            
+            Log.d("terminalApiRequest>>", Gson().toJson(terminalApiRequest))
+            
+            executeTwoStepTerminalRequest(
+                terminalApiRequest = terminalApiRequest,
+                config = config,
+                successHandler = successHandler,
+                failureHandler = failureHandler
+            )
+        } catch (e: Exception) {
+            Log.d("terminalMgmtAPIResponse", "Error occurred retrieving terminal info: ${e.message}")
+            failureHandler.onFailure(
+                ErrorCode.FAILURE_GENERIC, 
+                e.message ?: "Error occurred retrieving terminal info."
+            )
+        }
+    }
 
-        val config: Config = getConfigurationData(terminalConfig)
-        config.apply {
+    private fun createTerminalConfig(terminalIP: String): Config {
+        return getConfigurationData(terminalConfig).apply {
             terminalApiLocalEndpoint = terminalIP
         }
+    }
 
-        val terminalApiRequest = TerminalAPIRequest()
-        terminalApiRequest.apply {
+    private fun createDiagnosisRequest(txnId: String): TerminalAPIRequest {
+        return TerminalAPIRequest().apply {
             saleToPOIRequest = SaleToPOIRequest().apply {
-                messageHeader = MessageHeader().apply {
-                    protocolVersion = "3.0"
-                    messageClass = MessageClassType.SERVICE
-                    messageCategory = MessageCategoryType.DIAGNOSIS
-                    messageType = MessageType.REQUEST
-                    saleID = terminalConfig.terminalId
-                    serviceID = txnId
-                    poiid = "${terminalConfig.terminalModelNo}-${terminalConfig.terminalSerialNo}"
-                }
+                messageHeader = createDiagnosisMessageHeader(txnId)
                 diagnosisRequest = DiagnosisRequest().apply {
                     isHostDiagnosisFlag = true
                 }
             }
         }
+    }
 
-        try {
-            Log.d("terminalApiRequest>>", "" + Gson().toJson(terminalApiRequest))
-            val response = sendTerminalRequest(terminalApiRequest, config)
-            val resultJSONString = Gson().toJson(response?.saleToPOIResponse)
-            val terminalDetailsJSON = JSONObject()
-            val saleToPoiJsonObject = JSONObject(resultJSONString)
-            terminalDetailsJSON.put("SaleToPOIResponse", saleToPoiJsonObject)
+    private fun createDiagnosisMessageHeader(txnId: String): MessageHeader {
+        return MessageHeader().apply {
+            protocolVersion = "3.0"
+            messageClass = MessageClassType.SERVICE
+            messageCategory = MessageCategoryType.DIAGNOSIS
+            messageType = MessageType.REQUEST
+            saleID = terminalConfig.terminalId
+            serviceID = txnId
+            poiid = "AN_INVALID_POIID"
+        }
+    }
 
-            successHandler.onSuccess(terminalDetailsJSON.toString())
-        } catch (e: Exception) {
-            Log.d("terminalMgmtAPIResponse", " : Error occurred retrieving terminal info.")
+    private fun executeTwoStepTerminalRequest(
+        terminalApiRequest: TerminalAPIRequest,
+        config: Config,
+        successHandler: TransactionSuccessHandler<String>,
+        failureHandler: TransactionFailureHandler<Int, String>
+    ) {
+        // Step 1: First request to get poiid
+        val firstResponse = sendTerminalRequest(terminalApiRequest, config)
+        val poiid = firstResponse?.saleToPOIResponse?.messageHeader?.poiid
+        
+        if (poiid == null) {
             failureHandler.onFailure(
-                ErrorCode.FAILURE_GENERIC, e.message ?: "Error occurred retrieving terminal info."
+                ErrorCode.FAILURE_GENERIC, 
+                "No poiid received"
             )
+            return
         }
 
+        // Step 2: Update poiid and send second request
+        terminalApiRequest.saleToPOIRequest.messageHeader.poiid = poiid
+        val secondResponse = sendTerminalRequest(terminalApiRequest, config)
+        
+        if (secondResponse == null) {
+            failureHandler.onFailure(
+                ErrorCode.FAILURE_GENERIC, 
+                "No storeid received"
+            )
+            return
+        }
+
+        // Step 3: Process successful response
+        val responseJson = createTerminalResponseJson(secondResponse)
+        successHandler.onSuccess(responseJson)
+    }
+
+    private fun createTerminalResponseJson(response: TerminalAPIResponse): String {
+        val resultJSONString = Gson().toJson(response.saleToPOIResponse)
+        val terminalDetailsJSON = JSONObject()
+        val saleToPoiJsonObject = JSONObject(resultJSONString)
+        terminalDetailsJSON.put("SaleToPOIResponse", saleToPoiJsonObject)
+        return terminalDetailsJSON.toString()
     }
 
 
