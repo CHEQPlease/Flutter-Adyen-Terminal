@@ -178,7 +178,7 @@ object AdyenTerminalManager {
         }
     }
 
-c    private fun sendTerminalRequest(
+    private fun sendTerminalRequest(
         terminalApiRequest: TerminalAPIRequest, config: Config = getConfigurationData(
             terminalConfig
         )
